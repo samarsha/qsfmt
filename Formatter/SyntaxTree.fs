@@ -4,25 +4,38 @@ type 'a Node =
     { Node : 'a
       TrailingTrivia : string }
 
+type 'a Token =
+    | Missing
+    | Node of 'a Node
+
+type Terminal = Terminal of string
+
 type Expression =
     | InvalidExpression
 
 type SymbolTuple =
     | Symbol of string
-    | Symbols of SymbolTuple Node list
-    | InvalidSymbolTuple
+    | Symbols of SymbolTuple Token list
+
+type Return =
+    { Expression : Expression Token
+      Semicolon : Terminal Token }
+
+type Let =
+    { SymbolTuple : SymbolTuple Token
+      Equals : Terminal Token
+      Expression : Expression Token
+      Semicolon : Terminal Token }
 
 type Statement =
-    | Return of Expression Node
-    | Let of SymbolTuple Node * Expression Node
-    | InvalidStatement
+    | Return of Return
+    | Let of Let
 
 type NamespaceElement =
     | OpenDirective
     | TypeDeclaration
-    | CallableDeclaration of Statement Node list
-    | InvalidNamespaceElement
+    | CallableDeclaration of Statement Token list
 
-type Namespace = Namespace of NamespaceElement Node list
+type Namespace = Namespace of NamespaceElement Token list
 
-type Program = Program of Namespace Node list
+type Program = Program of Namespace Token list
