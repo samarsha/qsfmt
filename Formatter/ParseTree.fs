@@ -12,6 +12,10 @@ let private trailingTrivia (tokens : BufferedTokenStream) index =
     |> Seq.map (fun token -> token.Text)
     |> String.concat ""
 
+let private withoutTrailingTrivia = function
+    | Node node -> Node { node with TrailingTrivia = "" }
+    | Missing -> Missing
+
 let private toNodeToken tokens (context : ParserRuleContext) node =
     { Node = node
       TrailingTrivia = trailingTrivia tokens context.Stop.TokenIndex }
@@ -65,6 +69,7 @@ type private StatementVisitor (tokens) =
           Semicolon = findTerminal tokens context ";" }
         |> Return
         |> toNodeToken tokens context
+        |> withoutTrailingTrivia
 
     override _.VisitLet context =
         { SymbolTuple = context.symbolTuple () |> symbolTupleVisitor.Visit
@@ -73,6 +78,7 @@ type private StatementVisitor (tokens) =
           Semicolon = findTerminal tokens context ";" }
         |> Let
         |> toNodeToken tokens context
+        |> withoutTrailingTrivia
 
 type private NamespaceElementVisitor (tokens) =
     inherit QSharpBaseVisitor<NamespaceElement Token> ()
@@ -88,6 +94,7 @@ type private NamespaceElementVisitor (tokens) =
           CloseBrace = findTerminal tokens scope "}" }
         |> CallableDeclaration
         |> toNodeToken tokens context
+        |> withoutTrailingTrivia
 
 let private toNamespaceNode tokens (context : QSharpParser.NamespaceContext) =
     let visitor = NamespaceElementVisitor tokens
@@ -95,6 +102,7 @@ let private toNamespaceNode tokens (context : QSharpParser.NamespaceContext) =
       Elements = context.namespaceElement () |> Array.toList |> List.map visitor.Visit
       CloseBrace = findTerminal tokens context "}" }
     |> toNodeToken tokens context
+    |> withoutTrailingTrivia
 
 let toProgramNode tokens (context : QSharpParser.ProgramContext) =
     context.``namespace`` ()
@@ -102,3 +110,4 @@ let toProgramNode tokens (context : QSharpParser.ProgramContext) =
     |> List.map (toNamespaceNode tokens)
     |> Program
     |> toNodeToken tokens context
+    |> withoutTrailingTrivia
