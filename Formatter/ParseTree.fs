@@ -35,12 +35,35 @@ let private findTerminal tokens (context : ParserRuleContext) text =
     |> Option.map (toTerminalToken tokens)
     |> Option.defaultValue Missing
 
-type private ExpressionVisitor () =
+type private ExpressionVisitor (tokens) =
     inherit QSharpBaseVisitor<Expression Token> ()
 
     override _.DefaultResult = Missing
 
-let private expressionVisitor = ExpressionVisitor ()
+    override _.VisitIdentifier context = context.GetText () |> Literal |> toNodeToken tokens context
+
+    override _.VisitInteger context = context.GetText () |> Literal |> toNodeToken tokens context
+
+    override this.VisitTuple context =
+        { OpenParen = findTerminal tokens context "("
+          Items = context.expression () |> Array.toList |> List.map this.Visit
+          CloseParen = findTerminal tokens context ")" }
+        |> Tuple
+        |> toNodeToken tokens context
+
+    override this.VisitAdd context =
+        { Left = context.expression 0 |> this.Visit
+          Operator = findTerminal tokens context "+"
+          Right = context.expression 1 |> this.Visit }
+        |> BinaryOperator
+        |> toNodeToken tokens context
+
+    override this.VisitSubtract context =
+        { Left = context.expression 0 |> this.Visit
+          Operator = findTerminal tokens context "-"
+          Right = context.expression 1 |> this.Visit }
+        |> BinaryOperator
+        |> toNodeToken tokens context
 
 type private SymbolTupleVisitor (tokens) =
     inherit QSharpBaseVisitor<SymbolTuple Token> ()
@@ -48,7 +71,7 @@ type private SymbolTupleVisitor (tokens) =
     override _.DefaultResult = Missing
 
     override _.VisitSymbol context =
-        context.Identifier().GetText() |> Symbol |> toNodeToken tokens context
+        context.Identifier () |> toTerminalToken tokens |> Symbol |> toNodeToken tokens context
 
     override this.VisitSymbols context =
         context.symbolTuple ()
@@ -59,6 +82,8 @@ type private SymbolTupleVisitor (tokens) =
 
 type private StatementVisitor (tokens) =
     inherit QSharpBaseVisitor<Statement Token> ()
+
+    let expressionVisitor = ExpressionVisitor tokens
 
     let symbolTupleVisitor = SymbolTupleVisitor tokens
 

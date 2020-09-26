@@ -10,11 +10,23 @@ type 'a Token =
 
 type Terminal = Terminal of string
 
-type Expression =
-    | InvalidExpression
+type Tuple =
+    { OpenParen : Terminal Token
+      Items : Expression Token list
+      CloseParen : Terminal Token }
+
+and BinaryOperator =
+    { Left : Expression Token
+      Operator : Terminal Token
+      Right : Expression Token }
+
+and Expression =
+    | Literal of string
+    | Tuple of Tuple
+    | BinaryOperator of BinaryOperator
 
 type SymbolTuple =
-    | Symbol of string
+    | Symbol of Terminal Token
     | Symbols of SymbolTuple Token list
 
 type Return =

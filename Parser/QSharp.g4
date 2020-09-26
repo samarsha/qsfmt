@@ -213,51 +213,51 @@ qubitInitializer
 
 // TODO: Operator precedence and associativity.
 expression
-    : '_'
-    | qualifiedName ('<' type (',' type)* '>')?
-    | Integer
-    | BigInteger
-    | Double
-    | String
-    | boolLiteral
-    | resultLiteral
-    | pauliLiteral
-    | '(' (expression (',' expression)*)? ')'
-    | '[' (expression (',' expression)*)? ']'
-    | 'new' type '[' expression ']'
-    | expression '::' Identifier
-    | expression '[' expression ']'
-    | expression '!'
-    | functor expression
-    | expression '(' (expression (',' expression)*)? ')'
-    | '-' expression
-    | 'not' expression
-    | '~~~' expression
-    | expression '^' expression
-    | expression '*' expression
-    | expression '/' expression
-    | expression '%' expression
-    | expression '+' expression
-    | expression '-' expression
-    | expression '>>>' expression
-    | expression '<<<' expression
-    | expression '>' expression
-    | expression '<' expression
-    | expression '>=' expression
-    | expression '<=' expression
-    | expression '!=' expression
-    | expression '==' expression
-    | expression '&&&' expression
-    | expression '^^^' expression
-    | expression '|||' expression
-    | expression 'and' expression
-    | expression 'or' expression
-    | expression '?' expression '|' expression
-    | expression '..' expression
-    | expression '...'
-    | '...' expression
-    | '...'
-    | expression 'w/' expression '<-' expression
+    : '_' # MissingExpression
+    | qualifiedName ('<' type (',' type)* '>')? # Identifier
+    | Integer # Integer
+    | BigInteger # BigInteger
+    | Double # Double
+    | String # String
+    | boolLiteral # Bool
+    | resultLiteral # Result
+    | pauliLiteral # Pauli
+    | '(' (expression (',' expression)*)? ')' # Tuple
+    | '[' (expression (',' expression)*)? ']' # Array
+    | 'new' type '[' expression ']' # NewArray
+    | expression '::' Identifier # AccessNamedItem
+    | expression '[' expression ']' # AccessIndex
+    | expression '!' # Unwrap
+    | functor expression # ApplyFunctor
+    | expression '(' (expression (',' expression)*)? ')' # Call
+    | '-' expression # Negate
+    | 'not' expression # Not
+    | '~~~' expression # BitwiseNot
+    | expression '^' expression # Power
+    | expression '*' expression # Multiply
+    | expression '/' expression # Divide
+    | expression '%' expression # Modulo
+    | expression '+' expression # Add
+    | expression '-' expression # Subtract
+    | expression '>>>' expression # ShiftRight
+    | expression '<<<' expression # ShiftLeft
+    | expression '>' expression # Greater
+    | expression '<' expression # Less
+    | expression '>=' expression # GreaterEqual
+    | expression '<=' expression # LessEqual
+    | expression '!=' expression # NotEqual
+    | expression '==' expression # Equal
+    | expression '&&&' expression # BitwiseAnd
+    | expression '^^^' expression # BitwiseXor
+    | expression '|||' expression # BitwiseOr
+    | expression 'and' expression # And
+    | expression 'or' expression # Or
+    | expression '?' expression '|' expression # Conditional
+    | expression '..' expression # Range
+    | expression '...' # RightOpenRange
+    | '...' expression # LeftOpenRange
+    | '...' # OpenRange
+    | expression 'w/' expression '<-' expression # With
     ;
 
 boolLiteral
