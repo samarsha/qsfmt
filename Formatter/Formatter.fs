@@ -7,4 +7,4 @@ open QsFmt.Parser
 let format (source : string) =
     let tokens = source |> AntlrInputStream |> QSharpLexer |> CommonTokenStream
     let parser = QSharpParser tokens
-    parser.program () |> toProgramNode tokens |> printfn "%A"
+    parser.program () |> toProgramToken tokens |> printfn "%A"

@@ -96,7 +96,7 @@ type private NamespaceElementVisitor (tokens) =
         |> toNodeToken tokens context
         |> withoutTrailingTrivia
 
-let private toNamespaceNode tokens (context : QSharpParser.NamespaceContext) =
+let private toNamespaceToken tokens (context : QSharpParser.NamespaceContext) =
     let visitor = NamespaceElementVisitor tokens
     { OpenBrace = findTerminal tokens context "{"
       Elements = context.namespaceElement () |> Array.toList |> List.map visitor.Visit
@@ -104,10 +104,10 @@ let private toNamespaceNode tokens (context : QSharpParser.NamespaceContext) =
     |> toNodeToken tokens context
     |> withoutTrailingTrivia
 
-let toProgramNode tokens (context : QSharpParser.ProgramContext) =
+let toProgramToken tokens (context : QSharpParser.ProgramContext) =
     context.``namespace`` ()
     |> Array.toList
-    |> List.map (toNamespaceNode tokens)
+    |> List.map (toNamespaceToken tokens)
     |> Program
     |> toNodeToken tokens context
     |> withoutTrailingTrivia
