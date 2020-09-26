@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.8.0" />
+  </ItemGroup>
+
+  <Target Name="ANTLR" BeforeTargets="BeforeBuild">
+    <DownloadFile DestinationFolder="$(ProjectDir)" SourceUrl="https://www.antlr.org/download/antlr-4.8-complete.jar" />
+    <Exec Command="java -jar &quot;$(ProjectDir)antlr-4.8-complete.jar&quot; -o &quot;$(ProjectDir)&quot; -Dlanguage=CSharp &quot;$(ProjectDir)QSharp.g4&quot;" />
+  </Target>
+</Project>
