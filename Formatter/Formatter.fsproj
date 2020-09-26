@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="SyntaxTree.fs" />
+    <Compile Include="ParseTree.fs" />
     <Compile Include="Formatter.fs" />
   </ItemGroup>
 

@@ -11,6 +11,6 @@
 
   <Target Name="ANTLR" BeforeTargets="BeforeBuild">
     <DownloadFile DestinationFolder="$(ProjectDir)" SourceUrl="https://www.antlr.org/download/antlr-4.8-complete.jar" />
-    <Exec Command="java -jar &quot;$(ProjectDir)antlr-4.8-complete.jar&quot; -o &quot;$(ProjectDir)&quot; -package &quot;$(RootNamespace)&quot; -Dlanguage=CSharp &quot;$(ProjectDir)QSharp.g4&quot;" />
+    <Exec Command="java -jar &quot;$(ProjectDir)antlr-4.8-complete.jar&quot; -o &quot;$(ProjectDir)&quot; -no-listener -visitor -package &quot;$(RootNamespace)&quot; -Dlanguage=CSharp &quot;$(ProjectDir)QSharp.g4&quot;" />
   </Target>
 </Project>

@@ -1,6 +1,7 @@
 ﻿module QsFmt.Formatter.Formatter
 
 open Antlr4.Runtime
+open QsFmt.Formatter.ParseTree
 open QsFmt.Parser
 
 let private example =
@@ -18,5 +19,4 @@ let format () =
         |> QSharpLexer
         |> CommonTokenStream
         |> QSharpParser
-    let program = parser.program ()
-    program.GetText () |> printfn "%s"
+    parser.program () |> toProgramNode |> printfn "%A"

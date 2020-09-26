@@ -158,27 +158,27 @@ type
 // Statement
 
 statement
-    : expression ';'
-    | 'return' expression ';'
-    | 'fail' expression ';'
-    | 'let' symbolTuple '=' expression ';'
-    | 'mutable' symbolTuple '=' expression ';'
-    | 'set' symbolTuple '=' expression ';'
-    | 'set' Identifier updateOperator expression ';'
-    | 'if' '(' expression ')' scope ('elif' '(' expression ')' scope)* ('else' scope)?
-    | 'for' '(' symbolTuple 'in' expression ')' scope ';'
-    | 'while' '(' expression ')' scope ';'
-    | 'repeat' scope 'until' '(' expression ')' 'fixup' scope
-    | 'within' scope 'apply' scope ';'
-    | 'using' '(' symbolTuple '=' qubitInitializer ')' scope
-    | 'borrowing' '(' symbolTuple '=' qubitInitializer ')' scope
+    : expression ';' # ExpressionStatement
+    | 'return' expression ';' # Return
+    | 'fail' expression ';' # Fail
+    | 'let' symbolTuple '=' expression ';' # Let
+    | 'mutable' symbolTuple '=' expression ';' # Mutable
+    | 'set' symbolTuple '=' expression ';' # Set
+    | 'set' Identifier updateOperator expression ';' # SetUpdate
+    | 'if' '(' expression ')' scope ('elif' '(' expression ')' scope)* ('else' scope)? # If
+    | 'for' '(' symbolTuple 'in' expression ')' scope ';' # For
+    | 'while' '(' expression ')' scope ';' # While
+    | 'repeat' scope 'until' '(' expression ')' 'fixup' scope # RepeatUntil
+    | 'within' scope 'apply' scope ';' # Conjugation
+    | 'using' '(' symbolTuple '=' qubitInitializer ')' scope # Using
+    | 'borrowing' '(' symbolTuple '=' qubitInitializer ')' scope # Borrowing
     ;
 
 scope : '{' statement* '}';
 
 symbolTuple
-    : Identifier
-    | '(' (symbolTuple (',' symbolTuple)*)? ')'
+    : Identifier # Symbol
+    | '(' (symbolTuple (',' symbolTuple)*)? ')' # Symbols
     ;
 
 updateOperator
