@@ -5,8 +5,8 @@ type 'a Node =
       TrailingTrivia : string }
 
 type 'a Token =
-    | Missing
     | Node of 'a Node
+    | Missing
 
 type Terminal = Terminal of string
 
@@ -32,8 +32,6 @@ type Statement =
     | Let of Let
 
 type NamespaceElement =
-    | OpenDirective
-    | TypeDeclaration
     | CallableDeclaration of Statement Token list
 
 type Namespace = Namespace of NamespaceElement Token list
