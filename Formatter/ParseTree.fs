@@ -90,14 +90,16 @@ type private StatementVisitor (tokens) =
     override _.DefaultResult = Missing
 
     override _.VisitReturn context =
-        { Expression = context.expression () |> expressionVisitor.Visit
+        { ReturnKeyword = findTerminal tokens context "return"
+          Expression = context.expression () |> expressionVisitor.Visit
           Semicolon = findTerminal tokens context ";" }
         |> Return
         |> toNodeToken tokens context
         |> withoutTrailingTrivia
 
     override _.VisitLet context =
-        { SymbolTuple = context.symbolTuple () |> symbolTupleVisitor.Visit
+        { LetKeyword = findTerminal tokens context "let"
+          SymbolTuple = context.symbolTuple () |> symbolTupleVisitor.Visit
           Equals = findTerminal tokens context "="
           Expression = context.expression () |> expressionVisitor.Visit
           Semicolon = findTerminal tokens context ";" }
@@ -123,7 +125,10 @@ type private NamespaceElementVisitor (tokens) =
 
 let private toNamespaceToken tokens (context : QSharpParser.NamespaceContext) =
     let visitor = NamespaceElementVisitor tokens
-    { OpenBrace = findTerminal tokens context "{"
+    let name = context.qualifiedName ()
+    { NamespaceKeyword = findTerminal tokens context "namespace"
+      Name = name.GetText () |> Terminal |> toNodeToken tokens name
+      OpenBrace = findTerminal tokens context "{"
       Elements = context.namespaceElement () |> Array.toList |> List.map visitor.Visit
       CloseBrace = findTerminal tokens context "}" }
     |> toNodeToken tokens context

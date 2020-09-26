@@ -30,11 +30,13 @@ type SymbolTuple =
     | Symbols of SymbolTuple Token list
 
 type Return =
-    { Expression : Expression Token
+    { ReturnKeyword : Terminal Token
+      Expression : Expression Token
       Semicolon : Terminal Token }
 
 type Let =
-    { SymbolTuple : SymbolTuple Token
+    { LetKeyword : Terminal Token
+      SymbolTuple : SymbolTuple Token
       Equals : Terminal Token
       Expression : Expression Token
       Semicolon : Terminal Token }
@@ -52,7 +54,9 @@ type NamespaceElement =
     | CallableDeclaration of CallableDeclaration
 
 type Namespace =
-    { OpenBrace : Terminal Token
+    { NamespaceKeyword : Terminal Token
+      Name : Terminal Token
+      OpenBrace : Terminal Token
       Elements : NamespaceElement Token list
       CloseBrace : Terminal Token }
 
