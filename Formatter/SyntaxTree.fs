@@ -31,9 +31,17 @@ type Statement =
     | Return of Return
     | Let of Let
 
-type NamespaceElement =
-    | CallableDeclaration of Statement Token list
+type CallableDeclaration =
+    { OpenBrace : Terminal Token
+      Statements : Statement Token list
+      CloseBrace : Terminal Token }
 
-type Namespace = Namespace of NamespaceElement Token list
+type NamespaceElement =
+    | CallableDeclaration of CallableDeclaration
+
+type Namespace =
+    { OpenBrace : Terminal Token
+      Elements : NamespaceElement Token list
+      CloseBrace : Terminal Token }
 
 type Program = Program of Namespace Token list

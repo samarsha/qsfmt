@@ -82,18 +82,18 @@ type private NamespaceElementVisitor (tokens) =
     override _.DefaultResult = Missing
 
     override _.VisitCallableDeclaration context =
-        context.callableDeclarationSuffix().callableBody().scope().statement() // TODO
-        |> Array.toList
-        |> List.map statementVisitor.Visit
+        let scope = context.callableDeclarationSuffix().callableBody().scope() // TODO
+        { OpenBrace = findTerminal tokens scope "{"
+          Statements = scope.statement() |> Array.toList |> List.map statementVisitor.Visit
+          CloseBrace = findTerminal tokens scope "}" }
         |> CallableDeclaration
         |> toNodeToken tokens context
 
 let private toNamespaceNode tokens (context : QSharpParser.NamespaceContext) =
     let visitor = NamespaceElementVisitor tokens
-    context.namespaceElement ()
-    |> Array.toList
-    |> List.map visitor.Visit
-    |> Namespace
+    { OpenBrace = findTerminal tokens context "{"
+      Elements = context.namespaceElement () |> Array.toList |> List.map visitor.Visit
+      CloseBrace = findTerminal tokens context "}" }
     |> toNodeToken tokens context
 
 let toProgramNode tokens (context : QSharpParser.ProgramContext) =
