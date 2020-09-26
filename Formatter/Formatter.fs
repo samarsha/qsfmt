@@ -5,18 +5,18 @@ open QsFmt.Formatter.ParseTree
 open QsFmt.Parser
 
 let private example =
-    "namespace Foo {\
-         function Bar() : Int {\
-             let x = 7;\
-             return x;\
-         }\
+    "namespace Foo {
+         function Bar() : Int {
+             let x = 7;
+             return x;
+         }
      }"
 
 let format () =
-    let parser =
+    let tokens =
         example
         |> AntlrInputStream
         |> QSharpLexer
         |> CommonTokenStream
-        |> QSharpParser
-    parser.program () |> toProgramNode |> printfn "%A"
+    let parser = QSharpParser tokens
+    parser.program () |> toProgramNode tokens |> printfn "%A"

@@ -2,7 +2,7 @@
 
 type 'a Node =
     { Node : 'a
-      TrailingTrivia : string option }
+      TrailingTrivia : string }
 
 type Expression =
     | InvalidExpression
