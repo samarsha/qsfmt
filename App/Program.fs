@@ -3,7 +3,7 @@
 let private example = "\
 namespace  Foo { // namespace
     function Bar() : Int { // function
-        let x =
+        let x=
             (7 -   1)
             + 4; // end let
         return  x; // end return
