@@ -41,6 +41,8 @@ String : '"' (~'"' | '\\"')* '"';
 
 Whitespace : [ \n\r\t]+ -> channel(HIDDEN);
 
+Comment : '//' ~('\n' | '\r')* -> channel(HIDDEN);
+
 // Program
 
 program : namespace* EOF;
