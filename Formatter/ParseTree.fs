@@ -126,12 +126,11 @@ type private NamespaceElementVisitor (tokens) =
     override _.DefaultResult = Missing
 
     override _.VisitCallableDeclaration context =
-        let suffix = context.callableDeclarationSuffix ()
-        let scope = suffix.callableBody().scope() // TODO
+        let scope = context.callableBody().scope() // TODO
         { CallableKeyword = [ "function"; "operation" ] |> flip List.contains |> findTerminal tokens context
-          Name = suffix.Identifier () |> toTerminalToken tokens
-          Colon = (=) ":" |> findTerminal tokens suffix
-          ReturnType = suffix.``type`` () |> typeVisitor.Visit
+          Name = context.Identifier () |> toTerminalToken tokens
+          Colon = (=) ":" |> findTerminal tokens context
+          ReturnType = context.``type`` () |> typeVisitor.Visit
           OpenBrace = (=) "{" |> findTerminal tokens scope
           Statements = scope.statement() |> Array.toList |> List.map statementVisitor.Visit
           CloseBrace = (=) "}" |> findTerminal tokens scope }

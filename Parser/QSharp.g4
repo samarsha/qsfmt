@@ -91,9 +91,9 @@ namedItem : Identifier ':' type;
 
 // Callable Declaration
 
-callableDeclaration : declarationPrefix ('function' | 'operation') callableDeclarationSuffix;
-
-callableDeclarationSuffix : Identifier parameterTuple ':' type characteristics? callableBody;
+callableDeclaration
+    : declarationPrefix ('function' | 'operation') Identifier parameterTuple ':' type characteristics? callableBody
+    ;
 
 parameterTuple : '(' (parameter (',' parameter)*)? ')';
 
