@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>QsFmt.Parser</AssemblyName>
-    <RootNamespace>QsFmt.Parser</RootNamespace>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
