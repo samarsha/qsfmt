@@ -167,11 +167,15 @@ statement
     | 'mutable' symbolTuple '=' expression ';' # Mutable
     | 'set' symbolTuple '=' expression ';' # Set
     | 'set' Identifier updateOperator expression ';' # SetUpdate
-    | 'if' '(' expression ')' scope ('elif' '(' expression ')' scope)* ('else' scope)? # If
-    | 'for' '(' symbolTuple 'in' expression ')' scope ';' # For
-    | 'while' '(' expression ')' scope ';' # While
-    | 'repeat' scope 'until' '(' expression ')' 'fixup' scope # RepeatUntil
-    | 'within' scope 'apply' scope ';' # Conjugation
+    | 'if' '(' expression ')' scope # If
+    | 'elif' '(' expression ')' scope # Elif
+    | 'else' scope # Else
+    | 'for' '(' symbolTuple 'in' expression ')' scope # For
+    | 'while' '(' expression ')' scope # While
+    | 'repeat' scope # Repeat
+    | 'until' '(' expression ')' 'fixup' scope # UntilFixup
+    | 'within' scope # Within
+    | 'apply' scope # Apply
     | 'using' '(' symbolTuple '=' qubitInitializer ')' scope # Using
     | 'borrowing' '(' symbolTuple '=' qubitInitializer ')' scope # Borrowing
     ;
