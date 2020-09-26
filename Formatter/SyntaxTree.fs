@@ -10,6 +10,9 @@ type 'a Token =
 
 type Terminal = Terminal of string
 
+type Type =
+    | TypeName of string
+
 type Tuple =
     { OpenParen : Terminal Token
       Items : Expression Token list
@@ -46,7 +49,11 @@ type Statement =
     | Let of Let
 
 type CallableDeclaration =
-    { OpenBrace : Terminal Token
+    { CallableKeyword : Terminal Token
+      Name : Terminal Token
+      Colon : Terminal Token
+      ReturnType : Type Token
+      OpenBrace : Terminal Token
       Statements : Statement Token list
       CloseBrace : Terminal Token }
 

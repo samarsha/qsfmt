@@ -91,10 +91,7 @@ namedItem : Identifier ':' type;
 
 // Callable Declaration
 
-callableDeclaration
-    : declarationPrefix 'function' callableDeclarationSuffix
-    | declarationPrefix 'operation' callableDeclarationSuffix
-    ;
+callableDeclaration : declarationPrefix ('function' | 'operation') callableDeclarationSuffix;
 
 callableDeclarationSuffix : Identifier parameterTuple ':' type characteristics? callableBody;
 
@@ -150,11 +147,10 @@ specializationParameter
 // Type
 
 type
-    : Identifier
-    | '(' (type (',' type)*)? ')'
-    | '(' type '->' type ')'
-    | '(' type '=>' type characteristics? ')'
-    | type '[]'
+    : Identifier # TypeName
+    | '(' (type (',' type)*)? ')' # TupleType
+    | '(' type ('->' | '=>') type characteristics? ')' # CallableType
+    | type '[]' # ArrayType
     ;
 
 // Statement
