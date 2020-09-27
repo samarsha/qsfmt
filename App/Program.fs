@@ -12,5 +12,5 @@ namespace  Foo { // namespace
 
 [<EntryPoint>]
 let main _ =
-    Formatter.format example
+    Formatter.format example |> printfn "%s"
     0

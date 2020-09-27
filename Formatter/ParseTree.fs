@@ -59,6 +59,7 @@ type private ExpressionVisitor (tokens) =
           CloseParen = (=) ")" |> findTerminal tokens context }
         |> Tuple
         |> toNodeToken tokens context
+        |> withoutTrailingTrivia
 
     override this.VisitAdd context =
         { Left = context.expression 0 |> this.Visit
@@ -66,6 +67,7 @@ type private ExpressionVisitor (tokens) =
           Right = context.expression 1 |> this.Visit }
         |> BinaryOperator
         |> toNodeToken tokens context
+        |> withoutTrailingTrivia
 
     override this.VisitSubtract context =
         { Left = context.expression 0 |> this.Visit
@@ -73,6 +75,7 @@ type private ExpressionVisitor (tokens) =
           Right = context.expression 1 |> this.Visit }
         |> BinaryOperator
         |> toNodeToken tokens context
+        |> withoutTrailingTrivia
 
 type private SymbolTupleVisitor (tokens) =
     inherit QSharpBaseVisitor<SymbolTuple Token> ()

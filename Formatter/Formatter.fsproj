@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="SyntaxTree.fs" />
     <Compile Include="ParseTree.fs" />
+    <Compile Include="Printer.fs" />
     <Compile Include="Formatter.fs" />
   </ItemGroup>
 
