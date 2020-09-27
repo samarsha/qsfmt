@@ -3,12 +3,12 @@
 let private example = "\
 namespace     Foo {
     function Bar() : Int {
-        let x=
-            (7 -   1) // comment in expression
-            + 4; // end let
+        let x= // Newlines are preserved.
+            (7 -   1) // Comments too.
+            + 4;
         return  x;
-    } // end function
-} // end namespace"
+    }
+}"
 
 [<EntryPoint>]
 let main _ =
