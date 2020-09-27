@@ -74,3 +74,28 @@ let collapseSpaces = mapProgramTrivia <| fun trivia ->
             trivia.IndexOf '\n' |> trivia.Substring
         else trivia, ""
     Regex.Replace (sameLine, " +", " ") + nextLines
+
+let singleSpaceAfterLetBinding =
+    let mapToken f = function
+        | Node node -> Node { node with Node = f node.Node }
+        | Missing -> Missing
+
+    let mapStatement = mapToken <| function
+        | Let letStmt ->
+            let symbolTuple =
+                match letStmt.SymbolTuple with
+                | Node node -> Node { node with TrailingTrivia = " " }
+                | Missing -> Missing
+            Let { letStmt with SymbolTuple = symbolTuple }
+        | statement -> statement
+
+    let mapNamespaceElement = mapToken <| function
+        | CallableDeclaration callable ->
+            { callable with Statements = callable.Statements |> List.map mapStatement }
+            |> CallableDeclaration
+
+    let mapNamespace = mapToken <| fun ns ->
+        { ns with Elements = ns.Elements |> List.map mapNamespaceElement }
+
+    mapToken <| fun (Program namespaces) ->
+        namespaces |> List.map mapNamespace |> Program

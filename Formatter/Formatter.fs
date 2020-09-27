@@ -12,4 +12,5 @@ let format (source : string) =
     parser.program ()
     |> toProgramToken tokens
     |> collapseSpaces
+    |> singleSpaceAfterLetBinding
     |> printProgram
