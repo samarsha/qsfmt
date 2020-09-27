@@ -1,12 +1,12 @@
 ﻿open QsFmt.Formatter
 
 let private example = "\
-namespace  Foo { // namespace
-    function Bar() : Int { // function
+namespace     Foo {
+    function Bar() : Int {
         let x=
-            (7 -   1)
+            (7 -   1) // comment in expression
             + 4; // end let
-        return  x; // end return
+        return  x;
     } // end function
 } // end namespace"
 
