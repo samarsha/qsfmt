@@ -4,9 +4,9 @@
 
 open QsFmt.Formatter.SyntaxTree
 
-let private printToken printNode = function
-    | Node node -> printNode node.Node + node.TrailingTrivia
-    | Missing -> ""
+let private printToken printNode node =
+    (node.Kind |> Option.map printNode |> Option.defaultValue "")
+    + node.TrailingTrivia
 
 let private printTerminal = printToken <| fun (Terminal text) -> text
 

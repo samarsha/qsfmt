@@ -1,12 +1,8 @@
 ﻿module internal QsFmt.Formatter.SyntaxTree
 
 type 'a Node =
-    { Node : 'a
+    { Kind : 'a option
       TrailingTrivia : string }
-
-type 'a Token =
-    | Node of 'a Node
-    | Missing
 
 type Terminal = Terminal of string
 
@@ -14,14 +10,14 @@ type Type =
     | TypeName of string
 
 type Tuple =
-    { OpenParen : Terminal Token
-      Items : Expression Token list
-      CloseParen : Terminal Token }
+    { OpenParen : Terminal Node
+      Items : Expression Node list
+      CloseParen : Terminal Node }
 
 and BinaryOperator =
-    { Left : Expression Token
-      Operator : Terminal Token
-      Right : Expression Token }
+    { Left : Expression Node
+      Operator : Terminal Node
+      Right : Expression Node }
 
 and Expression =
     | Literal of string
@@ -29,42 +25,46 @@ and Expression =
     | BinaryOperator of BinaryOperator
 
 type SymbolTuple =
-    | Symbol of Terminal Token
-    | Symbols of SymbolTuple Token list
+    | Symbol of Terminal Node
+    | Symbols of SymbolTuple Node list
 
 type Return =
-    { ReturnKeyword : Terminal Token
-      Expression : Expression Token
-      Semicolon : Terminal Token }
+    { ReturnKeyword : Terminal Node
+      Expression : Expression Node
+      Semicolon : Terminal Node }
 
 type Let =
-    { LetKeyword : Terminal Token
-      SymbolTuple : SymbolTuple Token
-      Equals : Terminal Token
-      Expression : Expression Token
-      Semicolon : Terminal Token }
+    { LetKeyword : Terminal Node
+      SymbolTuple : SymbolTuple Node
+      Equals : Terminal Node
+      Expression : Expression Node
+      Semicolon : Terminal Node }
 
 type Statement =
     | Return of Return
     | Let of Let
 
 type CallableDeclaration =
-    { CallableKeyword : Terminal Token
-      Name : Terminal Token
-      Colon : Terminal Token
-      ReturnType : Type Token
-      OpenBrace : Terminal Token
-      Statements : Statement Token list
-      CloseBrace : Terminal Token }
+    { CallableKeyword : Terminal Node
+      Name : Terminal Node
+      Colon : Terminal Node
+      ReturnType : Type Node
+      OpenBrace : Terminal Node
+      Statements : Statement Node list
+      CloseBrace : Terminal Node }
 
 type NamespaceElement =
     | CallableDeclaration of CallableDeclaration
 
 type Namespace =
-    { NamespaceKeyword : Terminal Token
-      Name : Terminal Token
-      OpenBrace : Terminal Token
-      Elements : NamespaceElement Token list
-      CloseBrace : Terminal Token }
+    { NamespaceKeyword : Terminal Node
+      Name : Terminal Node
+      OpenBrace : Terminal Node
+      Elements : NamespaceElement Node list
+      CloseBrace : Terminal Node }
 
-type Program = Program of Namespace Token list
+type Program = Program of Namespace Node list
+
+let missingNode = { Kind = None; TrailingTrivia = "" }
+
+let withoutTrailingTrivia node = { node with TrailingTrivia = "" }
