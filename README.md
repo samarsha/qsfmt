@@ -1,7 +1,8 @@
 ﻿# QsFmt
 
 QsFmt is a source code formatter for Q#.
-It's only an early prototype right now.
+
+**Disclaimer:** QsFmt is very early in development and only supports a few syntax nodes and formatting rules right now.
 
 ## Doesn't Q# already have a formatter?
 
