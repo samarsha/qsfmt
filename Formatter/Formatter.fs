@@ -18,6 +18,7 @@ let format (source : string) =
         tokenStream.GetTokens ()
         |> hideTokens errorListener.ErrorTokens
         |> ImmutableArray.CreateRange
+
     program
     |> toProgramToken tokens
     |> collapseSpaces
