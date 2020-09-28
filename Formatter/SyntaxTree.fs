@@ -20,6 +20,7 @@ and BinaryOperator =
       Right : Expression Node }
 
 and Expression =
+    | MissingExpression
     | Literal of string
     | Tuple of Tuple
     | BinaryOperator of BinaryOperator

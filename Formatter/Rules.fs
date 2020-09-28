@@ -12,6 +12,7 @@ let private mapNode mapTrivia mapKind node =
           TrailingTrivia = mapTrivia node.TrailingTrivia }
 
 let rec private mapExpressionTrivia f = mapNode f <| function
+    | MissingExpression -> MissingExpression
     | Literal text -> Literal text
     | Tuple tuple ->
         { OpenParen = mapNode f id tuple.OpenParen

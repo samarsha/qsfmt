@@ -42,12 +42,16 @@ type private TypeVisitor (tokens) =
 
     override _.DefaultResult = missingNode
 
-    override _.VisitTypeName context = context.GetText () |> TypeName |> toNode tokens context
+    override _.VisitTypeName context =
+        context.GetText () |> TypeName |> toNode tokens context
 
 type private ExpressionVisitor (tokens) =
     inherit QSharpBaseVisitor<Expression Node> ()
 
     override _.DefaultResult = missingNode
+
+    override _.VisitMissingExpression context =
+        MissingExpression |> toNode tokens context
 
     override _.VisitIdentifier context =
         context.qualifiedName().GetText () |> Literal |> toNode tokens context

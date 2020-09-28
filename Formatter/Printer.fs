@@ -14,6 +14,7 @@ let private printType = printToken <| function
     | TypeName name -> name
 
 let rec private printExpression = printToken <| function
+    | MissingExpression -> "_"
     | Literal text -> text
     | Tuple tuple ->
         let items = tuple.Items |> List.map printExpression |> String.concat ""
