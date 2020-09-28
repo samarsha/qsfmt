@@ -1,9 +1,4 @@
+.idea
+
 bin/
 obj/
-
-*.interp
-*.tokens
-QSharp*.cs
-antlr-4.8-complete.jar
-
-.idea

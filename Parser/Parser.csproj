@@ -9,8 +9,11 @@
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.8.0" />
   </ItemGroup>
 
-  <Target Name="ANTLR" BeforeTargets="BeforeBuild">
-    <DownloadFile DestinationFolder="$(ProjectDir)" SourceUrl="https://www.antlr.org/download/antlr-4.8-complete.jar" />
-    <Exec Command="java -jar &quot;$(ProjectDir)antlr-4.8-complete.jar&quot; -o &quot;$(ProjectDir)&quot; -no-listener -visitor -package &quot;$(RootNamespace)&quot; -Dlanguage=CSharp &quot;$(ProjectDir)QSharp.g4&quot;" />
+  <Target Name="ANTLR" BeforeTargets="CoreCompile" Inputs="QSharp.g4" Outputs="obj\Antlr\QSharpBaseVisitor.cs; obj\Antlr\QSharpLexer.cs; obj\Antlr\QSharpParser.cs; obj\Antlr\QSharpVisitor.cs">
+    <DownloadFile DestinationFolder="obj\Antlr" SourceUrl="https://www.antlr.org/download/antlr-4.8-complete.jar" />
+    <Exec Command="java -jar obj\Antlr\antlr-4.8-complete.jar -o obj\Antlr -no-listener -visitor -package &quot;$(RootNamespace)&quot; -Dlanguage=CSharp QSharp.g4" />
+    <ItemGroup>
+      <Compile Include="obj\Antlr\*.cs" />
+    </ItemGroup>
   </Target>
 </Project>
