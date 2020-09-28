@@ -4,11 +4,17 @@ open Antlr4.Runtime
 open Antlr4.Runtime.Tree
 open QsFmt.Formatter.SyntaxTree
 open QsFmt.Parser
+open System.Collections.Immutable
 
-let private trailingTrivia (tokens : BufferedTokenStream) index =
-    tokens.GetHiddenTokensToRight index :> _ seq
-    |> Option.ofObj
-    |> Option.defaultValue Seq.empty
+let private hiddenTokensToRight (tokens : IToken ImmutableArray) index =
+    seq {
+        for i in index + 1 .. tokens.Length - 1 do
+            tokens.[i]
+    }
+    |> Seq.takeWhile (fun token -> token.Channel = QSharpLexer.Hidden)
+
+let private trailingTrivia tokens index =
+    hiddenTokensToRight tokens index
     |> Seq.map (fun token -> token.Text)
     |> String.concat ""
 
@@ -43,9 +49,11 @@ type private ExpressionVisitor (tokens) =
 
     override _.DefaultResult = missingNode
 
-    override _.VisitIdentifier context = context.GetText () |> Literal |> toNode tokens context
+    override _.VisitIdentifier context =
+        context.qualifiedName().GetText () |> Literal |> toNode tokens context
 
-    override _.VisitInteger context = context.GetText () |> Literal |> toNode tokens context
+    override _.VisitInteger context =
+        context.Integer().GetText () |> Literal |> toNode tokens context
 
     override this.VisitTuple context =
         { OpenParen = (=) "(" |> findTerminal tokens context
@@ -123,7 +131,7 @@ type private NamespaceElementVisitor (tokens) =
     override _.DefaultResult = missingNode
 
     override _.VisitCallableDeclaration context =
-        let scope = context.callableBody().scope() // TODO
+        let scope = context.callableBody().scope () // TODO
         { CallableKeyword = [ "function"; "operation" ] |> flip List.contains |> findTerminal tokens context
           Name = context.Identifier () |> toTerminal tokens
           Colon = (=) ":" |> findTerminal tokens context

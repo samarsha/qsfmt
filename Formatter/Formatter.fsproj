@@ -10,10 +10,15 @@
     <Compile Include="ParseTree.fs" />
     <Compile Include="Printer.fs" />
     <Compile Include="Rules.fs" />
+    <Compile Include="Error.fs" />
     <Compile Include="Formatter.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Parser\Parser.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
   </ItemGroup>
 </Project>
