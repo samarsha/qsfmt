@@ -39,9 +39,11 @@ IdentifierContinuation
 // TODO: Interpolated strings.
 String : '"' (~'"' | '\\"')* '"';
 
-Whitespace : [ \n\r\t]+ -> channel(HIDDEN);
+Whitespace : (' ' | '\n' | '\r' | '\t')+ -> channel(HIDDEN);
 
 Comment : '//' ~('\n' | '\r')* -> channel(HIDDEN);
+
+Invalid : . -> channel(HIDDEN);
 
 // Program
 
