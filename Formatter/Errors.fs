@@ -1,4 +1,4 @@
-﻿module internal QsFmt.Formatter.Error
+﻿module internal QsFmt.Formatter.Errors
 
 open Antlr4.Runtime
 open QsFmt.Parser

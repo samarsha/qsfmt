@@ -38,7 +38,7 @@ let private findTerminal tokens (context : ParserRuleContext) predicate =
 let private flip f x y = f y x
 
 type private TypeVisitor (tokens) =
-    inherit QSharpBaseVisitor<Type Node> ()
+    inherit QSharpParserBaseVisitor<Type Node> ()
 
     override _.DefaultResult = missingNode
 
@@ -46,7 +46,7 @@ type private TypeVisitor (tokens) =
         context.GetText () |> TypeName |> toNode tokens context
 
 type private ExpressionVisitor (tokens) =
-    inherit QSharpBaseVisitor<Expression Node> ()
+    inherit QSharpParserBaseVisitor<Expression Node> ()
 
     override _.DefaultResult = missingNode
 
@@ -67,24 +67,16 @@ type private ExpressionVisitor (tokens) =
         |> toNode tokens context
         |> withoutTrailingTrivia
 
-    override this.VisitAdd context =
+    override this.VisitAddSubtract context =
         { Left = context.expression 0 |> this.Visit
-          Operator = (=) "+" |> findTerminal tokens context
-          Right = context.expression 1 |> this.Visit }
-        |> BinaryOperator
-        |> toNode tokens context
-        |> withoutTrailingTrivia
-
-    override this.VisitSubtract context =
-        { Left = context.expression 0 |> this.Visit
-          Operator = (=) "-" |> findTerminal tokens context
+          Operator = [ "+"; "-" ] |> flip List.contains |> findTerminal tokens context
           Right = context.expression 1 |> this.Visit }
         |> BinaryOperator
         |> toNode tokens context
         |> withoutTrailingTrivia
 
 type private SymbolTupleVisitor (tokens) =
-    inherit QSharpBaseVisitor<SymbolTuple Node> ()
+    inherit QSharpParserBaseVisitor<SymbolTuple Node> ()
 
     override _.DefaultResult = missingNode
 
@@ -99,7 +91,7 @@ type private SymbolTupleVisitor (tokens) =
         |> toNode tokens context
 
 type private StatementVisitor (tokens) =
-    inherit QSharpBaseVisitor<Statement Node> ()
+    inherit QSharpParserBaseVisitor<Statement Node> ()
 
     let expressionVisitor = ExpressionVisitor tokens
 
@@ -126,7 +118,7 @@ type private StatementVisitor (tokens) =
         |> withoutTrailingTrivia
 
 type private NamespaceElementVisitor (tokens) =
-    inherit QSharpBaseVisitor<NamespaceElement Node> ()
+    inherit QSharpParserBaseVisitor<NamespaceElement Node> ()
 
     let typeVisitor = TypeVisitor tokens
 

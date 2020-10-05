@@ -1,57 +1,14 @@
-grammar QSharp;
+parser grammar QSharpParser;
 
-// Lexer Rules
-
-Integer
-    : [0-9]+
-    | ('0x' | '0X') [0-9a-fA-F]+
-    | ('0o' | '0O') [0-7]+
-    | ('0b' | '0B') [0-1]+
-    ;
-
-BigInteger : Integer ('L' | 'l');
-
-Double
-    : [0-9]+ '.' [0-9]+
-    | '.' [0-9]+
-    | [0-9]+ '.'
-    | [0-9]+ ('e' | 'E') [0-9]+
-    ;
-
-Identifier : IdentifierStart IdentifierContinuation*;
-
-IdentifierStart
-    : '_'
-    | [\p{Letter}]
-    | [\p{Letter_Number}]
-    ;
-
-IdentifierContinuation
-    : [\p{Connector_Punctuation}]
-    | [\p{Decimal_Number}]
-    | [\p{Format}]
-    | [\p{Letter}]
-    | [\p{Letter_Number}]
-    | [\p{Nonspacing_Mark}]
-    | [\p{Spacing_Mark}]
-    ;
-
-// TODO: Interpolated strings.
-String : '"' (~'"' | '\\"')* '"';
-
-Whitespace : (' ' | '\n' | '\r' | '\t')+ -> channel(HIDDEN);
-
-Comment : '//' ~('\n' | '\r')* -> channel(HIDDEN);
-
-Invalid : . -> channel(HIDDEN);
-
-// Program
+options {
+    tokenVocab = QSharpLexer;
+}
 
 program : namespace* EOF;
 
 // Namespace
 
-namespace : 'namespace' qualifiedName '{' namespaceElement* '}';
+namespace : 'namespace' qualifiedName BraceLeft namespaceElement* BraceRight;
 
 qualifiedName : Identifier ('.' Identifier)*;
 
@@ -82,7 +39,7 @@ underlyingType
     | type
     ;
 
-typeDeclarationTuple : '(' typeTupleItem (',' typeTupleItem)* ')';
+typeDeclarationTuple : '(' (typeTupleItem (',' typeTupleItem)*)? ')';
 
 typeTupleItem
     : namedItem
@@ -115,7 +72,7 @@ characteristicsExpression
     ;
 
 callableBody
-    : '{' specialization* '}'
+    : BraceLeft specialization* BraceRight
     | scope
     ;
 
@@ -149,10 +106,11 @@ specializationParameter
 // Type
 
 type
-    : Identifier # TypeName
+    : '_' # MissingType
+    | Identifier # TypeName
     | '(' (type (',' type)*)? ')' # TupleType
     | '(' type ('->' | '=>') type characteristics? ')' # CallableType
-    | type '[]' # ArrayType
+    | type '[' ']' # ArrayType
     ;
 
 // Statement
@@ -178,7 +136,7 @@ statement
     | 'borrowing' '(' symbolTuple '=' qubitInitializer ')' scope # Borrowing
     ;
 
-scope : '{' statement* '}';
+scope : BraceLeft statement* BraceRight;
 
 symbolTuple
     : Identifier # Symbol
@@ -209,48 +167,38 @@ qubitInitializer
 
 // Expression
 
-// TODO: Operator precedence and associativity.
 expression
     : '_' # MissingExpression
-    | qualifiedName ('<' type (',' type)* '>')? # Identifier
+    | qualifiedName ('<' (type (',' type)*)? '>')? # Identifier
     | Integer # Integer
     | BigInteger # BigInteger
     | Double # Double
-    | String # String
+    | DoubleQuote stringContent* StringDoubleQuote # String
+    | DollarQuote interpStringContent* InterpDoubleQuote # InterpolatedString
     | boolLiteral # Bool
     | resultLiteral # Result
     | pauliLiteral # Pauli
     | '(' (expression (',' expression)*)? ')' # Tuple
     | '[' (expression (',' expression)*)? ']' # Array
     | 'new' type '[' expression ']' # NewArray
-    | expression '::' Identifier # AccessNamedItem
-    | expression '[' expression ']' # AccessIndex
+    | expression ('::' Identifier | '[' expression ']') # ItemAccess
     | expression '!' # Unwrap
-    | functor expression # ApplyFunctor
-    | expression '(' (expression (',' expression)*)? ')' # Call
-    | '-' expression # Negate
-    | 'not' expression # Not
-    | '~~~' expression # BitwiseNot
-    | expression '^' expression # Power
-    | expression '*' expression # Multiply
-    | expression '/' expression # Divide
-    | expression '%' expression # Modulo
-    | expression '+' expression # Add
-    | expression '-' expression # Subtract
-    | expression '>>>' expression # ShiftRight
-    | expression '<<<' expression # ShiftLeft
-    | expression '>' expression # Greater
-    | expression '<' expression # Less
-    | expression '>=' expression # GreaterEqual
-    | expression '<=' expression # LessEqual
-    | expression '!=' expression # NotEqual
-    | expression '==' expression # Equal
+    | <assoc=right> 'Controlled' expression # ControlledFunctor
+    | <assoc=right> 'Adjoint' expression # AdjointFunctor
+    | <assoc=right> expression '(' (expression (',' expression)*)? ')' # Call
+    | <assoc=right> ('-' | 'not' | '~~~') expression # Negate
+    | <assoc=right> expression '^' expression # Power
+    | expression ('*' | '/' | '%') expression # MultiplyDivideModulo
+    | expression ('+' | '-') expression # AddSubtract
+    | expression ('>>>' | '<<<') expression # Shift
+    | expression ('>' | '<' | '>=' | '<=') expression # GreaterLess
+    | expression ('==' | '!=') expression # Equal
     | expression '&&&' expression # BitwiseAnd
     | expression '^^^' expression # BitwiseXor
     | expression '|||' expression # BitwiseOr
     | expression 'and' expression # And
     | expression 'or' expression # Or
-    | expression '?' expression '|' expression # Conditional
+    | <assoc=right> expression '?' expression '|' expression # Conditional
     | expression '..' expression # Range
     | expression '...' # RightOpenRange
     | '...' expression # LeftOpenRange
@@ -275,7 +223,13 @@ pauliLiteral
     | 'PauliZ'
     ;
 
-functor
-    : 'Adjoint'
-    | 'Controlled'
+stringContent
+    : StringEscape
+    | StringText
+    ;
+
+interpStringContent
+    : InterpStringEscape
+    | InterpBraceLeft expression BraceRight
+    | InterpStringText
     ;
