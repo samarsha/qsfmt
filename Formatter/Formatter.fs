@@ -2,7 +2,6 @@
 
 open Antlr4.Runtime
 open QsFmt.Formatter.Errors
-open QsFmt.Formatter.Lexer
 open QsFmt.Formatter.ParseTree
 open QsFmt.Formatter.Printer
 open QsFmt.Formatter.Rules
@@ -10,7 +9,7 @@ open QsFmt.Parser
 open System.Collections.Immutable
 
 let format (source : string) =
-    let tokenStream = source |> AntlrInputStream |> Lexer |> CommonTokenStream
+    let tokenStream = source |> AntlrInputStream |> QSharpLexer |> CommonTokenStream
     let parser = QSharpParser tokenStream
     let errorListener = ErrorListListener ()
     parser.AddErrorListener errorListener

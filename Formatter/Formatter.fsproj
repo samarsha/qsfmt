@@ -11,7 +11,6 @@
     <Compile Include="Printer.fs" />
     <Compile Include="Rules.fs" />
     <Compile Include="Errors.fs" />
-    <Compile Include="Lexer.fs" />
     <Compile Include="Formatter.fs" />
   </ItemGroup>
 
