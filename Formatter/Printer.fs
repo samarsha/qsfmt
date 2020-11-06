@@ -25,8 +25,8 @@ let rec private printExpression = printToken <| function
         + printExpression operator.Right
 
 let rec private printSymbolTuple = printToken <| function
-    | Symbol symbol -> printTerminal symbol
-    | Symbols tuples -> tuples |> List.map printSymbolTuple |> String.concat ""
+    | SymbolName symbol -> printTerminal symbol
+    | SymbolTuple tuples -> tuples |> List.map printSymbolTuple |> String.concat ""
 
 let private printStatement = printToken <| function
     | Return returnStmt ->
@@ -35,7 +35,7 @@ let private printStatement = printToken <| function
         + printTerminal returnStmt.Semicolon
     | Let letStmt ->
         printTerminal letStmt.LetKeyword
-        + printSymbolTuple letStmt.SymbolTuple
+        + printSymbolTuple letStmt.Binding
         + printTerminal letStmt.Equals
         + printExpression letStmt.Expression
         + printTerminal letStmt.Semicolon

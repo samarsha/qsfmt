@@ -25,9 +25,9 @@ and Expression =
     | Tuple of Tuple
     | BinaryOperator of BinaryOperator
 
-type SymbolTuple =
-    | Symbol of Terminal Node
-    | Symbols of SymbolTuple Node list
+type SymbolBinding =
+    | SymbolName of Terminal Node
+    | SymbolTuple of SymbolBinding Node list
 
 type Return =
     { ReturnKeyword : Terminal Node
@@ -36,7 +36,7 @@ type Return =
 
 type Let =
     { LetKeyword : Terminal Node
-      SymbolTuple : SymbolTuple Node
+      Binding : SymbolBinding Node
       Equals : Terminal Node
       Expression : Expression Node
       Semicolon : Terminal Node }

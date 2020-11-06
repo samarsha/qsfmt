@@ -26,8 +26,8 @@ let rec private mapExpressionTrivia f = mapNode f <| function
         |> BinaryOperator
 
 let rec private mapSymbolTupleTrivia f = mapNode f <| function
-    | Symbol symbol -> mapNode f id symbol |> Symbol
-    | Symbols tuples -> tuples |> List.map (mapSymbolTupleTrivia f) |> Symbols
+    | SymbolName symbol -> mapNode f id symbol |> SymbolName
+    | SymbolTuple tuples -> tuples |> List.map (mapSymbolTupleTrivia f) |> SymbolTuple
 
 let private mapStatementTrivia f = mapNode f <| function
     | Return returnStmt ->
@@ -37,7 +37,7 @@ let private mapStatementTrivia f = mapNode f <| function
         |> Return
     | Let letStmt ->
         { LetKeyword = mapNode f id letStmt.LetKeyword
-          SymbolTuple = mapSymbolTupleTrivia f letStmt.SymbolTuple
+          Binding = mapSymbolTupleTrivia f letStmt.Binding
           Equals = mapNode f id letStmt.Equals
           Expression = mapExpressionTrivia f letStmt.Expression
           Semicolon = mapNode f id letStmt.Semicolon }
@@ -76,8 +76,8 @@ let collapseSpaces = mapProgramTrivia <| fun trivia ->
 let singleSpaceAfterLetBinding =
     let mapStatement = mapNode id <| function
         | Let letStmt ->
-            let symbolTuple = { letStmt.SymbolTuple with TrailingTrivia = " " }
-            Let { letStmt with SymbolTuple = symbolTuple }
+            let symbolTuple = { letStmt.Binding with TrailingTrivia = " " }
+            Let { letStmt with Binding = symbolTuple }
         | statement -> statement
 
     let mapNamespaceElement = mapNode id <| function

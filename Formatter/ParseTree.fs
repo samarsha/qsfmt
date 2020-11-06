@@ -75,19 +75,19 @@ type private ExpressionVisitor (tokens) =
         |> toNode tokens context
         |> withoutTrailingTrivia
 
-type private SymbolTupleVisitor (tokens) =
-    inherit QSharpParserBaseVisitor<SymbolTuple Node> ()
+type private SymbolBindingVisitor (tokens) =
+    inherit QSharpParserBaseVisitor<SymbolBinding Node> ()
 
     override _.DefaultResult = missingNode
 
     override _.VisitSymbolName context =
-        context.Identifier () |> toTerminal tokens |> Symbol |> toNode tokens context
+        context.Identifier () |> toTerminal tokens |> SymbolName |> toNode tokens context
 
     override this.VisitSymbolTuple context =
         context.symbolBinding ()
         |> Array.toList
         |> List.map this.Visit
-        |> Symbols
+        |> SymbolTuple
         |> toNode tokens context
 
 type private StatementVisitor (tokens) =
@@ -95,7 +95,7 @@ type private StatementVisitor (tokens) =
 
     let expressionVisitor = ExpressionVisitor tokens
 
-    let symbolTupleVisitor = SymbolTupleVisitor tokens
+    let symbolBindingVisitor = SymbolBindingVisitor tokens
 
     override _.DefaultResult = missingNode
 
@@ -109,7 +109,7 @@ type private StatementVisitor (tokens) =
 
     override _.VisitLetStatement context =
         { LetKeyword = (=) "let" |> findTerminal tokens context
-          SymbolTuple = context.symbolBinding () |> symbolTupleVisitor.Visit
+          Binding = context.symbolBinding () |> symbolBindingVisitor.Visit
           Equals = (=) "=" |> findTerminal tokens context
           Expression = context.expression () |> expressionVisitor.Visit
           Semicolon = (=) ";" |> findTerminal tokens context }
