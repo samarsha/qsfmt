@@ -42,8 +42,8 @@ type private TypeVisitor (tokens) =
 
     override _.DefaultResult = missingNode
 
-    override _.VisitTypeName context =
-        context.GetText () |> TypeName |> toNode tokens context
+    override _.VisitUserDefinedType context =
+        context.qualifiedName().GetText () |> TypeName |> toNode tokens context
 
 type private ExpressionVisitor (tokens) =
     inherit QSharpParserBaseVisitor<Expression Node> ()
@@ -53,13 +53,13 @@ type private ExpressionVisitor (tokens) =
     override _.VisitMissingExpression context =
         MissingExpression |> toNode tokens context
 
-    override _.VisitIdentifier context =
+    override _.VisitIdentifierExpression context =
         context.qualifiedName().GetText () |> Literal |> toNode tokens context
 
-    override _.VisitInteger context =
-        context.Integer().GetText () |> Literal |> toNode tokens context
+    override _.VisitIntegerExpression context =
+        context.IntegerLiteral().GetText () |> Literal |> toNode tokens context
 
-    override this.VisitTuple context =
+    override this.VisitTupleExpression context =
         { OpenParen = (=) "(" |> findTerminal tokens context
           Items = context.expression () |> Array.toList |> List.map this.Visit
           CloseParen = (=) ")" |> findTerminal tokens context }
@@ -67,7 +67,7 @@ type private ExpressionVisitor (tokens) =
         |> toNode tokens context
         |> withoutTrailingTrivia
 
-    override this.VisitAddSubtract context =
+    override this.VisitAddExpression context =
         { Left = context.expression 0 |> this.Visit
           Operator = [ "+"; "-" ] |> flip List.contains |> findTerminal tokens context
           Right = context.expression 1 |> this.Visit }
@@ -80,11 +80,11 @@ type private SymbolTupleVisitor (tokens) =
 
     override _.DefaultResult = missingNode
 
-    override _.VisitSymbol context =
+    override _.VisitSymbolName context =
         context.Identifier () |> toTerminal tokens |> Symbol |> toNode tokens context
 
-    override this.VisitSymbols context =
-        context.symbolTuple ()
+    override this.VisitSymbolTuple context =
+        context.symbolBinding ()
         |> Array.toList
         |> List.map this.Visit
         |> Symbols
@@ -99,7 +99,7 @@ type private StatementVisitor (tokens) =
 
     override _.DefaultResult = missingNode
 
-    override _.VisitReturn context =
+    override _.VisitReturnStatement context =
         { ReturnKeyword = (=) "return" |> findTerminal tokens context
           Expression = context.expression () |> expressionVisitor.Visit
           Semicolon = (=) ";" |> findTerminal tokens context }
@@ -107,9 +107,9 @@ type private StatementVisitor (tokens) =
         |> toNode tokens context
         |> withoutTrailingTrivia
 
-    override _.VisitLet context =
+    override _.VisitLetStatement context =
         { LetKeyword = (=) "let" |> findTerminal tokens context
-          SymbolTuple = context.symbolTuple () |> symbolTupleVisitor.Visit
+          SymbolTuple = context.symbolBinding () |> symbolTupleVisitor.Visit
           Equals = (=) "=" |> findTerminal tokens context
           Expression = context.expression () |> expressionVisitor.Visit
           Semicolon = (=) ";" |> findTerminal tokens context }

@@ -51,8 +51,13 @@ namedItem : Identifier ':' type;
 // Callable Declaration
 
 callableDeclaration
-    : declarationPrefix ('function' | 'operation') Identifier parameterTuple ':' type characteristics? callableBody
+    : declarationPrefix ('function' | 'operation')
+      Identifier typeParameterBinding? parameterTuple
+      ':' type characteristics?
+      callableBody
     ;
+
+typeParameterBinding : '<' (TypeParameter (',' TypeParameter)*)? '>';
 
 parameterTuple : '(' (parameter (',' parameter)*)? ')';
 
@@ -76,25 +81,24 @@ callableBody
     | scope
     ;
 
-specialization : specializationName specializationGenerator;
+specialization : specializationName+ specializationGenerator;
 
 specializationName
     : 'body'
     | 'adjoint'
     | 'controlled'
-    | 'controlled' 'adjoint'
     ;
 
 specializationGenerator
-    : 'auto'
-    | 'self'
-    | 'invert'
-    | 'distribute'
-    | 'intrinsic'
+    : 'auto' ';'
+    | 'self' ';'
+    | 'invert' ';'
+    | 'distribute' ';'
+    | 'intrinsic' ';'
     | providedSpecialization
     ;
 
-providedSpecialization : specializationParameterTuple scope;
+providedSpecialization : specializationParameterTuple? scope;
 
 specializationParameterTuple : '(' (specializationParameter (',' specializationParameter)*)? ')';
 
@@ -107,40 +111,58 @@ specializationParameter
 
 type
     : '_' # MissingType
-    | Identifier # TypeName
-    | '(' (type (',' type)*)? ')' # TupleType
-    | '(' type ('->' | '=>') type characteristics? ')' # CallableType
+    | TypeParameter # TypeParameter
+    | 'BigInt' # BigIntType
+    | 'Bool' # BoolType
+    | 'Double' # DoubleType
+    | 'Int' # IntType
+    | 'Pauli' # PauliType
+    | 'Qubit' # QubitType
+    | 'Range' # RangeType
+    | 'Result' # ResultType
+    | 'String' # StringType
+    | 'Unit' # UnitType
+    | qualifiedName # UserDefinedType
+    | '(' (type (',' type)* ','?)? ')' # TupleType
+    | '(' arrowType characteristics? ')' # CallableType
     | type '[' ']' # ArrayType
+    ;
+
+arrowType
+    : '(' type ('->' | '=>') type ')'
+    | type ('->' | '=>') type
     ;
 
 // Statement
 
 statement
     : expression ';' # ExpressionStatement
-    | 'return' expression ';' # Return
-    | 'fail' expression ';' # Fail
-    | 'let' symbolTuple '=' expression ';' # Let
-    | 'mutable' symbolTuple '=' expression ';' # Mutable
-    | 'set' symbolTuple '=' expression ';' # Set
-    | 'set' Identifier updateOperator expression ';' # SetUpdate
-    | 'if' '(' expression ')' scope # If
-    | 'elif' '(' expression ')' scope # Elif
-    | 'else' scope # Else
-    | 'for' '(' symbolTuple 'in' expression ')' scope # For
-    | 'while' '(' expression ')' scope # While
-    | 'repeat' scope # Repeat
-    | 'until' '(' expression ')' 'fixup' scope # UntilFixup
-    | 'within' scope # Within
-    | 'apply' scope # Apply
-    | 'using' '(' symbolTuple '=' qubitInitializer ')' scope # Using
-    | 'borrowing' '(' symbolTuple '=' qubitInitializer ')' scope # Borrowing
+    | 'return' expression ';' # ReturnStatement
+    | 'fail' expression ';' # FailStatement
+    | 'let' symbolBinding '=' expression ';' # LetStatement
+    | 'mutable' symbolBinding '=' expression ';' # MutableStatement
+    | 'set' symbolBinding '=' expression ';' # SetStatement
+    | 'set' Identifier updateOperator expression ';' # SetUpdateStatement
+    | 'set' Identifier 'w/=' expression '<-' expression ';' # SetWithStatement
+    | 'if' '(' expression ')' scope # IfStatement
+    | 'elif' '(' expression ')' scope # ElifStatement
+    | 'else' scope # ElseStatement
+    | 'for' '(' symbolBinding 'in' expression ')' scope # ForStatement
+    | 'while' '(' expression ')' scope # WhileStatement
+    | 'repeat' scope # RepeatStatement
+    | 'until' '(' expression ')' (';' | 'fixup' scope) # UntilStatement
+    | 'within' scope # WithinStatement
+    | 'apply' scope # ApplyStatement
+    | 'using' '(' symbolBinding '=' qubitInitializer ')' scope # UsingStatement
+    | 'borrowing' '(' symbolBinding '=' qubitInitializer ')' scope # BorrowingStatement
     ;
 
 scope : BraceLeft statement* BraceRight;
 
-symbolTuple
-    : Identifier # Symbol
-    | '(' (symbolTuple (',' symbolTuple)*)? ')' # Symbols
+symbolBinding
+    : '_' # DiscardSymbol
+    | Identifier # SymbolName
+    | '(' (symbolBinding (',' symbolBinding)* ','?)? ')' # SymbolTuple
     ;
 
 updateOperator
@@ -162,48 +184,48 @@ updateOperator
 qubitInitializer
     : 'Qubit' '(' ')'
     | 'Qubit' '[' expression ']'
-    | '(' (qubitInitializer (',' qubitInitializer)*)? ')'
+    | '(' (qubitInitializer (',' qubitInitializer)* ','?)? ')'
     ;
 
 // Expression
 
 expression
     : '_' # MissingExpression
-    | qualifiedName ('<' (type (',' type)*)? '>')? # Identifier
-    | Integer # Integer
-    | BigInteger # BigInteger
-    | Double # Double
-    | DoubleQuote stringContent* StringDoubleQuote # String
-    | DollarQuote interpStringContent* InterpDoubleQuote # InterpolatedString
-    | boolLiteral # Bool
-    | resultLiteral # Result
-    | pauliLiteral # Pauli
-    | '(' (expression (',' expression)*)? ')' # Tuple
-    | '[' (expression (',' expression)*)? ']' # Array
-    | 'new' type '[' expression ']' # NewArray
-    | expression ('::' Identifier | '[' expression ']') # ItemAccess
-    | expression '!' # Unwrap
-    | <assoc=right> 'Controlled' expression # ControlledFunctor
-    | <assoc=right> 'Adjoint' expression # AdjointFunctor
-    | <assoc=right> expression '(' (expression (',' expression)*)? ')' # Call
-    | <assoc=right> ('-' | 'not' | '~~~') expression # Negate
-    | <assoc=right> expression '^' expression # Power
-    | expression ('*' | '/' | '%') expression # MultiplyDivideModulo
-    | expression ('+' | '-') expression # AddSubtract
-    | expression ('>>>' | '<<<') expression # Shift
-    | expression ('>' | '<' | '>=' | '<=') expression # GreaterLess
-    | expression ('==' | '!=') expression # Equal
-    | expression '&&&' expression # BitwiseAnd
-    | expression '^^^' expression # BitwiseXor
-    | expression '|||' expression # BitwiseOr
-    | expression 'and' expression # And
-    | expression 'or' expression # Or
-    | <assoc=right> expression '?' expression '|' expression # Conditional
-    | expression '..' expression # Range
-    | expression '...' # RightOpenRange
-    | '...' expression # LeftOpenRange
-    | '...' # OpenRange
-    | expression 'w/' expression '<-' expression # With
+    | qualifiedName ('<' (type (',' type)* ','?)? '>')? # IdentifierExpression
+    | IntegerLiteral # IntegerExpression
+    | BigIntegerLiteral # BigIntegerExpression
+    | DoubleLiteral # DoubleExpression
+    | DoubleQuote stringContent* StringDoubleQuote # StringExpression
+    | DollarQuote interpStringContent* InterpDoubleQuote # InterpStringExpression
+    | boolLiteral # BoolExpression
+    | resultLiteral # ResultExpression
+    | pauliLiteral # PauliExpression
+    | '(' (expression (',' expression)* ','?)? ')' # TupleExpression
+    | '[' (expression (',' expression)* ','?)? ']' # ArrayExpression
+    | 'new' type '[' expression ']' # NewArrayExpression
+    | expression ('::' Identifier | '[' expression ']') # ItemAccessExpression
+    | expression '!' # UnwrapExpression
+    | <assoc=right> 'Controlled' expression # ControlledExpression
+    | <assoc=right> 'Adjoint' expression # AdjointExpression
+    | expression '(' (expression (',' expression)* ','?)? ')' # CallExpression
+    | <assoc=right> ('-' | 'not' | '~~~') expression # NegationExpression
+    | <assoc=right> expression '^' expression # ExponentExpression
+    | expression ('*' | '/' | '%') expression # MultiplyExpression
+    | expression ('+' | '-') expression # AddExpression
+    | expression ('>>>' | '<<<') expression # ShiftExpression
+    | expression ('>' | '<' | '>=' | '<=') expression # CompareExpression
+    | expression ('==' | '!=') expression # EqualsExpression
+    | expression '&&&' expression # BitwiseAndExpression
+    | expression '^^^' expression # BitwiseXorExpression
+    | expression '|||' expression # BitwiseOrExpression
+    | expression 'and' expression # AndExpression
+    | expression 'or' expression # OrExpression
+    | <assoc=right> expression '?' expression '|' expression # ConditionalExpression
+    | expression '..' expression # RangeExpression
+    | expression '...' # RightOpenRangeExpression
+    | '...' expression # LeftOpenRangeExpression
+    | '...' # OpenRangeExpression
+    | expression 'w/' expression '<-' expression # WithExpression
     ;
 
 boolLiteral

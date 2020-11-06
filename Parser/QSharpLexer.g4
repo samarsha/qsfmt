@@ -9,12 +9,15 @@ And : 'and';
 Apply : 'apply';
 As : 'as';
 Auto : 'auto';
+BigInt : 'BigInt';
 Body : 'body';
+Bool : 'Bool';
 Borrowing : 'borrowing';
 ControlledFunctor : 'Controlled';
 ControlledGenerator : 'controlled';
 Ctl : 'Ctl';
 Distribute : 'distribute';
+Double : 'Double';
 Elif : 'elif';
 Else : 'else';
 Fail : 'fail';
@@ -24,6 +27,7 @@ For : 'for';
 Function : 'function';
 If : 'if';
 In : 'in';
+Int : 'Int';
 Internal : 'internal';
 Intrinsic : 'intrinsic';
 Invert : 'invert';
@@ -38,16 +42,21 @@ One : 'One';
 Open : 'open';
 Operation : 'operation';
 Or : 'or';
+Pauli : 'Pauli';
 PauliI : 'PauliI';
 PauliX : 'PauliX';
 PauliY : 'PauliY';
 PauliZ : 'PauliZ';
 Qubit : 'Qubit';
+Range : 'Range';
 Repeat : 'repeat';
+Result : 'Result';
 Return : 'return';
 Self : 'self';
 Set : 'set';
+String : 'String';
 True : 'true';
+Unit : 'Unit';
 Until : 'until';
 Using : 'using';
 While : 'while';
@@ -64,7 +73,7 @@ AsteriskEqual : '*=';
 At : '@';
 Bang : '!';
 BraceLeft : '{' -> pushMode(DEFAULT_MODE);
-BraceRight : '}' -> popMode;
+BraceRight : '}' { if (ModeStack.Count > 0) PopMode(); };
 BracketLeft : '[';
 BracketRight : ']';
 Caret : '^';
@@ -112,23 +121,27 @@ TriplePipeEqual : '|||=';
 TripleTilde : '~~~';
 Underscore : '_';
 With : 'w/';
+WithEqual : 'w/=';
 
 // Literals
 
-Integer
-    : [0-9]+
+fragment Digit : [0-9];
+
+IntegerLiteral
+    : Digit+
     | ('0x' | '0X') [0-9a-fA-F]+
     | ('0o' | '0O') [0-7]+
     | ('0b' | '0B') [0-1]+
     ;
 
-BigInteger : Integer ('L' | 'l');
+BigIntegerLiteral : IntegerLiteral ('L' | 'l');
 
-Double
-    : [0-9]+ '.' [0-9]+
-    | '.' [0-9]+
-    | [0-9]+ '.'
-    | [0-9]+ ('e' | 'E') [0-9]+
+DoubleLiteral
+    : Digit+ '.' Digit+
+    | '.' Digit+
+    // "n.." should be interpreted as an integer range, not the double "n." followed by a dot.
+    | Digit+ '.' { InputStream.LA(1) != '.' }?
+    | Digit+ ('e' | 'E') Digit+
     ;
 
 Identifier : IdentifierStart IdentifierContinuation*;
@@ -148,6 +161,8 @@ IdentifierContinuation
     | [\p{Nonspacing_Mark}]
     | [\p{Spacing_Mark}]
     ;
+
+TypeParameter : '\'' Identifier;
 
 Whitespace : (' ' | '\n' | '\r' | '\t')+ -> channel(HIDDEN);
 
