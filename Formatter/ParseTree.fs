@@ -56,8 +56,8 @@ type private ExpressionVisitor (tokens) =
 
     override _.VisitIntegerExpression context = context.value.Text |> Literal |> toNode tokens context
 
-    override this.VisitTupleExpression context =
-        let expressions = context._items |> Seq.map this.Visit
+    override visitor.VisitTupleExpression context =
+        let expressions = context._items |> Seq.map visitor.Visit
         let commas = context._commas |> Seq.map (toTerminal tokens)
         let items =
             padZip (expressions, missingNode) (commas, missingNode)
@@ -70,20 +70,20 @@ type private ExpressionVisitor (tokens) =
         |> toNode tokens context
         |> withoutTrailingTrivia
 
-    override this.VisitAddExpression context =
-        { Left = this.Visit context.left
+    override visitor.VisitAddExpression context =
+        { Left = visitor.Visit context.left
           Operator = context.operator |> toTerminal tokens
-          Right = this.Visit context.right }
+          Right = visitor.Visit context.right }
         |> BinaryOperator
         |> toNode tokens context
         |> withoutTrailingTrivia
 
-    override this.VisitUpdateExpression context =
-        { Record = this.Visit context.record
+    override visitor.VisitUpdateExpression context =
+        { Record = visitor.Visit context.record
           With = context.``with`` |> toTerminal tokens
-          Item = this.Visit context.item
+          Item = visitor.Visit context.item
           Arrow = context.arrow |> toTerminal tokens
-          Value = this.Visit context.value }
+          Value = visitor.Visit context.value }
         |> Update
         |> toNode tokens context
         |> withoutTrailingTrivia
@@ -95,8 +95,8 @@ type private SymbolBindingVisitor (tokens) =
 
     override _.VisitSymbolName context = context.name |> toTerminal tokens |> SymbolName |> toNode tokens context
 
-    override this.VisitSymbolTuple context =
-        context._bindings |> Seq.map this.Visit |> List.ofSeq |> SymbolTuple |> toNode tokens context
+    override visitor.VisitSymbolTuple context =
+        context._bindings |> Seq.map visitor.Visit |> List.ofSeq |> SymbolTuple |> toNode tokens context
 
 type private StatementVisitor (tokens) =
     inherit QSharpParserBaseVisitor<Statement Node> ()
