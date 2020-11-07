@@ -202,7 +202,7 @@ expression
     | boolLiteral # BoolExpression
     | resultLiteral # ResultExpression
     | pauliLiteral # PauliExpression
-    | openParen='(' (items+=expression (',' items+=expression)* ','?)? closeParen=')' # TupleExpression
+    | openParen='(' (items+=expression (commas+=',' items+=expression)* commas+=','?)? closeParen=')' # TupleExpression
     | '[' (expression (',' expression)* ','?)? ']' # ArrayExpression
     | 'new' type '[' expression ']' # NewArrayExpression
     | expression ('::' Identifier | '[' expression ']') # ItemAccessExpression

@@ -6,13 +6,17 @@ type 'a Node =
 
 type Terminal = Terminal of string
 
+type 'a SequenceItem =
+    { Item : 'a Node
+      Comma : Terminal Node }
+
 type Type =
     | Int
     | TypeName of string
 
 type Tuple =
     { OpenParen : Terminal Node
-      Items : Expression Node list
+      Items : Expression SequenceItem list
       CloseParen : Terminal Node }
 
 and BinaryOperator =

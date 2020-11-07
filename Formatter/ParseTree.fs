@@ -3,6 +3,7 @@
 open Antlr4.Runtime
 open QsFmt.Formatter.SyntaxTree
 open QsFmt.Parser
+open System.Collections.Generic
 open System.Collections.Immutable
 
 let private hiddenTokensToRight (tokens : IToken ImmutableArray) index =
@@ -25,7 +26,15 @@ let private toTerminal tokens (terminal : IToken) =
     { Kind = Terminal terminal.Text |> Some
       TrailingTrivia = trailingTrivia tokens terminal.TokenIndex }
 
-let private flip f x y = f y x
+let private padZip (source1 : _ seq, padding1) (source2 : _ seq, padding2) =
+    let enumerator1 = source1.GetEnumerator ()
+    let enumerator2 = source2.GetEnumerator ()
+    let next (enumerator : _ IEnumerator) = if enumerator.MoveNext () then Some enumerator.Current else None
+    let nextPair _ =
+        match next enumerator1, next enumerator2 with
+        | None, None -> None
+        | next1, next2 -> Some (next1 |> Option.defaultValue padding1, next2 |> Option.defaultValue padding2)
+    Seq.initInfinite nextPair |> Seq.takeWhile Option.isSome |> Seq.choose id
 
 type private TypeVisitor (tokens) =
     inherit QSharpParserBaseVisitor<Type Node> ()
@@ -48,8 +57,14 @@ type private ExpressionVisitor (tokens) =
     override _.VisitIntegerExpression context = context.value.Text |> Literal |> toNode tokens context
 
     override this.VisitTupleExpression context =
+        let expressions = context._items |> Seq.map this.Visit
+        let commas = context._commas |> Seq.map (toTerminal tokens)
+        let items =
+            padZip (expressions, missingNode) (commas, missingNode)
+            |> Seq.map (fun (item, comma) -> { Item = item; Comma = comma })
+            |> List.ofSeq
         { OpenParen = context.openParen |> toTerminal tokens
-          Items = context._items |> Seq.map this.Visit |> List.ofSeq
+          Items = items
           CloseParen = context.closeParen |> toTerminal tokens }
         |> Tuple
         |> toNode tokens context

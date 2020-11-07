@@ -10,6 +10,10 @@ let private printToken printNode node =
 
 let private printTerminal = printToken <| fun (Terminal text) -> text
 
+let private printSequenceItem printItem (item : _ SequenceItem) =
+    printItem item.Item
+    + printTerminal item.Comma
+
 let private printType = printToken <| function
     | Int -> "Int"
     | TypeName name -> name
@@ -18,7 +22,7 @@ let rec private printExpression = printToken <| function
     | MissingExpression -> "_"
     | Literal text -> text
     | Tuple tuple ->
-        let items = tuple.Items |> List.map printExpression |> String.concat ""
+        let items = tuple.Items |> List.map (printSequenceItem printExpression) |> String.concat ""
         printTerminal tuple.OpenParen + items + printTerminal tuple.CloseParen
     | BinaryOperator operator ->
         printExpression operator.Left
