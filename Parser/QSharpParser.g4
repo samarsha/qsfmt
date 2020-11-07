@@ -8,14 +8,16 @@ program : namespace* EOF;
 
 // Namespace
 
-namespace : 'namespace' qualifiedName BraceLeft namespaceElement* BraceRight;
+namespace
+    : keyword='namespace' name=qualifiedName openBrace=BraceLeft elements+=namespaceElement* closeBrace=BraceRight
+    ;
 
 qualifiedName : Identifier ('.' Identifier)*;
 
 namespaceElement
     : openDirective # OpenElement
     | typeDeclaration # TypeElement
-    | callableDeclaration # CallableElement
+    | callable=callableDeclaration # CallableElement
     ;
 
 // Open Directive
@@ -51,10 +53,10 @@ namedItem : Identifier ':' type;
 // Callable Declaration
 
 callableDeclaration
-    : declarationPrefix ('function' | 'operation')
-      Identifier typeParameterBinding? parameterTuple
-      ':' type characteristics?
-      callableBody
+    : declarationPrefix keyword=('function' | 'operation')
+      name=Identifier typeParameterBinding? parameterTuple
+      colon=':' returnType=type characteristics?
+      body=callableBody
     ;
 
 typeParameterBinding : '<' (TypeParameter (',' TypeParameter)*)? '>';
@@ -122,7 +124,7 @@ type
     | 'Result' # ResultType
     | 'String' # StringType
     | 'Unit' # UnitType
-    | qualifiedName # UserDefinedType
+    | name=qualifiedName # UserDefinedType
     | '(' (type (',' type)* ','?)? ')' # TupleType
     | '(' arrowType characteristics? ')' # CallableType
     | type '[' ']' # ArrayType
@@ -137,9 +139,9 @@ arrowType
 
 statement
     : expression ';' # ExpressionStatement
-    | 'return' expression ';' # ReturnStatement
+    | return='return' value=expression semicolon=';' # ReturnStatement
     | 'fail' expression ';' # FailStatement
-    | 'let' symbolBinding '=' expression ';' # LetStatement
+    | let='let' binding=symbolBinding equals='=' value=expression semicolon=';' # LetStatement
     | 'mutable' symbolBinding '=' expression ';' # MutableStatement
     | 'set' symbolBinding '=' expression ';' # SetStatement
     | 'set' Identifier updateOperator expression ';' # SetUpdateStatement
@@ -157,12 +159,12 @@ statement
     | 'borrowing' '(' symbolBinding '=' qubitInitializer ')' scope # BorrowingStatement
     ;
 
-scope : BraceLeft statement* BraceRight;
+scope : openBrace=BraceLeft statements+=statement* closeBrace=BraceRight;
 
 symbolBinding
     : '_' # DiscardSymbol
-    | Identifier # SymbolName
-    | '(' (symbolBinding (',' symbolBinding)* ','?)? ')' # SymbolTuple
+    | name=Identifier # SymbolName
+    | '(' (bindings+=symbolBinding (',' bindings+=symbolBinding)* ','?)? ')' # SymbolTuple
     ;
 
 updateOperator
@@ -191,8 +193,8 @@ qubitInitializer
 
 expression
     : '_' # MissingExpression
-    | qualifiedName ('<' (type (',' type)* ','?)? '>')? # IdentifierExpression
-    | IntegerLiteral # IntegerExpression
+    | name=qualifiedName ('<' (type (',' type)* ','?)? '>')? # IdentifierExpression
+    | value=IntegerLiteral # IntegerExpression
     | BigIntegerLiteral # BigIntegerExpression
     | DoubleLiteral # DoubleExpression
     | DoubleQuote stringContent* StringDoubleQuote # StringExpression
@@ -200,7 +202,7 @@ expression
     | boolLiteral # BoolExpression
     | resultLiteral # ResultExpression
     | pauliLiteral # PauliExpression
-    | '(' (expression (',' expression)* ','?)? ')' # TupleExpression
+    | openParen='(' (items+=expression (',' items+=expression)* ','?)? closeParen=')' # TupleExpression
     | '[' (expression (',' expression)* ','?)? ']' # ArrayExpression
     | 'new' type '[' expression ']' # NewArrayExpression
     | expression ('::' Identifier | '[' expression ']') # ItemAccessExpression
@@ -211,7 +213,7 @@ expression
     | <assoc=right> ('-' | 'not' | '~~~') expression # NegationExpression
     | <assoc=right> expression '^' expression # ExponentExpression
     | expression ('*' | '/' | '%') expression # MultiplyExpression
-    | expression ('+' | '-') expression # AddExpression
+    | left=expression operator=('+' | '-') right=expression # AddExpression
     | expression ('>>>' | '<<<') expression # ShiftExpression
     | expression ('>' | '<' | '>=' | '<=') expression # CompareExpression
     | expression ('==' | '!=') expression # EqualsExpression
@@ -225,7 +227,7 @@ expression
     | expression '...' # RightOpenRangeExpression
     | '...' expression # LeftOpenRangeExpression
     | '...' # OpenRangeExpression
-    | expression 'w/' expression '<-' expression # UpdateExpression
+    | record=expression with='w/' item=expression arrow='<-' value=expression # UpdateExpression
     ;
 
 boolLiteral

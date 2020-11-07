@@ -21,7 +21,7 @@ and BinaryOperator =
       Right : Expression Node }
 
 and Update =
-    { Base : Expression Node
+    { Record : Expression Node
       With : Terminal Node
       Item : Expression Node
       Arrow : Terminal Node
@@ -47,7 +47,7 @@ type Let =
     { LetKeyword : Terminal Node
       Binding : SymbolBinding Node
       Equals : Terminal Node
-      Expression : Expression Node
+      Value : Expression Node
       Semicolon : Terminal Node }
 
 type Statement =

@@ -25,7 +25,7 @@ let rec private printExpression = printToken <| function
         + printTerminal operator.Operator
         + printExpression operator.Right
     | Update update ->
-        printExpression update.Base
+        printExpression update.Record
         + printTerminal update.With
         + printExpression update.Item
         + printTerminal update.Arrow
@@ -44,7 +44,7 @@ let private printStatement = printToken <| function
         printTerminal letStmt.LetKeyword
         + printSymbolTuple letStmt.Binding
         + printTerminal letStmt.Equals
-        + printExpression letStmt.Expression
+        + printExpression letStmt.Value
         + printTerminal letStmt.Semicolon
 
 let private printNamespaceElement = printToken <| function

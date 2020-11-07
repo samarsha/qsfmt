@@ -25,7 +25,7 @@ let rec private mapExpressionTrivia f = mapNode f <| function
           Right = mapExpressionTrivia f operator.Right }
         |> BinaryOperator
     | Update update ->
-        { Base = mapExpressionTrivia f update.Base
+        { Record = mapExpressionTrivia f update.Record
           With = mapNode f id update.With
           Item = mapExpressionTrivia f update.Item
           Arrow = mapNode f id update.Arrow
@@ -46,7 +46,7 @@ let private mapStatementTrivia f = mapNode f <| function
         { LetKeyword = mapNode f id letStmt.LetKeyword
           Binding = mapSymbolTupleTrivia f letStmt.Binding
           Equals = mapNode f id letStmt.Equals
-          Expression = mapExpressionTrivia f letStmt.Expression
+          Value = mapExpressionTrivia f letStmt.Value
           Semicolon = mapNode f id letStmt.Semicolon }
         |> Let
 
