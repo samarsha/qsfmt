@@ -40,7 +40,9 @@ let private flip f x y = f y x
 type private TypeVisitor (tokens) =
     inherit QSharpParserBaseVisitor<Type Node> ()
 
-    override _.DefaultResult = missingNode
+    override _.DefaultResult = failwith "Unknown type."
+
+    override _.VisitIntType context = Int |> toNode tokens context
 
     override _.VisitUserDefinedType context =
         context.qualifiedName().GetText () |> TypeName |> toNode tokens context
@@ -48,7 +50,7 @@ type private TypeVisitor (tokens) =
 type private ExpressionVisitor (tokens) =
     inherit QSharpParserBaseVisitor<Expression Node> ()
 
-    override _.DefaultResult = missingNode
+    override _.DefaultResult = failwith "Unknown expression."
 
     override _.VisitMissingExpression context =
         MissingExpression |> toNode tokens context
@@ -75,10 +77,20 @@ type private ExpressionVisitor (tokens) =
         |> toNode tokens context
         |> withoutTrailingTrivia
 
+    override this.VisitUpdateExpression context =
+        { Base = context.expression 0 |> this.Visit
+          With = (=) "w/" |> findTerminal tokens context
+          Item = context.expression 1 |> this.Visit
+          Arrow = (=) "<-" |> findTerminal tokens context
+          Value = context.expression 2 |> this.Visit }
+        |> Update
+        |> toNode tokens context
+        |> withoutTrailingTrivia
+
 type private SymbolBindingVisitor (tokens) =
     inherit QSharpParserBaseVisitor<SymbolBinding Node> ()
 
-    override _.DefaultResult = missingNode
+    override _.DefaultResult = failwith "Unknown symbol binding."
 
     override _.VisitSymbolName context =
         context.Identifier () |> toTerminal tokens |> SymbolName |> toNode tokens context
@@ -97,7 +109,7 @@ type private StatementVisitor (tokens) =
 
     let symbolBindingVisitor = SymbolBindingVisitor tokens
 
-    override _.DefaultResult = missingNode
+    override _.DefaultResult = failwith "Unknown statement."
 
     override _.VisitReturnStatement context =
         { ReturnKeyword = (=) "return" |> findTerminal tokens context
@@ -124,14 +136,15 @@ type private NamespaceElementVisitor (tokens) =
 
     let statementVisitor = StatementVisitor tokens
 
-    override _.DefaultResult = missingNode
+    override _.DefaultResult = failwith "Unknown namespace element."
 
-    override _.VisitCallableDeclaration context =
-        let scope = context.callableBody().scope () // TODO
+    override _.VisitCallableElement context =
+        let callable = context.callableDeclaration ()
+        let scope = callable.callableBody().scope () // TODO
         { CallableKeyword = [ "function"; "operation" ] |> flip List.contains |> findTerminal tokens context
-          Name = context.Identifier () |> toTerminal tokens
+          Name = callable.Identifier () |> toTerminal tokens
           Colon = (=) ":" |> findTerminal tokens context
-          ReturnType = context.``type`` () |> typeVisitor.Visit
+          ReturnType = callable.``type`` () |> typeVisitor.Visit
           OpenBrace = (=) "{" |> findTerminal tokens scope
           Statements = scope.statement() |> Array.toList |> List.map statementVisitor.Visit
           CloseBrace = (=) "}" |> findTerminal tokens scope }
@@ -145,7 +158,7 @@ let private toNamespaceToken tokens (context : QSharpParser.NamespaceContext) =
     { NamespaceKeyword = (=) "namespace" |> findTerminal tokens context
       Name = name.GetText () |> Terminal |> toNode tokens name
       OpenBrace = (=) "{" |> findTerminal tokens context
-      Elements = context.namespaceElement () |> Array.toList |> List.map visitor.Visit
+      Elements = context.namespaceElement () |> Seq.map visitor.Visit |> List.ofSeq
       CloseBrace = (=) "}" |> findTerminal tokens context }
     |> toNode tokens context
     |> withoutTrailingTrivia

@@ -13,9 +13,9 @@ namespace : 'namespace' qualifiedName BraceLeft namespaceElement* BraceRight;
 qualifiedName : Identifier ('.' Identifier)*;
 
 namespaceElement
-    : openDirective
-    | typeDeclaration
-    | callableDeclaration
+    : openDirective # OpenElement
+    | typeDeclaration # TypeElement
+    | callableDeclaration # CallableElement
     ;
 
 // Open Directive
@@ -225,7 +225,7 @@ expression
     | expression '...' # RightOpenRangeExpression
     | '...' expression # LeftOpenRangeExpression
     | '...' # OpenRangeExpression
-    | expression 'w/' expression '<-' expression # WithExpression
+    | expression 'w/' expression '<-' expression # UpdateExpression
     ;
 
 boolLiteral

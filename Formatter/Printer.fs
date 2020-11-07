@@ -11,6 +11,7 @@ let private printToken printNode node =
 let private printTerminal = printToken <| fun (Terminal text) -> text
 
 let private printType = printToken <| function
+    | Int -> "Int"
     | TypeName name -> name
 
 let rec private printExpression = printToken <| function
@@ -23,6 +24,12 @@ let rec private printExpression = printToken <| function
         printExpression operator.Left
         + printTerminal operator.Operator
         + printExpression operator.Right
+    | Update update ->
+        printExpression update.Base
+        + printTerminal update.With
+        + printExpression update.Item
+        + printTerminal update.Arrow
+        + printExpression update.Value
 
 let rec private printSymbolTuple = printToken <| function
     | SymbolName symbol -> printTerminal symbol

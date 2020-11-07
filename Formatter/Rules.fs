@@ -24,6 +24,13 @@ let rec private mapExpressionTrivia f = mapNode f <| function
           Operator = mapNode f id operator.Operator
           Right = mapExpressionTrivia f operator.Right }
         |> BinaryOperator
+    | Update update ->
+        { Base = mapExpressionTrivia f update.Base
+          With = mapNode f id update.With
+          Item = mapExpressionTrivia f update.Item
+          Arrow = mapNode f id update.Arrow
+          Value = mapExpressionTrivia f update.Value }
+        |> Update
 
 let rec private mapSymbolTupleTrivia f = mapNode f <| function
     | SymbolName symbol -> mapNode f id symbol |> SymbolName

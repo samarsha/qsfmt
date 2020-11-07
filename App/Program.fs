@@ -6,7 +6,7 @@ namespace     Foo {
         let x= // Newlines are preserved.
             (7 -   1) // Comments too.
             + 4;
-        return  x;
+        return  x w/ Foo <- 7;
     }
 }"
 

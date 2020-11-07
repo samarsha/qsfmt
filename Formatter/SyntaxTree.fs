@@ -7,6 +7,7 @@ type 'a Node =
 type Terminal = Terminal of string
 
 type Type =
+    | Int
     | TypeName of string
 
 type Tuple =
@@ -19,11 +20,19 @@ and BinaryOperator =
       Operator : Terminal Node
       Right : Expression Node }
 
+and Update =
+    { Base : Expression Node
+      With : Terminal Node
+      Item : Expression Node
+      Arrow : Terminal Node
+      Value : Expression Node }
+
 and Expression =
     | MissingExpression
     | Literal of string
     | Tuple of Tuple
     | BinaryOperator of BinaryOperator
+    | Update of Update
 
 type SymbolBinding =
     | SymbolName of Terminal Node
