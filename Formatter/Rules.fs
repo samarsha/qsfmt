@@ -14,10 +14,10 @@ let private mapNode mapTrivia mapKind node =
           Kind = node.Kind |> Option.map mapKind
           TrailingTrivia = mapTrivia node.TrailingTrivia }
 
-let rec private mapSequenceItem mapTrivia mapItem mapTerminal item =
+let rec private mapSequenceItem mapComma mapItem item =
     { item with
-          Item = item.Item |> mapNode mapTrivia mapItem
-          Comma = item.Comma |> mapNode mapTrivia mapTerminal }
+          Item = mapItem item.Item
+          Comma = mapComma item.Comma }
 
 let rec private mapExpressionTrivia f = mapNode f <| function
     | MissingExpression -> MissingExpression
@@ -25,7 +25,7 @@ let rec private mapExpressionTrivia f = mapNode f <| function
     | Tuple tuple ->
         Tuple {
             OpenParen = mapNode f id tuple.OpenParen
-            Items = tuple.Items |> List.map (mapSequenceItem f id id)
+            Items = tuple.Items |> List.map (mapSequenceItem (mapNode f id) (mapExpressionTrivia f))
             CloseParen = mapNode f id tuple.CloseParen }
     | BinaryOperator operator ->
         BinaryOperator {
