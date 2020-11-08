@@ -11,7 +11,11 @@
     <Compile Include="SyntaxTree\Expression.fs" />
     <Compile Include="SyntaxTree\Statement.fs" />
     <Compile Include="SyntaxTree\Namespace.fs" />
-    <Compile Include="ParseTree.fs" />
+    <Compile Include="ParseTree\Node.fs" />
+    <Compile Include="ParseTree\Type.fs" />
+    <Compile Include="ParseTree\Expression.fs" />
+    <Compile Include="ParseTree\Statement.fs" />
+    <Compile Include="ParseTree\Namespace.fs" />
     <Compile Include="Printer.fs" />
     <Compile Include="Rules.fs" />
     <Compile Include="Errors.fs" />

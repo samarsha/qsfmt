@@ -2,7 +2,7 @@
 
 open Antlr4.Runtime
 open QsFmt.Formatter.Errors
-open QsFmt.Formatter.ParseTree
+open QsFmt.Formatter.ParseTree.Namespace
 open QsFmt.Formatter.Printer
 open QsFmt.Formatter.Rules
 open QsFmt.Parser
