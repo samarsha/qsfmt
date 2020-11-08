@@ -15,19 +15,65 @@ let private printToken printNode node =
 let private printTerminal = printToken <| fun (Terminal text) -> text
 
 let private printSequenceItem printItem (item : _ SequenceItem) =
-    printItem item.Item
-    + printTerminal item.Comma
+    printItem item.Item + printTerminal item.Comma
 
-let private printType = printToken <| function
+let private printSequenceItems printItem = List.map (printSequenceItem printItem) >> String.concat ""
+
+let rec private printCharacteristic = printToken <| function
+    | Adjoint -> "Adj"
+    | Controlled -> "Ctl"
+    | CharacteristicGroup group ->
+        printTerminal group.OpenParen
+        + printCharacteristic group.Characteristic
+        + printTerminal group.CloseParen
+    | CharacteristicBinaryOperator operator ->
+        printCharacteristic operator.Left
+        + printTerminal operator.Operator
+        + printCharacteristic operator.Right
+
+let private printCharacteristics = printToken <| fun characteristics ->
+    printTerminal characteristics.IsKeyword
+    + printCharacteristic characteristics.Characteristic
+
+let rec private printType = printToken <| function
+    | MissingType -> "_"
+    | TypeParameter name -> name
+    | BigInt -> "BigInt"
+    | Bool -> "Bool"
+    | Double -> "Double"
     | Int -> "Int"
+    | Pauli -> "Pauli"
+    | Qubit -> "Qubit"
+    | Range -> "Range"
+    | Result -> "Result"
+    | String -> "String"
+    | Unit -> "Unit"
     | UserDefinedType name -> name
+    | TupleType tuple ->
+        printTerminal tuple.OpenParen
+        + printSequenceItems printType tuple.Items
+        + printTerminal tuple.CloseParen
+    | ArrayType array ->
+        printType array.BaseType
+        + printTerminal array.OpenBracket
+        + printTerminal array.CloseBracket
+    | CallableType callable ->
+        printTerminal callable.OpenParen
+        + printTerminal callable.InnerOpenParen
+        + printType callable.FromType
+        + printTerminal callable.Arrow
+        + printType callable.ToType
+        + printTerminal callable.InnerCloseParen
+        + (callable.Characteristics |> Option.map printCharacteristics |> Option.defaultValue "")
+        + printTerminal callable.CloseParen
 
 let rec private printExpression = printToken <| function
     | MissingExpression -> "_"
     | Literal text -> text
     | Tuple tuple ->
-        let items = tuple.Items |> List.map (printSequenceItem printExpression) |> String.concat ""
-        printTerminal tuple.OpenParen + items + printTerminal tuple.CloseParen
+        printTerminal tuple.OpenParen
+        + printSequenceItems printExpression tuple.Items
+        + printTerminal tuple.CloseParen
     | BinaryOperator operator ->
         printExpression operator.Left
         + printTerminal operator.Operator

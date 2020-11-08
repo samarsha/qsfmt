@@ -39,7 +39,7 @@ and CallableType =
       Arrow : Terminal Node
       ToType : Type Node
       InnerCloseParen : Terminal Node
-      Characteristic : CharacteristicSection Node option
+      Characteristics : CharacteristicSection Node option
       CloseParen : Terminal Node }
 
 and Type =
