@@ -4,7 +4,10 @@ open System.Text.RegularExpressions
 
 #nowarn "40"
 
-open QsFmt.Formatter.SyntaxTree
+open QsFmt.Formatter.SyntaxTree.Expression
+open QsFmt.Formatter.SyntaxTree.Namespace
+open QsFmt.Formatter.SyntaxTree.Node
+open QsFmt.Formatter.SyntaxTree.Statement
 
 let private mapNode mapTrivia mapKind node =
     { node with
@@ -20,22 +23,22 @@ let rec private mapExpressionTrivia f = mapNode f <| function
     | MissingExpression -> MissingExpression
     | Literal text -> Literal text
     | Tuple tuple ->
-        { OpenParen = mapNode f id tuple.OpenParen
-          Items = tuple.Items |> List.map (mapSequenceItem f id id)
-          CloseParen = mapNode f id tuple.CloseParen }
-        |> Tuple
+        Tuple {
+            OpenParen = mapNode f id tuple.OpenParen
+            Items = tuple.Items |> List.map (mapSequenceItem f id id)
+            CloseParen = mapNode f id tuple.CloseParen }
     | BinaryOperator operator ->
-        { Left = mapExpressionTrivia f operator.Left
-          Operator = mapNode f id operator.Operator
-          Right = mapExpressionTrivia f operator.Right }
-        |> BinaryOperator
+        BinaryOperator {
+            Left = mapExpressionTrivia f operator.Left
+            Operator = mapNode f id operator.Operator
+            Right = mapExpressionTrivia f operator.Right }
     | Update update ->
-        { Record = mapExpressionTrivia f update.Record
-          With = mapNode f id update.With
-          Item = mapExpressionTrivia f update.Item
-          Arrow = mapNode f id update.Arrow
-          Value = mapExpressionTrivia f update.Value }
-        |> Update
+        Update {
+            Record = mapExpressionTrivia f update.Record
+            With = mapNode f id update.With
+            Item = mapExpressionTrivia f update.Item
+            Arrow = mapNode f id update.Arrow
+            Value = mapExpressionTrivia f update.Value }
 
 let rec private mapSymbolTupleTrivia f = mapNode f <| function
     | SymbolName symbol -> mapNode f id symbol |> SymbolName
@@ -43,28 +46,28 @@ let rec private mapSymbolTupleTrivia f = mapNode f <| function
 
 let private mapStatementTrivia f = mapNode f <| function
     | Return returnStmt ->
-        { ReturnKeyword = mapNode f id returnStmt.ReturnKeyword
-          Expression = mapExpressionTrivia f returnStmt.Expression
-          Semicolon = mapNode f id returnStmt.Semicolon }
-        |> Return
+        Return {
+            ReturnKeyword = mapNode f id returnStmt.ReturnKeyword
+            Expression = mapExpressionTrivia f returnStmt.Expression
+            Semicolon = mapNode f id returnStmt.Semicolon }
     | Let letStmt ->
-        { LetKeyword = mapNode f id letStmt.LetKeyword
-          Binding = mapSymbolTupleTrivia f letStmt.Binding
-          Equals = mapNode f id letStmt.Equals
-          Value = mapExpressionTrivia f letStmt.Value
-          Semicolon = mapNode f id letStmt.Semicolon }
-        |> Let
+        Let {
+            LetKeyword = mapNode f id letStmt.LetKeyword
+            Binding = mapSymbolTupleTrivia f letStmt.Binding
+            Equals = mapNode f id letStmt.Equals
+            Value = mapExpressionTrivia f letStmt.Value
+            Semicolon = mapNode f id letStmt.Semicolon }
 
 let private mapNamespaceElementTrivia f = mapNode f <| function
     | CallableDeclaration callable ->
-        { CallableKeyword = mapNode f id callable.CallableKeyword
-          Name = mapNode f id callable.Name
-          Colon = mapNode f id callable.Colon
-          ReturnType = mapNode f id callable.ReturnType
-          OpenBrace = mapNode f id callable.OpenBrace
-          Statements = callable.Statements |> List.map (mapStatementTrivia f)
-          CloseBrace = mapNode f id callable.CloseBrace }
-        |> CallableDeclaration
+        CallableDeclaration {
+            CallableKeyword = mapNode f id callable.CallableKeyword
+            Name = mapNode f id callable.Name
+            Colon = mapNode f id callable.Colon
+            ReturnType = mapNode f id callable.ReturnType
+            OpenBrace = mapNode f id callable.OpenBrace
+            Statements = callable.Statements |> List.map (mapStatementTrivia f)
+            CloseBrace = mapNode f id callable.CloseBrace }
 
 let private mapNamespaceTrivia f = mapNode f <| fun ns ->
     { NamespaceKeyword = mapNode f id ns.NamespaceKeyword
@@ -94,8 +97,9 @@ let singleSpaceAfterLetBinding =
 
     let mapNamespaceElement = mapNode id <| function
         | CallableDeclaration callable ->
-            { callable with Statements = callable.Statements |> List.map mapStatement }
-            |> CallableDeclaration
+            CallableDeclaration {
+                callable with
+                    Statements = callable.Statements |> List.map mapStatement }
 
     let mapNamespace = mapNode id <| fun ns ->
         { ns with Elements = ns.Elements |> List.map mapNamespaceElement }

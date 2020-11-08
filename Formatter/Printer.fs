@@ -2,7 +2,11 @@
 
 #nowarn "40"
 
-open QsFmt.Formatter.SyntaxTree
+open QsFmt.Formatter.SyntaxTree.Expression
+open QsFmt.Formatter.SyntaxTree.Namespace
+open QsFmt.Formatter.SyntaxTree.Node
+open QsFmt.Formatter.SyntaxTree.Statement
+open QsFmt.Formatter.SyntaxTree.Type
 
 let private printToken printNode node =
     (node.Kind |> Option.map printNode |> Option.defaultValue "")
@@ -16,7 +20,7 @@ let private printSequenceItem printItem (item : _ SequenceItem) =
 
 let private printType = printToken <| function
     | Int -> "Int"
-    | TypeName name -> name
+    | UserDefinedType name -> name
 
 let rec private printExpression = printToken <| function
     | MissingExpression -> "_"

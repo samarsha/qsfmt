@@ -1,7 +1,11 @@
 ﻿module internal QsFmt.Formatter.ParseTree
 
 open Antlr4.Runtime
-open QsFmt.Formatter.SyntaxTree
+open QsFmt.Formatter.SyntaxTree.Expression
+open QsFmt.Formatter.SyntaxTree.Namespace
+open QsFmt.Formatter.SyntaxTree.Node
+open QsFmt.Formatter.SyntaxTree.Statement
+open QsFmt.Formatter.SyntaxTree.Type
 open QsFmt.Parser
 open System.Collections.Generic
 open System.Collections.Immutable
@@ -9,8 +13,7 @@ open System.Collections.Immutable
 let private hiddenTokensToRight (tokens : IToken ImmutableArray) index =
     seq {
         for i in index + 1 .. tokens.Length - 1 do
-            tokens.[i]
-    }
+            tokens.[i] }
     |> Seq.takeWhile (fun token -> token.Channel = QSharpLexer.Hidden)
 
 let private trailingTrivia tokens index =
@@ -43,7 +46,7 @@ type private TypeVisitor (tokens) =
 
     override _.VisitIntType context = Int |> toNode tokens context
 
-    override _.VisitUserDefinedType context = context.name.GetText () |> TypeName |> toNode tokens context
+    override _.VisitUserDefinedType context = context.name.GetText () |> UserDefinedType |> toNode tokens context
 
 type private ExpressionVisitor (tokens) =
     inherit QSharpParserBaseVisitor<Expression Node> ()
@@ -63,30 +66,30 @@ type private ExpressionVisitor (tokens) =
             padZip (expressions, missingNode) (commas, missingNode)
             |> Seq.map (fun (item, comma) -> { Item = item; Comma = comma })
             |> List.ofSeq
-        { OpenParen = context.openParen |> toTerminal tokens
-          Items = items
-          CloseParen = context.closeParen |> toTerminal tokens }
-        |> Tuple
+        Tuple {
+            OpenParen = context.openParen |> toTerminal tokens
+            Items = items
+            CloseParen = context.closeParen |> toTerminal tokens }
         |> toNode tokens context
-        |> withoutTrailingTrivia
+        |> withoutTrivia
 
     override visitor.VisitAddExpression context =
-        { Left = visitor.Visit context.left
-          Operator = context.operator |> toTerminal tokens
-          Right = visitor.Visit context.right }
-        |> BinaryOperator
+        BinaryOperator {
+            Left = visitor.Visit context.left
+            Operator = context.operator |> toTerminal tokens
+            Right = visitor.Visit context.right }
         |> toNode tokens context
-        |> withoutTrailingTrivia
+        |> withoutTrivia
 
     override visitor.VisitUpdateExpression context =
-        { Record = visitor.Visit context.record
-          With = context.``with`` |> toTerminal tokens
-          Item = visitor.Visit context.item
-          Arrow = context.arrow |> toTerminal tokens
-          Value = visitor.Visit context.value }
-        |> Update
+        Update {
+            Record = visitor.Visit context.record
+            With = context.``with`` |> toTerminal tokens
+            Item = visitor.Visit context.item
+            Arrow = context.arrow |> toTerminal tokens
+            Value = visitor.Visit context.value }
         |> toNode tokens context
-        |> withoutTrailingTrivia
+        |> withoutTrivia
 
 type private SymbolBindingVisitor (tokens) =
     inherit QSharpParserBaseVisitor<SymbolBinding Node> ()
@@ -108,22 +111,22 @@ type private StatementVisitor (tokens) =
     override _.DefaultResult = failwith "Unknown statement."
 
     override _.VisitReturnStatement context =
-        { ReturnKeyword = context.``return`` |> toTerminal tokens
-          Expression = expressionVisitor.Visit context.value
-          Semicolon = context.semicolon |> toTerminal tokens }
-        |> Return
+        Return {
+            ReturnKeyword = context.``return`` |> toTerminal tokens
+            Expression = expressionVisitor.Visit context.value
+            Semicolon = context.semicolon |> toTerminal tokens }
         |> toNode tokens context
-        |> withoutTrailingTrivia
+        |> withoutTrivia
 
     override _.VisitLetStatement context =
-        { LetKeyword = context.``let`` |> toTerminal tokens
-          Binding = symbolBindingVisitor.Visit context.binding
-          Equals = context.equals |> toTerminal tokens
-          Value = expressionVisitor.Visit context.value
-          Semicolon = context.semicolon |> toTerminal tokens }
-        |> Let
+        Let {
+            LetKeyword = context.``let`` |> toTerminal tokens
+            Binding = symbolBindingVisitor.Visit context.binding
+            Equals = context.equals |> toTerminal tokens
+            Value = expressionVisitor.Visit context.value
+            Semicolon = context.semicolon |> toTerminal tokens }
         |> toNode tokens context
-        |> withoutTrailingTrivia
+        |> withoutTrivia
 
 type private NamespaceElementVisitor (tokens) =
     inherit QSharpParserBaseVisitor<NamespaceElement Node> ()
@@ -136,16 +139,16 @@ type private NamespaceElementVisitor (tokens) =
 
     override _.VisitCallableElement context =
         let scope = context.callable.body.scope () // TODO
-        { CallableKeyword = context.callable.keyword |> toTerminal tokens
-          Name = context.callable.name |> toTerminal tokens
-          Colon = context.callable.colon |> toTerminal tokens
-          ReturnType = typeVisitor.Visit context.callable.returnType
-          OpenBrace = scope.openBrace |> toTerminal tokens
-          Statements = scope._statements |> Seq.map statementVisitor.Visit |> List.ofSeq
-          CloseBrace = scope.closeBrace |> toTerminal tokens }
-        |> CallableDeclaration
+        CallableDeclaration {
+            CallableKeyword = context.callable.keyword |> toTerminal tokens
+            Name = context.callable.name |> toTerminal tokens
+            Colon = context.callable.colon |> toTerminal tokens
+            ReturnType = typeVisitor.Visit context.callable.returnType
+            OpenBrace = scope.openBrace |> toTerminal tokens
+            Statements = scope._statements |> Seq.map statementVisitor.Visit |> List.ofSeq
+            CloseBrace = scope.closeBrace |> toTerminal tokens }
         |> toNode tokens context
-        |> withoutTrailingTrivia
+        |> withoutTrivia
 
 let private toNamespaceToken tokens (context : QSharpParser.NamespaceContext) =
     let visitor = NamespaceElementVisitor tokens
@@ -155,7 +158,7 @@ let private toNamespaceToken tokens (context : QSharpParser.NamespaceContext) =
       Elements = context._elements |> Seq.map visitor.Visit |> List.ofSeq
       CloseBrace = context.closeBrace |> toTerminal tokens }
     |> toNode tokens context
-    |> withoutTrailingTrivia
+    |> withoutTrivia
 
 let toProgramToken tokens (context : QSharpParser.ProgramContext) =
     context.``namespace`` ()
@@ -163,4 +166,4 @@ let toProgramToken tokens (context : QSharpParser.ProgramContext) =
     |> List.map (toNamespaceToken tokens)
     |> Program
     |> toNode tokens context
-    |> withoutTrailingTrivia
+    |> withoutTrivia
