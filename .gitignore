@@ -1,5 +1,5 @@
-.idea
-
-bin
-gen
-obj
+.idea/
+.vs/
+bin/
+gen/
+obj/
