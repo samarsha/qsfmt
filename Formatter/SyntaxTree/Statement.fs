@@ -8,16 +8,16 @@ type SymbolBinding =
     | SymbolTuple of SymbolBinding Node list
 
 type Return =
-    { ReturnKeyword : Terminal Node
-      Expression : Expression Node
-      Semicolon : Terminal Node }
+    { ReturnKeyword: Terminal Node
+      Expression: Expression Node
+      Semicolon: Terminal Node }
 
 type Let =
-    { LetKeyword : Terminal Node
-      Binding : SymbolBinding Node
-      Equals : Terminal Node
-      Value : Expression Node
-      Semicolon : Terminal Node }
+    { LetKeyword: Terminal Node
+      Binding: SymbolBinding Node
+      Equals: Terminal Node
+      Value: Expression Node
+      Semicolon: Terminal Node }
 
 type Statement =
     | Return of Return

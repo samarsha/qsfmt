@@ -8,14 +8,20 @@ open QsFmt.Formatter.Rules
 open QsFmt.Parser
 open System.Collections.Immutable
 
-let format (source : string) =
-    let tokenStream = source |> AntlrInputStream |> QSharpLexer |> CommonTokenStream
+let format (source: string) =
+    let tokenStream =
+        source
+        |> AntlrInputStream
+        |> QSharpLexer
+        |> CommonTokenStream
+
     let parser = QSharpParser tokenStream
-    let errorListener = ErrorListListener ()
+    let errorListener = ErrorListListener()
     parser.AddErrorListener errorListener
     let program = parser.program ()
+
     let tokens =
-        tokenStream.GetTokens ()
+        tokenStream.GetTokens()
         |> hideTokens errorListener.ErrorTokens
         |> ImmutableArray.CreateRange
 

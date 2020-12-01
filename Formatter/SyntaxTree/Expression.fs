@@ -3,21 +3,21 @@
 open QsFmt.Formatter.SyntaxTree.Node
 
 type Tuple =
-    { OpenParen : Terminal Node
-      Items : Expression SequenceItem list
-      CloseParen : Terminal Node }
+    { OpenParen: Terminal Node
+      Items: Expression SequenceItem list
+      CloseParen: Terminal Node }
 
 and BinaryOperator =
-    { Left : Expression Node
-      Operator : Terminal Node
-      Right : Expression Node }
+    { Left: Expression Node
+      Operator: Terminal Node
+      Right: Expression Node }
 
 and Update =
-    { Record : Expression Node
-      With : Terminal Node
-      Item : Expression Node
-      Arrow : Terminal Node
-      Value : Expression Node }
+    { Record: Expression Node
+      With: Terminal Node
+      Item: Expression Node
+      Arrow: Terminal Node
+      Value: Expression Node }
 
 and Expression =
     | MissingExpression

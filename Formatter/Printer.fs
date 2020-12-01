@@ -9,17 +9,24 @@ open QsFmt.Formatter.SyntaxTree.Statement
 open QsFmt.Formatter.SyntaxTree.Type
 
 let private printToken printNode node =
-    (node.Kind |> Option.map printNode |> Option.defaultValue "")
+    (node.Kind
+     |> Option.map printNode
+     |> Option.defaultValue "")
     + node.TrailingTrivia
 
-let private printTerminal = printToken <| fun (Terminal text) -> text
+let private printTerminal =
+    printToken <| fun (Terminal text) -> text
 
-let private printSequenceItem printItem (item : _ SequenceItem) =
+let private printSequenceItem printItem (item: _ SequenceItem) =
     printItem item.Item + printTerminal item.Comma
 
-let private printSequenceItems printItem = List.map (printSequenceItem printItem) >> String.concat ""
+let private printSequenceItems printItem =
+    List.map (printSequenceItem printItem)
+    >> String.concat ""
 
-let rec private printCharacteristic = printToken <| function
+let rec private printCharacteristic =
+    printToken
+    <| function
     | Adjoint -> "Adj"
     | Controlled -> "Ctl"
     | CharacteristicGroup group ->
@@ -31,11 +38,15 @@ let rec private printCharacteristic = printToken <| function
         + printTerminal operator.Operator
         + printCharacteristic operator.Right
 
-let private printCharacteristics = printToken <| fun characteristics ->
-    printTerminal characteristics.IsKeyword
-    + printCharacteristic characteristics.Characteristic
+let private printCharacteristics =
+    printToken
+    <| fun characteristics ->
+        printTerminal characteristics.IsKeyword
+        + printCharacteristic characteristics.Characteristic
 
-let rec private printType = printToken <| function
+let rec private printType =
+    printToken
+    <| function
     | MissingType -> "_"
     | TypeParameter name -> name
     | BigInt -> "BigInt"
@@ -64,10 +75,14 @@ let rec private printType = printToken <| function
         + printTerminal callable.Arrow
         + printType callable.ToType
         + printTerminal callable.InnerCloseParen
-        + (callable.Characteristics |> Option.map printCharacteristics |> Option.defaultValue "")
+        + (callable.Characteristics
+           |> Option.map printCharacteristics
+           |> Option.defaultValue "")
         + printTerminal callable.CloseParen
 
-let rec private printExpression = printToken <| function
+let rec private printExpression =
+    printToken
+    <| function
     | MissingExpression -> "_"
     | Literal text -> text
     | Tuple tuple ->
@@ -85,11 +100,18 @@ let rec private printExpression = printToken <| function
         + printTerminal update.Arrow
         + printExpression update.Value
 
-let rec private printSymbolTuple = printToken <| function
+let rec private printSymbolTuple =
+    printToken
+    <| function
     | SymbolName symbol -> printTerminal symbol
-    | SymbolTuple tuples -> tuples |> List.map printSymbolTuple |> String.concat ""
+    | SymbolTuple tuples ->
+        tuples
+        |> List.map printSymbolTuple
+        |> String.concat ""
 
-let private printStatement = printToken <| function
+let private printStatement =
+    printToken
+    <| function
     | Return returnStmt ->
         printTerminal returnStmt.ReturnKeyword
         + printExpression returnStmt.Expression
@@ -101,9 +123,15 @@ let private printStatement = printToken <| function
         + printExpression letStmt.Value
         + printTerminal letStmt.Semicolon
 
-let private printNamespaceElement = printToken <| function
+let private printNamespaceElement =
+    printToken
+    <| function
     | CallableDeclaration callable ->
-        let statements = callable.Statements |> List.map printStatement |> String.concat ""
+        let statements =
+            callable.Statements
+            |> List.map printStatement
+            |> String.concat ""
+
         printTerminal callable.CallableKeyword
         + printTerminal callable.Name
         + "() "
@@ -113,13 +141,23 @@ let private printNamespaceElement = printToken <| function
         + statements
         + printTerminal callable.CloseBrace
 
-let private printNamespace = printToken <| fun ns ->
-    let elements = ns.Elements |> List.map printNamespaceElement |> String.concat ""
-    printTerminal ns.NamespaceKeyword
-    + printTerminal ns.Name
-    + printTerminal ns.OpenBrace
-    + elements
-    + printTerminal ns.CloseBrace
+let private printNamespace =
+    printToken
+    <| fun ns ->
+        let elements =
+            ns.Elements
+            |> List.map printNamespaceElement
+            |> String.concat ""
 
-let printProgram = printToken <| fun (Program namespaces) ->
-    namespaces |> List.map printNamespace |> String.concat ""
+        printTerminal ns.NamespaceKeyword
+        + printTerminal ns.Name
+        + printTerminal ns.OpenBrace
+        + elements
+        + printTerminal ns.CloseBrace
+
+let printProgram =
+    printToken
+    <| fun (Program namespaces) ->
+        namespaces
+        |> List.map printNamespace
+        |> String.concat ""

@@ -3,14 +3,14 @@
 open QsFmt.Formatter.SyntaxTree.Node
 
 type CharacteristicGroup =
-    { OpenParen : Terminal Node
-      Characteristic : Characteristic Node
-      CloseParen : Terminal Node }
+    { OpenParen: Terminal Node
+      Characteristic: Characteristic Node
+      CloseParen: Terminal Node }
 
 and CharacteristicBinaryOperator =
-    { Left : Characteristic Node
-      Operator : Terminal Node
-      Right : Characteristic Node }
+    { Left: Characteristic Node
+      Operator: Terminal Node
+      Right: Characteristic Node }
 
 and Characteristic =
     | Adjoint
@@ -19,28 +19,28 @@ and Characteristic =
     | CharacteristicBinaryOperator of CharacteristicBinaryOperator
 
 type CharacteristicSection =
-    { IsKeyword : Terminal Node
-      Characteristic : Characteristic Node }
+    { IsKeyword: Terminal Node
+      Characteristic: Characteristic Node }
 
 type TupleType =
-    { OpenParen : Terminal Node
-      Items : Type SequenceItem list
-      CloseParen : Terminal Node }
+    { OpenParen: Terminal Node
+      Items: Type SequenceItem list
+      CloseParen: Terminal Node }
 
 and ArrayType =
-    { BaseType : Type Node
-      OpenBracket : Terminal Node
-      CloseBracket : Terminal Node }
+    { BaseType: Type Node
+      OpenBracket: Terminal Node
+      CloseBracket: Terminal Node }
 
 and CallableType =
-    { OpenParen : Terminal Node
-      InnerOpenParen : Terminal Node
-      FromType : Type Node
-      Arrow : Terminal Node
-      ToType : Type Node
-      InnerCloseParen : Terminal Node
-      Characteristics : CharacteristicSection Node option
-      CloseParen : Terminal Node }
+    { OpenParen: Terminal Node
+      InnerOpenParen: Terminal Node
+      FromType: Type Node
+      Arrow: Terminal Node
+      ToType: Type Node
+      InnerCloseParen: Terminal Node
+      Characteristics: CharacteristicSection Node option
+      CloseParen: Terminal Node }
 
 and Type =
     | MissingType
