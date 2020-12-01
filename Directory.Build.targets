@@ -1,0 +1,5 @@
+﻿<Project>
+  <Target Name="CheckFormat" BeforeTargets="Build">
+    <Exec Command="dotnet tool run fantomas --recurse --check ." />
+  </Target>
+</Project>
