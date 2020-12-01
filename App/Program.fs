@@ -1,16 +1,15 @@
-﻿open QsFmt.Formatter
-
-let private example = "\
-namespace     Foo {
-    function Bar() : Int {
-        let x= // Newlines are preserved.
-            (7 -   1) // Comments too.
-            + 4;
-        return  x w/ Foo <- (7, y);
-    }
-}"
+﻿open System.IO
+open QsFmt.Formatter
 
 [<EntryPoint>]
-let main _ =
-    Formatter.format example |> printfn "%s"
+let private main args =
+    if Array.isEmpty args then
+        stdin.ReadToEnd()
+        |> Formatter.format
+        |> printfn "%s"
+    else
+        args
+        |> Array.map (File.ReadAllText >> Formatter.format)
+        |> Array.iter (printfn "%s")
+
     0
