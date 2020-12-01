@@ -2,8 +2,23 @@ module QsFmt.Formatter.Tests
 
 open Xunit
 
-let private examples =
+let private badExamples =
     [ "\
+namespace Foo {
+function Bar() : Int {
+let x = 5;
+return x;
+}
+}",
+      "\
+namespace Foo {
+    function Bar() : Int {
+        let x = 5;
+        return x;
+    }
+}"
+
+      "\
 namespace     Foo {
     function Bar() : Int {
         let x= // Newlines are preserved.
@@ -22,11 +37,29 @@ namespace Foo {
     }
 }" ]
 
-type private ExampleData() as data =
+type private BadExampleData() as data =
     inherit TheoryData<string, string>()
-    do examples |> List.iter data.Add
+    do badExamples |> List.iter data.Add
 
 [<Theory>]
-[<ClassData(typeof<ExampleData>)>]
-let ``Formatted code matches expected output`` input output =
+[<ClassData(typeof<BadExampleData>)>]
+let ``Unformatted code is formatted correctly`` input output =
     Assert.Equal(output, Formatter.format input)
+
+let private goodExamples =
+    [ "\
+/// The Foo namespace.
+namespace Foo {}
+
+/// The Bar namespace.
+namespace Bar {}" ]
+    @ (badExamples |> List.map snd)
+
+type private GoodExampleData() as data =
+    inherit TheoryData<string>()
+    do goodExamples |> List.iter data.Add
+
+[<Theory>]
+[<ClassData(typeof<GoodExampleData>)>]
+let ``Formatted code is unchanged`` input =
+    Assert.Equal(input, Formatter.format input)
