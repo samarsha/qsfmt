@@ -9,10 +9,12 @@ open QsFmt.Formatter.SyntaxTree.Namespace
 open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Formatter.SyntaxTree.Statement
 
-let private mapNode mapPrefix mapKind node =
-    { node with
-          Prefix = mapPrefix node.Prefix
-          Kind = node.Kind |> Option.map mapKind }
+let private mapNode mapPrefix mapKind =
+    Node.map
+    <| fun node ->
+        { node with
+              Prefix = mapPrefix node.Prefix
+              Kind = mapKind node.Kind }
 
 let rec private mapSequenceItem mapComma mapItem item =
     { item with
@@ -120,7 +122,10 @@ let singleSpaceAfterLetBinding =
         mapNode id
         <| function
         | Let letStmt ->
-            let equals = { letStmt.Equals with Prefix = " " }
+            let equals =
+                letStmt.Equals
+                |> Node.map (fun node -> { node with Prefix = " " })
+
             Let { letStmt with Equals = equals }
         | statement -> statement
 

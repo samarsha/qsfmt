@@ -1,11 +1,21 @@
-﻿module internal QsFmt.Formatter.SyntaxTree.Node
+﻿namespace QsFmt.Formatter.SyntaxTree.Node
 
-type 'a Node = { Prefix: string; Kind: 'a option }
+type internal 'a ValidNode = { Prefix: string; Kind: 'a }
 
-type Terminal = Terminal of string
+type internal 'a Node =
+    | Missing
+    | Valid of 'a ValidNode
 
-type 'a SequenceItem = { Item: 'a Node; Comma: Terminal Node }
+module internal Node =
+    let map f =
+        function
+        | Missing -> Missing
+        | Valid node -> f node |> Valid
 
-let missingNode = { Prefix = ""; Kind = None }
+    let withoutPrefix node =
+        node
+        |> map (fun node -> { node with Prefix = "" })
 
-let withoutPrefix node = { node with Prefix = "" }
+type internal Terminal = Terminal of string
+
+type internal 'a SequenceItem = { Item: 'a Node; Comma: Terminal Node }

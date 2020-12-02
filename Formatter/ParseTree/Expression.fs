@@ -47,7 +47,7 @@ type ExpressionVisitor(tokens) =
             context._commas |> Seq.map (toTerminal tokens)
 
         let items =
-            padZip (expressions, missingNode) (commas, missingNode)
+            padZip (expressions, Missing) (commas, Missing)
             |> Seq.map (fun (item, comma) -> { Item = item; Comma = comma })
             |> List.ofSeq
 
@@ -56,7 +56,7 @@ type ExpressionVisitor(tokens) =
               Items = items
               CloseParen = context.closeParen |> toTerminal tokens }
         |> toNode tokens context
-        |> withoutPrefix
+        |> Node.withoutPrefix
 
     override visitor.VisitAddExpression context =
         BinaryOperator
@@ -64,7 +64,7 @@ type ExpressionVisitor(tokens) =
               Operator = context.operator |> toTerminal tokens
               Right = visitor.Visit context.right }
         |> toNode tokens context
-        |> withoutPrefix
+        |> Node.withoutPrefix
 
     override visitor.VisitUpdateExpression context =
         Update
@@ -74,4 +74,4 @@ type ExpressionVisitor(tokens) =
               Arrow = context.arrow |> toTerminal tokens
               Value = visitor.Visit context.value }
         |> toNode tokens context
-        |> withoutPrefix
+        |> Node.withoutPrefix

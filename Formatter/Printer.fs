@@ -8,11 +8,10 @@ open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Formatter.SyntaxTree.Statement
 open QsFmt.Formatter.SyntaxTree.Type
 
-let private printToken printNode node =
-    node.Prefix
-    + (node.Kind
-       |> Option.map printNode
-       |> Option.defaultValue "")
+let private printToken printNode =
+    function
+    | Missing -> ""
+    | Valid node -> node.Prefix + printNode node.Kind
 
 let private printTerminal =
     printToken <| fun (Terminal text) -> text
@@ -163,4 +162,9 @@ let printProgram =
             |> List.map printNamespace
             |> String.concat ""
 
-        namespaces + program.Eof.Prefix
+        let eof =
+            match program.Eof with
+            | Missing -> ""
+            | Valid node -> node.Prefix
+
+        namespaces + eof

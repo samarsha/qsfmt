@@ -19,9 +19,11 @@ let private prefix tokens index =
     |> String.concat ""
 
 let toNode tokens (context: ParserRuleContext) kind =
-    { Prefix = prefix tokens context.Stop.TokenIndex
-      Kind = Some kind }
+    Valid
+        { Prefix = prefix tokens context.Stop.TokenIndex
+          Kind = kind }
 
 let toTerminal tokens (terminal: IToken) =
-    { Prefix = prefix tokens terminal.TokenIndex
-      Kind = Terminal terminal.Text |> Some }
+    Valid
+        { Prefix = prefix tokens terminal.TokenIndex
+          Kind = Terminal terminal.Text }
