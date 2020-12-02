@@ -31,7 +31,7 @@ type private NamespaceElementVisitor(tokens) =
                   |> List.ofSeq
               CloseBrace = scope.closeBrace |> toTerminal tokens }
         |> toNode tokens context
-        |> withoutTrivia
+        |> withoutPrefix
 
 let private toNamespaceToken tokens (context: QSharpParser.NamespaceContext) =
     let visitor = NamespaceElementVisitor tokens
@@ -48,12 +48,15 @@ let private toNamespaceToken tokens (context: QSharpParser.NamespaceContext) =
           |> List.ofSeq
       CloseBrace = context.closeBrace |> toTerminal tokens }
     |> toNode tokens context
-    |> withoutTrivia
+    |> withoutPrefix
 
 let toProgramToken tokens (context: QSharpParser.ProgramContext) =
-    context.``namespace`` ()
-    |> Array.toList
-    |> List.map (toNamespaceToken tokens)
-    |> Program
+    let namespaces =
+        context.``namespace`` ()
+        |> Array.toList
+        |> List.map (toNamespaceToken tokens)
+
+    { Namespaces = namespaces
+      Eof = context.eof |> toTerminal tokens }
     |> toNode tokens context
-    |> withoutTrivia
+    |> withoutPrefix

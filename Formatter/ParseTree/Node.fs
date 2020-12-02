@@ -5,22 +5,23 @@ open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Parser
 open System.Collections.Immutable
 
-let private hiddenTokensToRight (tokens: IToken ImmutableArray) index =
+let private hiddenTokensBefore (tokens: IToken ImmutableArray) index =
     seq {
-        for i in index + 1 .. tokens.Length - 1 do
+        for i = index - 1 downto 0 do
             tokens.[i]
     }
     |> Seq.takeWhile (fun token -> token.Channel = QSharpLexer.Hidden)
+    |> Seq.rev
 
-let private trailingTrivia tokens index =
-    hiddenTokensToRight tokens index
+let private prefix tokens index =
+    hiddenTokensBefore tokens index
     |> Seq.map (fun token -> token.Text)
     |> String.concat ""
 
 let toNode tokens (context: ParserRuleContext) kind =
-    { Kind = Some kind
-      TrailingTrivia = trailingTrivia tokens context.Stop.TokenIndex }
+    { Prefix = prefix tokens context.Stop.TokenIndex
+      Kind = Some kind }
 
 let toTerminal tokens (terminal: IToken) =
-    { Kind = Terminal terminal.Text |> Some
-      TrailingTrivia = trailingTrivia tokens terminal.TokenIndex }
+    { Prefix = prefix tokens terminal.TokenIndex
+      Kind = Terminal terminal.Text |> Some }

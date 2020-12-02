@@ -22,4 +22,6 @@ type Namespace =
       Elements: NamespaceElement Node list
       CloseBrace: Terminal Node }
 
-type Program = Program of Namespace Node list
+type Program =
+    { Namespaces: Namespace Node list
+      Eof: Terminal Node }

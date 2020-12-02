@@ -16,6 +16,7 @@ type private SymbolBindingVisitor(tokens) =
         |> toTerminal tokens
         |> SymbolName
         |> toNode tokens context
+        |> withoutPrefix
 
     override visitor.VisitSymbolTuple context =
         context._bindings
@@ -23,6 +24,7 @@ type private SymbolBindingVisitor(tokens) =
         |> List.ofSeq
         |> SymbolTuple
         |> toNode tokens context
+        |> withoutPrefix
 
 type StatementVisitor(tokens) =
     inherit QSharpParserBaseVisitor<Statement Node>()
@@ -39,7 +41,7 @@ type StatementVisitor(tokens) =
               Expression = expressionVisitor.Visit context.value
               Semicolon = context.semicolon |> toTerminal tokens }
         |> toNode tokens context
-        |> withoutTrivia
+        |> withoutPrefix
 
     override _.VisitLetStatement context =
         Let
@@ -49,4 +51,4 @@ type StatementVisitor(tokens) =
               Value = expressionVisitor.Visit context.value
               Semicolon = context.semicolon |> toTerminal tokens }
         |> toNode tokens context
-        |> withoutTrivia
+        |> withoutPrefix

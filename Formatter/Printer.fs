@@ -9,10 +9,10 @@ open QsFmt.Formatter.SyntaxTree.Statement
 open QsFmt.Formatter.SyntaxTree.Type
 
 let private printToken printNode node =
-    (node.Kind
-     |> Option.map printNode
-     |> Option.defaultValue "")
-    + node.TrailingTrivia
+    node.Prefix
+    + (node.Kind
+       |> Option.map printNode
+       |> Option.defaultValue "")
 
 let private printTerminal =
     printToken <| fun (Terminal text) -> text
@@ -134,7 +134,7 @@ let private printNamespaceElement =
 
         printTerminal callable.CallableKeyword
         + printTerminal callable.Name
-        + "() "
+        + "()"
         + printTerminal callable.Colon
         + printType callable.ReturnType
         + printTerminal callable.OpenBrace
@@ -157,7 +157,10 @@ let private printNamespace =
 
 let printProgram =
     printToken
-    <| fun (Program namespaces) ->
-        namespaces
-        |> List.map printNamespace
-        |> String.concat ""
+    <| fun program ->
+        let namespaces =
+            program.Namespaces
+            |> List.map printNamespace
+            |> String.concat ""
+
+        namespaces + program.Eof.Prefix

@@ -52,7 +52,9 @@ let private goodExamples =
 namespace Foo {}
 
 /// The Bar namespace.
-namespace Bar {}" ]
+namespace Bar {}
+
+// End of file." ]
     @ (badExamples |> List.map snd)
 
 type private GoodExampleData() as data =
