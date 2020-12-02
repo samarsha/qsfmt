@@ -2,32 +2,25 @@
 
 open QsFmt.Formatter.ParseTree.Expression
 open QsFmt.Formatter.ParseTree.Node
-open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Formatter.SyntaxTree.Statement
 open QsFmt.Parser
 
 type private SymbolBindingVisitor(tokens) =
-    inherit QSharpParserBaseVisitor<SymbolBinding Node>()
+    inherit QSharpParserBaseVisitor<SymbolBinding>()
 
     override _.DefaultResult = failwith "Unknown symbol binding."
 
     override _.VisitSymbolName context =
-        context.name
-        |> toTerminal tokens
-        |> SymbolName
-        |> toNode tokens context
-        |> Node.withoutPrefix
+        context.name |> toTerminal tokens |> SymbolName
 
     override visitor.VisitSymbolTuple context =
         context._bindings
         |> Seq.map visitor.Visit
         |> List.ofSeq
         |> SymbolTuple
-        |> toNode tokens context
-        |> Node.withoutPrefix
 
 type StatementVisitor(tokens) =
-    inherit QSharpParserBaseVisitor<Statement Node>()
+    inherit QSharpParserBaseVisitor<Statement>()
 
     let expressionVisitor = ExpressionVisitor tokens
 
@@ -40,8 +33,6 @@ type StatementVisitor(tokens) =
             { ReturnKeyword = context.``return`` |> toTerminal tokens
               Expression = expressionVisitor.Visit context.value
               Semicolon = context.semicolon |> toTerminal tokens }
-        |> toNode tokens context
-        |> Node.withoutPrefix
 
     override _.VisitLetStatement context =
         Let
@@ -50,5 +41,3 @@ type StatementVisitor(tokens) =
               Equals = context.equals |> toTerminal tokens
               Value = expressionVisitor.Visit context.value
               Semicolon = context.semicolon |> toTerminal tokens }
-        |> toNode tokens context
-        |> Node.withoutPrefix

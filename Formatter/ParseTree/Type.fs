@@ -6,13 +6,17 @@ open QsFmt.Formatter.SyntaxTree.Type
 open QsFmt.Parser
 
 type TypeVisitor(tokens) =
-    inherit QSharpParserBaseVisitor<Type Node>()
+    inherit QSharpParserBaseVisitor<Type>()
 
     override _.DefaultResult = failwith "Unknown type."
 
-    override _.VisitIntType context = Int |> toNode tokens context
+    override _.VisitIntType context =
+        context.Int().Symbol
+        |> toTerminal tokens
+        |> BuiltInType
 
     override _.VisitUserDefinedType context =
-        context.name.GetText()
+        Valid
+            { Prefix = prefix tokens context.name.Start.TokenIndex
+              Kind = context.name.GetText() |> Terminal }
         |> UserDefinedType
-        |> toNode tokens context

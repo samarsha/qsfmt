@@ -23,22 +23,23 @@ let private padZip (source1: _ seq, padding1) (source2: _ seq, padding2) =
     |> Seq.choose id
 
 type ExpressionVisitor(tokens) =
-    inherit QSharpParserBaseVisitor<Expression Node>()
+    inherit QSharpParserBaseVisitor<Expression>()
 
     override _.DefaultResult = failwith "Unknown expression."
 
     override _.VisitMissingExpression context =
-        MissingExpression |> toNode tokens context
+        context.Underscore().Symbol
+        |> toTerminal tokens
+        |> MissingExpression
 
     override _.VisitIdentifierExpression context =
-        context.name.GetText()
+        Valid
+            { Prefix = prefix tokens context.name.Start.TokenIndex
+              Kind = context.name.GetText() |> Terminal }
         |> Literal
-        |> toNode tokens context
 
     override _.VisitIntegerExpression context =
-        context.value.Text
-        |> Literal
-        |> toNode tokens context
+        context.value |> toTerminal tokens |> Literal
 
     override visitor.VisitTupleExpression context =
         let expressions = context._items |> Seq.map visitor.Visit
@@ -47,7 +48,7 @@ type ExpressionVisitor(tokens) =
             context._commas |> Seq.map (toTerminal tokens)
 
         let items =
-            padZip (expressions, Missing) (commas, Missing)
+            padZip (expressions |> Seq.map Some, None) (commas, Missing)
             |> Seq.map (fun (item, comma) -> { Item = item; Comma = comma })
             |> List.ofSeq
 
@@ -55,16 +56,12 @@ type ExpressionVisitor(tokens) =
             { OpenParen = context.openParen |> toTerminal tokens
               Items = items
               CloseParen = context.closeParen |> toTerminal tokens }
-        |> toNode tokens context
-        |> Node.withoutPrefix
 
     override visitor.VisitAddExpression context =
         BinaryOperator
             { Left = visitor.Visit context.left
               Operator = context.operator |> toTerminal tokens
               Right = visitor.Visit context.right }
-        |> toNode tokens context
-        |> Node.withoutPrefix
 
     override visitor.VisitUpdateExpression context =
         Update
@@ -73,5 +70,3 @@ type ExpressionVisitor(tokens) =
               Item = visitor.Visit context.item
               Arrow = context.arrow |> toTerminal tokens
               Value = visitor.Visit context.value }
-        |> toNode tokens context
-        |> Node.withoutPrefix

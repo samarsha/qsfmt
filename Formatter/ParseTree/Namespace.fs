@@ -8,7 +8,7 @@ open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Parser
 
 type private NamespaceElementVisitor(tokens) =
-    inherit QSharpParserBaseVisitor<NamespaceElement Node>()
+    inherit QSharpParserBaseVisitor<NamespaceElement>()
 
     let typeVisitor = TypeVisitor tokens
 
@@ -30,10 +30,8 @@ type private NamespaceElementVisitor(tokens) =
                   |> Seq.map statementVisitor.Visit
                   |> List.ofSeq
               CloseBrace = scope.closeBrace |> toTerminal tokens }
-        |> toNode tokens context
-        |> Node.withoutPrefix
 
-let private toNamespaceToken tokens (context: QSharpParser.NamespaceContext) =
+let private toNamespace tokens (context: QSharpParser.NamespaceContext) =
     let visitor = NamespaceElementVisitor tokens
 
     { NamespaceKeyword = context.keyword |> toTerminal tokens
@@ -47,16 +45,12 @@ let private toNamespaceToken tokens (context: QSharpParser.NamespaceContext) =
           |> Seq.map visitor.Visit
           |> List.ofSeq
       CloseBrace = context.closeBrace |> toTerminal tokens }
-    |> toNode tokens context
-    |> Node.withoutPrefix
 
-let toProgramToken tokens (context: QSharpParser.ProgramContext) =
+let toProgram tokens (context: QSharpParser.ProgramContext) =
     let namespaces =
         context.``namespace`` ()
         |> Array.toList
-        |> List.map (toNamespaceToken tokens)
+        |> List.map (toNamespace tokens)
 
     { Namespaces = namespaces
       Eof = context.eof |> toTerminal tokens }
-    |> toNode tokens context
-    |> Node.withoutPrefix

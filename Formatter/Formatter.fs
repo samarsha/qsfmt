@@ -26,7 +26,7 @@ let format (source: string) =
         |> ImmutableArray.CreateRange
 
     program
-    |> toProgramToken tokens
+    |> toProgram tokens
     |> collapseSpaces
     |> singleSpaceAfterLetBinding
     |> printProgram

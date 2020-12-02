@@ -13,7 +13,7 @@ let private hiddenTokensBefore (tokens: IToken ImmutableArray) index =
     |> Seq.takeWhile (fun token -> token.Channel = QSharpLexer.Hidden)
     |> Seq.rev
 
-let private prefix tokens index =
+let prefix tokens index =
     hiddenTokensBefore tokens index
     |> Seq.map (fun token -> token.Text)
     |> String.concat ""

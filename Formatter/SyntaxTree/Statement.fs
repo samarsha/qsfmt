@@ -5,18 +5,18 @@ open QsFmt.Formatter.SyntaxTree.Node
 
 type SymbolBinding =
     | SymbolName of Terminal Node
-    | SymbolTuple of SymbolBinding Node list
+    | SymbolTuple of SymbolBinding list
 
 type Return =
     { ReturnKeyword: Terminal Node
-      Expression: Expression Node
+      Expression: Expression
       Semicolon: Terminal Node }
 
 type Let =
     { LetKeyword: Terminal Node
-      Binding: SymbolBinding Node
+      Binding: SymbolBinding
       Equals: Terminal Node
-      Value: Expression Node
+      Value: Expression
       Semicolon: Terminal Node }
 
 type Statement =

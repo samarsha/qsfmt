@@ -8,9 +8,9 @@ type CallableDeclaration =
     { CallableKeyword: Terminal Node
       Name: Terminal Node
       Colon: Terminal Node
-      ReturnType: Type Node
+      ReturnType: Type
       OpenBrace: Terminal Node
-      Statements: Statement Node list
+      Statements: Statement list
       CloseBrace: Terminal Node }
 
 type NamespaceElement = CallableDeclaration of CallableDeclaration
@@ -19,9 +19,9 @@ type Namespace =
     { NamespaceKeyword: Terminal Node
       Name: Terminal Node
       OpenBrace: Terminal Node
-      Elements: NamespaceElement Node list
+      Elements: NamespaceElement list
       CloseBrace: Terminal Node }
 
 type Program =
-    { Namespaces: Namespace Node list
+    { Namespaces: Namespace list
       Eof: Terminal Node }

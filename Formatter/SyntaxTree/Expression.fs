@@ -8,20 +8,20 @@ type Tuple =
       CloseParen: Terminal Node }
 
 and BinaryOperator =
-    { Left: Expression Node
+    { Left: Expression
       Operator: Terminal Node
-      Right: Expression Node }
+      Right: Expression }
 
 and Update =
-    { Record: Expression Node
+    { Record: Expression
       With: Terminal Node
-      Item: Expression Node
+      Item: Expression
       Arrow: Terminal Node
-      Value: Expression Node }
+      Value: Expression }
 
 and Expression =
-    | MissingExpression
-    | Literal of string
+    | MissingExpression of Terminal Node
+    | Literal of Terminal Node
     | Tuple of Tuple
     | BinaryOperator of BinaryOperator
     | Update of Update

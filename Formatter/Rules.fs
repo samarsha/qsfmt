@@ -22,16 +22,15 @@ let rec private mapSequenceItem mapComma mapItem item =
           Comma = mapComma item.Comma }
 
 let rec private mapExpressionPrefix f =
-    mapNode f
-    <| function
-    | MissingExpression -> MissingExpression
-    | Literal text -> Literal text
+    function
+    | MissingExpression terminal -> terminal |> mapNode f id |> MissingExpression
+    | Literal terminal -> terminal |> mapNode f id |> Literal
     | Tuple tuple ->
         Tuple
             { OpenParen = mapNode f id tuple.OpenParen
               Items =
                   tuple.Items
-                  |> List.map (mapSequenceItem (mapNode f id) (mapExpressionPrefix f))
+                  |> List.map (mapSequenceItem (mapNode f id) (mapExpressionPrefix f |> Option.map))
               CloseParen = mapNode f id tuple.CloseParen }
     | BinaryOperator operator ->
         BinaryOperator
@@ -47,8 +46,7 @@ let rec private mapExpressionPrefix f =
               Value = mapExpressionPrefix f update.Value }
 
 let rec private mapSymbolTuplePrefix f =
-    mapNode f
-    <| function
+    function
     | SymbolName symbol -> mapNode f id symbol |> SymbolName
     | SymbolTuple tuples ->
         tuples
@@ -56,8 +54,7 @@ let rec private mapSymbolTuplePrefix f =
         |> SymbolTuple
 
 let private mapStatementPrefix f =
-    mapNode f
-    <| function
+    function
     | Return returnStmt ->
         Return
             { ReturnKeyword = mapNode f id returnStmt.ReturnKeyword
@@ -72,40 +69,35 @@ let private mapStatementPrefix f =
               Semicolon = mapNode f id letStmt.Semicolon }
 
 let private mapNamespaceElementPrefix f =
-    mapNode f
-    <| function
+    function
     | CallableDeclaration callable ->
         CallableDeclaration
             { CallableKeyword = mapNode f id callable.CallableKeyword
               Name = mapNode f id callable.Name
               Colon = mapNode f id callable.Colon
-              ReturnType = mapNode f id callable.ReturnType
+              ReturnType = callable.ReturnType // TODO
               OpenBrace = mapNode f id callable.OpenBrace
               Statements =
                   callable.Statements
                   |> List.map (mapStatementPrefix f)
               CloseBrace = mapNode f id callable.CloseBrace }
 
-let private mapNamespacePrefix f =
-    mapNode f
-    <| fun ns ->
-        { NamespaceKeyword = mapNode f id ns.NamespaceKeyword
-          Name = mapNode f id ns.Name
-          OpenBrace = mapNode f id ns.OpenBrace
-          Elements =
-              ns.Elements
-              |> List.map (mapNamespaceElementPrefix f)
-          CloseBrace = mapNode f id ns.CloseBrace }
+let private mapNamespacePrefix f ns =
+    { NamespaceKeyword = mapNode f id ns.NamespaceKeyword
+      Name = mapNode f id ns.Name
+      OpenBrace = mapNode f id ns.OpenBrace
+      Elements =
+          ns.Elements
+          |> List.map (mapNamespaceElementPrefix f)
+      CloseBrace = mapNode f id ns.CloseBrace }
 
-let private mapProgramPrefix f =
-    mapNode f
-    <| fun program ->
-        let namespaces =
-            program.Namespaces
-            |> List.map (mapNamespacePrefix f)
+let private mapProgramPrefix f program =
+    let namespaces =
+        program.Namespaces
+        |> List.map (mapNamespacePrefix f)
 
-        { Namespaces = namespaces
-          Eof = mapNode f id program.Eof }
+    { Namespaces = namespaces
+      Eof = mapNode f id program.Eof }
 
 let collapseSpaces =
     mapProgramPrefix
@@ -117,10 +109,9 @@ let collapseSpaces =
 
         Regex.Replace(sameLine, " +", " ") + nextLines
 
-let singleSpaceAfterLetBinding =
+let singleSpaceAfterLetBinding program =
     let mapStatement =
-        mapNode id
-        <| function
+        function
         | Let letStmt ->
             let equals =
                 letStmt.Equals
@@ -130,20 +121,15 @@ let singleSpaceAfterLetBinding =
         | statement -> statement
 
     let mapNamespaceElement =
-        mapNode id
-        <| function
+        function
         | CallableDeclaration callable ->
             CallableDeclaration
                 { callable with
                       Statements = callable.Statements |> List.map mapStatement }
 
-    let mapNamespace =
-        mapNode id
-        <| fun ns ->
-            { ns with
-                  Elements = ns.Elements |> List.map mapNamespaceElement }
+    let mapNamespace ns =
+        { ns with
+              Elements = ns.Elements |> List.map mapNamespaceElement }
 
-    mapNode id
-    <| fun program ->
-        { program with
-              Namespaces = program.Namespaces |> List.map mapNamespace }
+    { program with
+          Namespaces = program.Namespaces |> List.map mapNamespace }

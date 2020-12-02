@@ -12,10 +12,8 @@ module internal Node =
         | Missing -> Missing
         | Valid node -> f node |> Valid
 
-    let withoutPrefix node =
-        node
-        |> map (fun node -> { node with Prefix = "" })
-
 type internal Terminal = Terminal of string
 
-type internal 'a SequenceItem = { Item: 'a Node; Comma: Terminal Node }
+type internal 'a SequenceItem =
+    { Item: 'a option
+      Comma: Terminal Node }

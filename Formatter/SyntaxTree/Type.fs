@@ -4,13 +4,13 @@ open QsFmt.Formatter.SyntaxTree.Node
 
 type CharacteristicGroup =
     { OpenParen: Terminal Node
-      Characteristic: Characteristic Node
+      Characteristic: Characteristic
       CloseParen: Terminal Node }
 
 and CharacteristicBinaryOperator =
-    { Left: Characteristic Node
+    { Left: Characteristic
       Operator: Terminal Node
-      Right: Characteristic Node }
+      Right: Characteristic }
 
 and Characteristic =
     | Adjoint
@@ -20,7 +20,7 @@ and Characteristic =
 
 type CharacteristicSection =
     { IsKeyword: Terminal Node
-      Characteristic: Characteristic Node }
+      Characteristic: Characteristic }
 
 type TupleType =
     { OpenParen: Terminal Node
@@ -28,34 +28,25 @@ type TupleType =
       CloseParen: Terminal Node }
 
 and ArrayType =
-    { BaseType: Type Node
+    { BaseType: Type
       OpenBracket: Terminal Node
       CloseBracket: Terminal Node }
 
 and CallableType =
     { OpenParen: Terminal Node
       InnerOpenParen: Terminal Node
-      FromType: Type Node
+      FromType: Type
       Arrow: Terminal Node
-      ToType: Type Node
+      ToType: Type
       InnerCloseParen: Terminal Node
-      Characteristics: CharacteristicSection Node option
+      Characteristics: CharacteristicSection option
       CloseParen: Terminal Node }
 
 and Type =
-    | MissingType
-    | TypeParameter of string
-    | BigInt
-    | Bool
-    | Double
-    | Int
-    | Pauli
-    | Qubit
-    | Range
-    | Result
-    | String
-    | Unit
-    | UserDefinedType of string
+    | MissingType of Terminal Node
+    | TypeParameter of Terminal Node
+    | BuiltInType of Terminal Node
+    | UserDefinedType of Terminal Node
     | TupleType of TupleType
     | ArrayType of ArrayType
     | CallableType of CallableType
