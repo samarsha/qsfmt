@@ -17,6 +17,7 @@ let prefix tokens index =
     hiddenTokensBefore tokens index
     |> Seq.map (fun token -> token.Text)
     |> String.concat ""
+    |> Trivia.ofString
 
 let toTerminal tokens (terminal: IToken) =
     { Prefix = prefix tokens terminal.TokenIndex

@@ -1,7 +1,5 @@
 ﻿module internal QsFmt.Formatter.Rules
 
-open System.Text.RegularExpressions
-
 #nowarn "40"
 
 open QsFmt.Formatter.SyntaxTree.Expression
@@ -14,7 +12,7 @@ let private mapTerminal mapPrefix mapText node =
           Prefix = mapPrefix node.Prefix
           Text = mapText node.Text }
 
-let rec private mapSequenceItem mapComma mapItem item =
+let private mapSequenceItem mapComma mapItem item =
     { item with
           Item = item.Item |> Option.map mapItem
           Comma = item.Comma |> Option.map mapComma }
@@ -97,21 +95,28 @@ let private mapProgramPrefix f program =
     { Namespaces = namespaces
       Eof = mapTerminal f id program.Eof }
 
-let collapseSpaces =
-    mapProgramPrefix
-    <| fun prefix ->
-        let sameLine, nextLines =
-            if prefix.Contains '\n'
-            then prefix.Substring(0, prefix.IndexOf '\n'), prefix.IndexOf '\n' |> prefix.Substring
-            else prefix, ""
+let rec private mapWithPrevious previous f =
+    function
+    | [] -> []
+    | x :: xs -> f previous x :: mapWithPrevious (Some x) f xs
 
-        Regex.Replace(sameLine, " +", " ") + nextLines
+let collapseSpaces =
+    fun previous trivia ->
+        match previous, trivia with
+        | Some NewLine, Whitespace _ -> trivia
+        | _, Whitespace _ -> Trivia.collapseSpaces trivia
+        | _ -> trivia
+    |> mapWithPrevious None
+    |> mapProgramPrefix
 
 let singleSpaceAfterLetBinding program =
     let mapStatement =
         function
         | Let letStmt ->
-            let equals = { letStmt.Equals with Prefix = " " }
+            let equals =
+                { letStmt.Equals with
+                      Prefix = [ Trivia.spaces 1 ] }
+
             Let { letStmt with Equals = equals }
         | statement -> statement
 

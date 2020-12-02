@@ -2,13 +2,24 @@
 
 #nowarn "40"
 
+open System
+
 open QsFmt.Formatter.SyntaxTree.Expression
 open QsFmt.Formatter.SyntaxTree.Namespace
 open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Formatter.SyntaxTree.Statement
 open QsFmt.Formatter.SyntaxTree.Type
 
-let private printTerminal terminal = terminal.Prefix + terminal.Text
+let private printTrivia =
+    function
+    | Whitespace ws -> Whitespace.toString ws
+    | NewLine -> Environment.NewLine
+    | Comment comment -> Comment.toString comment
+
+let private printPrefix = List.map printTrivia >> String.concat ""
+
+let private printTerminal terminal =
+    printPrefix terminal.Prefix + terminal.Text
 
 let private printSequenceItem printItem (item: _ SequenceItem) =
     (item.Item
@@ -140,4 +151,4 @@ let printProgram program =
         |> List.map printNamespace
         |> String.concat ""
 
-    namespaces + program.Eof.Prefix
+    namespaces + printPrefix program.Eof.Prefix
