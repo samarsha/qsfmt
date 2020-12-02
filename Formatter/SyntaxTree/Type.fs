@@ -3,13 +3,13 @@
 open QsFmt.Formatter.SyntaxTree.Node
 
 type CharacteristicGroup =
-    { OpenParen: Terminal Node
+    { OpenParen: Terminal
       Characteristic: Characteristic
-      CloseParen: Terminal Node }
+      CloseParen: Terminal }
 
 and CharacteristicBinaryOperator =
     { Left: Characteristic
-      Operator: Terminal Node
+      Operator: Terminal
       Right: Characteristic }
 
 and Characteristic =
@@ -19,34 +19,34 @@ and Characteristic =
     | CharacteristicBinaryOperator of CharacteristicBinaryOperator
 
 type CharacteristicSection =
-    { IsKeyword: Terminal Node
+    { IsKeyword: Terminal
       Characteristic: Characteristic }
 
 type TupleType =
-    { OpenParen: Terminal Node
+    { OpenParen: Terminal
       Items: Type SequenceItem list
-      CloseParen: Terminal Node }
+      CloseParen: Terminal }
 
 and ArrayType =
     { BaseType: Type
-      OpenBracket: Terminal Node
-      CloseBracket: Terminal Node }
+      OpenBracket: Terminal
+      CloseBracket: Terminal }
 
 and CallableType =
-    { OpenParen: Terminal Node
-      InnerOpenParen: Terminal Node
+    { OpenParen: Terminal
+      InnerOpenParen: Terminal
       FromType: Type
-      Arrow: Terminal Node
+      Arrow: Terminal
       ToType: Type
-      InnerCloseParen: Terminal Node
+      InnerCloseParen: Terminal
       Characteristics: CharacteristicSection option
-      CloseParen: Terminal Node }
+      CloseParen: Terminal }
 
 and Type =
-    | MissingType of Terminal Node
-    | TypeParameter of Terminal Node
-    | BuiltInType of Terminal Node
-    | UserDefinedType of Terminal Node
+    | MissingType of Terminal
+    | TypeParameter of Terminal
+    | BuiltInType of Terminal
+    | UserDefinedType of Terminal
     | TupleType of TupleType
     | ArrayType of ArrayType
     | CallableType of CallableType

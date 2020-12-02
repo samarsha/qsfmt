@@ -16,7 +16,6 @@ type TypeVisitor(tokens) =
         |> BuiltInType
 
     override _.VisitUserDefinedType context =
-        Valid
-            { Prefix = prefix tokens context.name.Start.TokenIndex
-              Kind = context.name.GetText() |> Terminal }
+        { Prefix = prefix tokens context.name.Start.TokenIndex
+          Text = context.name.GetText() }
         |> UserDefinedType

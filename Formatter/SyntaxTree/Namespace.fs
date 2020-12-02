@@ -5,23 +5,23 @@ open QsFmt.Formatter.SyntaxTree.Statement
 open QsFmt.Formatter.SyntaxTree.Type
 
 type CallableDeclaration =
-    { CallableKeyword: Terminal Node
-      Name: Terminal Node
-      Colon: Terminal Node
+    { CallableKeyword: Terminal
+      Name: Terminal
+      Colon: Terminal
       ReturnType: Type
-      OpenBrace: Terminal Node
+      OpenBrace: Terminal
       Statements: Statement list
-      CloseBrace: Terminal Node }
+      CloseBrace: Terminal }
 
 type NamespaceElement = CallableDeclaration of CallableDeclaration
 
 type Namespace =
-    { NamespaceKeyword: Terminal Node
-      Name: Terminal Node
-      OpenBrace: Terminal Node
+    { NamespaceKeyword: Terminal
+      Name: Terminal
+      OpenBrace: Terminal
       Elements: NamespaceElement list
-      CloseBrace: Terminal Node }
+      CloseBrace: Terminal }
 
 type Program =
     { Namespaces: Namespace list
-      Eof: Terminal Node }
+      Eof: Terminal }

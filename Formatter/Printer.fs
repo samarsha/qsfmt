@@ -8,19 +8,15 @@ open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Formatter.SyntaxTree.Statement
 open QsFmt.Formatter.SyntaxTree.Type
 
-let private printToken printNode =
-    function
-    | Missing -> ""
-    | Valid node -> node.Prefix + printNode node.Kind
-
-let private printTerminal =
-    printToken <| fun (Terminal text) -> text
+let private printTerminal terminal = terminal.Prefix + terminal.Text
 
 let private printSequenceItem printItem (item: _ SequenceItem) =
     (item.Item
      |> Option.map printItem
      |> Option.defaultValue "")
-    + printTerminal item.Comma
+    + (item.Comma
+       |> Option.map printTerminal
+       |> Option.defaultValue "")
 
 let private printSequenceItems printItem =
     List.map (printSequenceItem printItem)
@@ -144,9 +140,4 @@ let printProgram program =
         |> List.map printNamespace
         |> String.concat ""
 
-    let eof =
-        match program.Eof with
-        | Missing -> ""
-        | Valid node -> node.Prefix
-
-    namespaces + eof
+    namespaces + program.Eof.Prefix

@@ -18,12 +18,6 @@ let prefix tokens index =
     |> Seq.map (fun token -> token.Text)
     |> String.concat ""
 
-let toNode tokens (context: ParserRuleContext) kind =
-    Valid
-        { Prefix = prefix tokens context.Stop.TokenIndex
-          Kind = kind }
-
 let toTerminal tokens (terminal: IToken) =
-    Valid
-        { Prefix = prefix tokens terminal.TokenIndex
-          Kind = Terminal terminal.Text }
+    { Prefix = prefix tokens terminal.TokenIndex
+      Text = terminal.Text }

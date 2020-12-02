@@ -36,9 +36,8 @@ let private toNamespace tokens (context: QSharpParser.NamespaceContext) =
 
     { NamespaceKeyword = context.keyword |> toTerminal tokens
       Name =
-          context.name.GetText()
-          |> Terminal
-          |> toNode tokens context.name
+          { Prefix = prefix tokens context.name.Start.TokenIndex
+            Text = context.name.GetText() }
       OpenBrace = context.openBrace |> toTerminal tokens
       Elements =
           context._elements

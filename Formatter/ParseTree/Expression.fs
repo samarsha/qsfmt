@@ -33,9 +33,8 @@ type ExpressionVisitor(tokens) =
         |> MissingExpression
 
     override _.VisitIdentifierExpression context =
-        Valid
-            { Prefix = prefix tokens context.name.Start.TokenIndex
-              Kind = context.name.GetText() |> Terminal }
+        { Prefix = prefix tokens context.name.Start.TokenIndex
+          Text = context.name.GetText() }
         |> Literal
 
     override _.VisitIntegerExpression context =
@@ -48,7 +47,7 @@ type ExpressionVisitor(tokens) =
             context._commas |> Seq.map (toTerminal tokens)
 
         let items =
-            padZip (expressions |> Seq.map Some, None) (commas, Missing)
+            padZip (expressions |> Seq.map Some, None) (commas |> Seq.map Some, None)
             |> Seq.map (fun (item, comma) -> { Item = item; Comma = comma })
             |> List.ofSeq
 
