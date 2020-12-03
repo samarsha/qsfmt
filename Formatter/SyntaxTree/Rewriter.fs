@@ -81,17 +81,11 @@ type internal 'context Rewriter() =
 
     default rewriter.Type(context, ty) =
         match ty with
-        | MissingType terminal ->
-            rewriter.Terminal(context, terminal)
-            |> MissingType
-        | TypeParameter terminal ->
-            rewriter.Terminal(context, terminal)
-            |> TypeParameter
-        | BuiltInType terminal ->
-            rewriter.Terminal(context, terminal)
-            |> BuiltInType
-        | UserDefinedType terminal ->
-            rewriter.Terminal(context, terminal)
+        | MissingType missing -> rewriter.Terminal(context, missing) |> MissingType
+        | TypeParameter name -> rewriter.Terminal(context, name) |> TypeParameter
+        | BuiltInType name -> rewriter.Terminal(context, name) |> BuiltInType
+        | UserDefinedType name ->
+            rewriter.Terminal(context, name)
             |> UserDefinedType
         | TupleType tuple -> rewriter.TupleType(context, tuple) |> TupleType
         | ArrayType array -> rewriter.ArrayType(context, array) |> ArrayType
@@ -139,8 +133,10 @@ type internal 'context Rewriter() =
 
     default rewriter.Characteristic(context, characteristic) =
         match characteristic with
-        | Adjoint -> Adjoint
-        | Controlled -> Controlled
+        | Adjoint adjoint -> rewriter.Terminal(context, adjoint) |> Adjoint
+        | Controlled controlled ->
+            rewriter.Terminal(context, controlled)
+            |> Controlled
         | CharacteristicGroup group ->
             rewriter.CharacteristicGroup(context, group)
             |> CharacteristicGroup

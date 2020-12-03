@@ -13,8 +13,8 @@ and CharacteristicBinaryOperator =
       Right: Characteristic }
 
 and Characteristic =
-    | Adjoint
-    | Controlled
+    | Adjoint of Terminal
+    | Controlled of Terminal
     | CharacteristicGroup of CharacteristicGroup
     | CharacteristicBinaryOperator of CharacteristicBinaryOperator
 

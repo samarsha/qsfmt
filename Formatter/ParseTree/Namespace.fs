@@ -53,5 +53,8 @@ let toProgram tokens (context: QSharpParser.ProgramContext) =
         |> Array.toList
         |> List.map (toNamespace tokens)
 
-    { Namespaces = namespaces
-      Eof = context.eof |> toTerminal tokens }
+    let eof =
+        { (context.eof |> toTerminal tokens) with
+              Text = "" }
+
+    { Namespaces = namespaces; Eof = eof }

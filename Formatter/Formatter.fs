@@ -30,4 +30,4 @@ let format (source: string) =
     |> fun program' -> collapsedSpaces.Program((), program')
     |> fun program' -> operatorSpacing.Program((), program')
     |> fun program' -> indentation.Program(0, program')
-    |> printProgram
+    |> printer.Program
