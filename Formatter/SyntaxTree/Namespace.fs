@@ -11,12 +11,12 @@ type CallableDeclaration =
       ReturnType: Type
       Block: Statement Block }
 
-type NamespaceElement = CallableDeclaration of CallableDeclaration
+type NamespaceItem = CallableDeclaration of CallableDeclaration
 
 type Namespace =
     { NamespaceKeyword: Terminal
       Name: Terminal
-      Block: NamespaceElement Block }
+      Block: NamespaceItem Block }
 
 type Program =
     { Namespaces: Namespace list

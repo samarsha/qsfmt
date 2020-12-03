@@ -127,7 +127,7 @@ let rec private printStatement =
         printTerminal elses.ElseKeyword
         + printBlock printStatement elses.Block
 
-let private printNamespaceElement =
+let private printNamespaceItem =
     function
     | CallableDeclaration callable ->
         printTerminal callable.CallableKeyword
@@ -140,7 +140,7 @@ let private printNamespaceElement =
 let private printNamespace ns =
     printTerminal ns.NamespaceKeyword
     + printTerminal ns.Name
-    + printBlock printNamespaceElement ns.Block
+    + printBlock printNamespaceItem ns.Block
 
 let printProgram program =
     printList printNamespace program.Namespaces

@@ -7,8 +7,8 @@ open QsFmt.Formatter.SyntaxTree.Namespace
 open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Parser
 
-type private NamespaceElementVisitor(tokens) =
-    inherit QSharpParserBaseVisitor<NamespaceElement>()
+type private NamespaceItemVisitor(tokens) =
+    inherit QSharpParserBaseVisitor<NamespaceItem>()
 
     let typeVisitor = TypeVisitor tokens
 
@@ -33,7 +33,7 @@ type private NamespaceElementVisitor(tokens) =
                     CloseBrace = scope.closeBrace |> toTerminal tokens } }
 
 let private toNamespace tokens (context: QSharpParser.NamespaceContext) =
-    let visitor = NamespaceElementVisitor tokens
+    let visitor = NamespaceItemVisitor tokens
 
     { NamespaceKeyword = context.keyword |> toTerminal tokens
       Name =

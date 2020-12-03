@@ -11,7 +11,7 @@ type internal 'context Rewriter() =
 
     abstract Namespace: 'context * Namespace -> Namespace
 
-    abstract NamespaceElement: 'context * NamespaceElement -> NamespaceElement
+    abstract NamespaceItem: 'context * NamespaceItem -> NamespaceItem
 
     abstract CallableDeclaration: 'context * CallableDeclaration -> CallableDeclaration
 
@@ -66,9 +66,9 @@ type internal 'context Rewriter() =
     default rewriter.Namespace(context, ns) =
         { NamespaceKeyword = rewriter.Terminal(context, ns.NamespaceKeyword)
           Name = rewriter.Terminal(context, ns.Name)
-          Block = rewriter.Block(context, rewriter.NamespaceElement, ns.Block) }
+          Block = rewriter.Block(context, rewriter.NamespaceItem, ns.Block) }
 
-    default rewriter.NamespaceElement(context, CallableDeclaration callable) =
+    default rewriter.NamespaceItem(context, CallableDeclaration callable) =
         rewriter.CallableDeclaration(context, callable)
         |> CallableDeclaration
 
