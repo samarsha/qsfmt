@@ -25,13 +25,13 @@ let private collapseTriviaSpaces previous trivia _ =
 
 let collapsedSpaces =
     { new Rewriter<_>() with
-        override _.Terminal () terminal =
+        override _.Terminal((), terminal) =
             terminal
             |> Terminal.mapPrefix (collectWithAdjacent collapseTriviaSpaces) }
 
 let operatorSpacing =
     { new Rewriter<_>() with
-        override _.Let () lets =
+        override _.Let((), lets) =
             let equals =
                 { lets.Equals with
                       Prefix = [ Trivia.spaces 1 ] }
@@ -50,41 +50,37 @@ let private indentTerminal level =
 
 let indentation =
     { new Rewriter<_>() with
-        override rewriter.Namespace level ns =
+        override rewriter.Namespace(level, ns) =
             { ns with
                   NamespaceKeyword = indentTerminal level ns.NamespaceKeyword
                   Elements =
                       ns.Elements
-                      |> List.map (rewriter.NamespaceElement(level + 1)) }
+                      |> List.map (fun element -> rewriter.NamespaceElement(level + 1, element)) }
 
-        override rewriter.CallableDeclaration level callable =
+        override rewriter.CallableDeclaration(level, callable) =
             { callable with
                   CallableKeyword = indentTerminal level callable.CallableKeyword
                   Statements =
                       callable.Statements
-                      |> List.map (rewriter.Statement(level + 1))
+                      |> List.map (fun statement -> rewriter.Statement(level + 1, statement))
                   CloseBrace = indentTerminal level callable.CloseBrace }
 
-        override rewriter.Statement level statement =
-            // TODO: Replace with call to base.Statement.
-            match statement
-                  |> Statement.mapPrefix (indentTrivia level |> collectWithAdjacent) with
-            | If ifs -> ifs |> rewriter.If level |> If
-            | Else elses -> elses |> rewriter.Else level |> Else
-            | statement' -> statement'
+        override rewriter.Statement(level, statement) =
+            base.Statement(level, statement)
+            |> Statement.mapPrefix (indentTrivia level |> collectWithAdjacent)
 
-        override rewriter.If level ifs =
+        override rewriter.If(level, ifs) =
             { ifs with
                   IfKeyword = indentTerminal level ifs.IfKeyword
                   Statements =
                       ifs.Statements
-                      |> List.map (rewriter.Statement(level + 1))
+                      |> List.map (fun statement -> rewriter.Statement(level + 1, statement))
                   CloseBrace = indentTerminal level ifs.CloseBrace }
 
-        override rewriter.Else level elses =
+        override rewriter.Else(level, elses) =
             { elses with
                   ElseKeyword = indentTerminal level elses.ElseKeyword
                   Statements =
                       elses.Statements
-                      |> List.map (rewriter.Statement(level + 1))
+                      |> List.map (fun statement -> rewriter.Statement(level + 1, statement))
                   CloseBrace = indentTerminal level elses.CloseBrace } }
