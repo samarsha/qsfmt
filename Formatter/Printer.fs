@@ -31,6 +31,11 @@ let private printSequenceItem printItem (item: _ SequenceItem) =
 
 let private printList printItem = List.map printItem >> String.concat ""
 
+let private printBlock printItem block =
+    printTerminal block.OpenBrace
+    + printList printItem block.Items
+    + printTerminal block.CloseBrace
+
 let rec private printCharacteristic =
     function
     | Adjoint -> "Adj"
@@ -117,48 +122,26 @@ let rec private printStatement =
         + printTerminal ifs.OpenParen
         + printExpression ifs.Condition
         + printTerminal ifs.CloseParen
-        + printTerminal ifs.OpenBrace
-        + printList printStatement ifs.Statements
-        + printTerminal ifs.CloseBrace
+        + printBlock printStatement ifs.Block
     | Else elses ->
         printTerminal elses.ElseKeyword
-        + printTerminal elses.OpenBrace
-        + printList printStatement elses.Statements
-        + printTerminal elses.CloseBrace
+        + printBlock printStatement elses.Block
 
 let private printNamespaceElement =
     function
     | CallableDeclaration callable ->
-        let statements =
-            callable.Statements
-            |> List.map printStatement
-            |> String.concat ""
-
         printTerminal callable.CallableKeyword
         + printTerminal callable.Name
         + "()"
         + printTerminal callable.Colon
         + printType callable.ReturnType
-        + printTerminal callable.OpenBrace
-        + statements
-        + printTerminal callable.CloseBrace
+        + printBlock printStatement callable.Block
 
 let private printNamespace ns =
-    let elements =
-        ns.Elements
-        |> List.map printNamespaceElement
-        |> String.concat ""
-
     printTerminal ns.NamespaceKeyword
     + printTerminal ns.Name
-    + printTerminal ns.OpenBrace
-    + elements
-    + printTerminal ns.CloseBrace
+    + printBlock printNamespaceElement ns.Block
 
 let printProgram program =
-    let namespaces =
-        program.Namespaces
-        |> List.map printNamespace
-        |> String.concat ""
-
-    namespaces + printPrefix program.Eof.Prefix
+    printList printNamespace program.Namespaces
+    + printPrefix program.Eof.Prefix

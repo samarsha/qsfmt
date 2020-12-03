@@ -47,20 +47,22 @@ type StatementVisitor(tokens) =
           OpenParen = context.openParen |> toTerminal tokens
           Condition = expressionVisitor.Visit context.condition
           CloseParen = context.closeParen |> toTerminal tokens
-          OpenBrace = context.body.openBrace |> toTerminal tokens
-          Statements =
-              context.body._statements
-              |> Seq.map visitor.Visit
-              |> List.ofSeq
-          CloseBrace = context.body.closeBrace |> toTerminal tokens }
+          Block =
+              { OpenBrace = context.body.openBrace |> toTerminal tokens
+                Items =
+                    context.body._statements
+                    |> Seq.map visitor.Visit
+                    |> List.ofSeq
+                CloseBrace = context.body.closeBrace |> toTerminal tokens } }
         |> If
 
     override visitor.VisitElseStatement context =
         { ElseKeyword = context.``else`` |> toTerminal tokens
-          OpenBrace = context.body.openBrace |> toTerminal tokens
-          Statements =
-              context.body._statements
-              |> Seq.map visitor.Visit
-              |> List.ofSeq
-          CloseBrace = context.body.closeBrace |> toTerminal tokens }
+          Block =
+              { OpenBrace = context.body.openBrace |> toTerminal tokens
+                Items =
+                    context.body._statements
+                    |> Seq.map visitor.Visit
+                    |> List.ofSeq
+                CloseBrace = context.body.closeBrace |> toTerminal tokens } }
         |> Else

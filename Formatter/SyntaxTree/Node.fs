@@ -60,3 +60,8 @@ module internal Terminal =
 type internal 'a SequenceItem =
     { Item: 'a option
       Comma: Terminal option }
+
+type internal 'a Block =
+    { OpenBrace: Terminal
+      Items: 'a list
+      CloseBrace: Terminal }

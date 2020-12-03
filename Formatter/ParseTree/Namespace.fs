@@ -24,12 +24,13 @@ type private NamespaceElementVisitor(tokens) =
               Name = context.callable.name |> toTerminal tokens
               Colon = context.callable.colon |> toTerminal tokens
               ReturnType = typeVisitor.Visit context.callable.returnType
-              OpenBrace = scope.openBrace |> toTerminal tokens
-              Statements =
-                  scope._statements
-                  |> Seq.map statementVisitor.Visit
-                  |> List.ofSeq
-              CloseBrace = scope.closeBrace |> toTerminal tokens }
+              Block =
+                  { OpenBrace = scope.openBrace |> toTerminal tokens
+                    Items =
+                        scope._statements
+                        |> Seq.map statementVisitor.Visit
+                        |> List.ofSeq
+                    CloseBrace = scope.closeBrace |> toTerminal tokens } }
 
 let private toNamespace tokens (context: QSharpParser.NamespaceContext) =
     let visitor = NamespaceElementVisitor tokens
@@ -38,12 +39,13 @@ let private toNamespace tokens (context: QSharpParser.NamespaceContext) =
       Name =
           { Prefix = prefix tokens context.name.Start.TokenIndex
             Text = context.name.GetText() }
-      OpenBrace = context.openBrace |> toTerminal tokens
-      Elements =
-          context._elements
-          |> Seq.map visitor.Visit
-          |> List.ofSeq
-      CloseBrace = context.closeBrace |> toTerminal tokens }
+      Block =
+          { OpenBrace = context.openBrace |> toTerminal tokens
+            Items =
+                context._elements
+                |> Seq.map visitor.Visit
+                |> List.ofSeq
+            CloseBrace = context.closeBrace |> toTerminal tokens } }
 
 let toProgram tokens (context: QSharpParser.ProgramContext) =
     let namespaces =

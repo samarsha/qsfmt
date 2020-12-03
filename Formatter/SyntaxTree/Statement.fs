@@ -24,15 +24,11 @@ type internal If =
       OpenParen: Terminal
       Condition: Expression
       CloseParen: Terminal
-      OpenBrace: Terminal
-      Statements: Statement list
-      CloseBrace: Terminal }
+      Block: Statement Block }
 
 and internal Else =
     { ElseKeyword: Terminal
-      OpenBrace: Terminal
-      Statements: Statement list
-      CloseBrace: Terminal }
+      Block: Statement Block }
 
 and internal Statement =
     | Let of Let

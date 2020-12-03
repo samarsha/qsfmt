@@ -51,36 +51,17 @@ let private indentTerminal level =
 let indentation =
     { new Rewriter<_>() with
         override rewriter.Namespace(level, ns) =
-            { ns with
-                  NamespaceKeyword = indentTerminal level ns.NamespaceKeyword
-                  Elements =
-                      ns.Elements
-                      |> List.map (fun element -> rewriter.NamespaceElement(level + 1, element)) }
+            { base.Namespace(level, ns) with
+                  NamespaceKeyword = indentTerminal level ns.NamespaceKeyword }
 
         override rewriter.CallableDeclaration(level, callable) =
-            { callable with
-                  CallableKeyword = indentTerminal level callable.CallableKeyword
-                  Statements =
-                      callable.Statements
-                      |> List.map (fun statement -> rewriter.Statement(level + 1, statement))
-                  CloseBrace = indentTerminal level callable.CloseBrace }
+            { base.CallableDeclaration(level, callable) with
+                  CallableKeyword = indentTerminal level callable.CallableKeyword }
 
         override rewriter.Statement(level, statement) =
             base.Statement(level, statement)
             |> Statement.mapPrefix (indentTrivia level |> collectWithAdjacent)
 
-        override rewriter.If(level, ifs) =
-            { ifs with
-                  IfKeyword = indentTerminal level ifs.IfKeyword
-                  Statements =
-                      ifs.Statements
-                      |> List.map (fun statement -> rewriter.Statement(level + 1, statement))
-                  CloseBrace = indentTerminal level ifs.CloseBrace }
-
-        override rewriter.Else(level, elses) =
-            { elses with
-                  ElseKeyword = indentTerminal level elses.ElseKeyword
-                  Statements =
-                      elses.Statements
-                      |> List.map (fun statement -> rewriter.Statement(level + 1, statement))
-                  CloseBrace = indentTerminal level elses.CloseBrace } }
+        override _.Block(level, mapper, block) =
+            { base.Block(level + 1, mapper, block) with
+                  CloseBrace = indentTerminal level block.CloseBrace } }

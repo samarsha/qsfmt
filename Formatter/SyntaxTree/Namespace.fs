@@ -9,18 +9,14 @@ type CallableDeclaration =
       Name: Terminal
       Colon: Terminal
       ReturnType: Type
-      OpenBrace: Terminal
-      Statements: Statement list
-      CloseBrace: Terminal }
+      Block: Statement Block }
 
 type NamespaceElement = CallableDeclaration of CallableDeclaration
 
 type Namespace =
     { NamespaceKeyword: Terminal
       Name: Terminal
-      OpenBrace: Terminal
-      Elements: NamespaceElement list
-      CloseBrace: Terminal }
+      Block: NamespaceElement Block }
 
 type Program =
     { Namespaces: Namespace list

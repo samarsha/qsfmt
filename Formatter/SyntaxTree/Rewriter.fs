@@ -51,6 +51,8 @@ type internal 'context Rewriter() =
 
     abstract Update: 'context * Update -> Update
 
+    abstract Block: 'context * ('context * 'a -> 'a) * 'a Block -> 'a Block
+
     abstract SequenceItem: 'context * ('context * 'a -> 'a) * 'a SequenceItem -> 'a SequenceItem
 
     abstract Terminal: 'context * Terminal -> Terminal
@@ -64,11 +66,7 @@ type internal 'context Rewriter() =
     default rewriter.Namespace(context, ns) =
         { NamespaceKeyword = rewriter.Terminal(context, ns.NamespaceKeyword)
           Name = rewriter.Terminal(context, ns.Name)
-          OpenBrace = rewriter.Terminal(context, ns.OpenBrace)
-          Elements =
-              ns.Elements
-              |> List.map (fun element -> rewriter.NamespaceElement(context, element))
-          CloseBrace = rewriter.Terminal(context, ns.CloseBrace) }
+          Block = rewriter.Block(context, rewriter.NamespaceElement, ns.Block) }
 
     default rewriter.NamespaceElement(context, CallableDeclaration callable) =
         rewriter.CallableDeclaration(context, callable)
@@ -79,11 +77,7 @@ type internal 'context Rewriter() =
           Name = rewriter.Terminal(context, callable.Name)
           Colon = rewriter.Terminal(context, callable.Colon)
           ReturnType = rewriter.Type(context, callable.ReturnType)
-          OpenBrace = rewriter.Terminal(context, callable.OpenBrace)
-          Statements =
-              callable.Statements
-              |> List.map (fun statement -> rewriter.Statement(context, statement))
-          CloseBrace = rewriter.Terminal(context, callable.CloseBrace) }
+          Block = rewriter.Block(context, rewriter.Statement, callable.Block) }
 
     default rewriter.Type(context, ty) =
         match ty with
@@ -178,19 +172,11 @@ type internal 'context Rewriter() =
           OpenParen = rewriter.Terminal(context, ifs.OpenParen)
           Condition = rewriter.Expression(context, ifs.Condition)
           CloseParen = rewriter.Terminal(context, ifs.CloseParen)
-          OpenBrace = rewriter.Terminal(context, ifs.OpenBrace)
-          Statements =
-              ifs.Statements
-              |> List.map (fun statement -> rewriter.Statement(context, statement))
-          CloseBrace = rewriter.Terminal(context, ifs.CloseBrace) }
+          Block = rewriter.Block(context, rewriter.Statement, ifs.Block) }
 
     default rewriter.Else(context, elses) =
         { ElseKeyword = rewriter.Terminal(context, elses.ElseKeyword)
-          OpenBrace = rewriter.Terminal(context, elses.OpenBrace)
-          Statements =
-              elses.Statements
-              |> List.map (fun statement -> rewriter.Statement(context, statement))
-          CloseBrace = rewriter.Terminal(context, elses.CloseBrace) }
+          Block = rewriter.Block(context, rewriter.Statement, elses.Block) }
 
     default rewriter.SymbolBinding(context, binding) =
         match binding with
@@ -230,6 +216,13 @@ type internal 'context Rewriter() =
           Item = rewriter.Expression(context, update.Item)
           Arrow = rewriter.Terminal(context, update.Arrow)
           Value = rewriter.Expression(context, update.Value) }
+
+    default rewriter.Block(context, mapper, block) =
+        { OpenBrace = rewriter.Terminal(context, block.OpenBrace)
+          Items =
+              block.Items
+              |> List.map (fun item -> mapper (context, item))
+          CloseBrace = rewriter.Terminal(context, block.CloseBrace) }
 
     default rewriter.SequenceItem(context, mapper, item) =
         { Item =
