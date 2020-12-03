@@ -146,9 +146,9 @@ statement
     | 'set' symbolBinding '=' expression ';' # SetStatement
     | 'set' Identifier updateOperator expression ';' # SetUpdateStatement
     | 'set' Identifier 'w/=' expression '<-' expression ';' # SetWithStatement
-    | 'if' '(' expression ')' scope # IfStatement
+    | if='if' openParen='(' condition=expression closeParen=')' body=scope # IfStatement
     | 'elif' '(' expression ')' scope # ElifStatement
-    | 'else' scope # ElseStatement
+    | else='else' body=scope # ElseStatement
     | 'for' '(' symbolBinding 'in' expression ')' scope # ForStatement
     | 'while' '(' expression ')' scope # WhileStatement
     | 'repeat' scope # RepeatStatement
@@ -216,7 +216,7 @@ expression
     | left=expression operator=('+' | '-') right=expression # AddExpression
     | expression ('>>>' | '<<<') expression # ShiftExpression
     | expression ('>' | '<' | '>=' | '<=') expression # CompareExpression
-    | expression ('==' | '!=') expression # EqualsExpression
+    | left=expression operator=('==' | '!=') right=expression # EqualsExpression
     | expression '&&&' expression # BitwiseAndExpression
     | expression '^^^' expression # BitwiseXorExpression
     | expression '|||' expression # BitwiseOrExpression

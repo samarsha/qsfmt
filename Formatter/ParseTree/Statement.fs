@@ -29,15 +29,38 @@ type StatementVisitor(tokens) =
     override _.DefaultResult = failwith "Unknown statement."
 
     override _.VisitReturnStatement context =
-        Return
-            { ReturnKeyword = context.``return`` |> toTerminal tokens
-              Expression = expressionVisitor.Visit context.value
-              Semicolon = context.semicolon |> toTerminal tokens }
+        { ReturnKeyword = context.``return`` |> toTerminal tokens
+          Expression = expressionVisitor.Visit context.value
+          Semicolon = context.semicolon |> toTerminal tokens }
+        |> Return
 
     override _.VisitLetStatement context =
-        Let
-            { LetKeyword = context.``let`` |> toTerminal tokens
-              Binding = symbolBindingVisitor.Visit context.binding
-              Equals = context.equals |> toTerminal tokens
-              Value = expressionVisitor.Visit context.value
-              Semicolon = context.semicolon |> toTerminal tokens }
+        { LetKeyword = context.``let`` |> toTerminal tokens
+          Binding = symbolBindingVisitor.Visit context.binding
+          Equals = context.equals |> toTerminal tokens
+          Value = expressionVisitor.Visit context.value
+          Semicolon = context.semicolon |> toTerminal tokens }
+        |> Let
+
+    override visitor.VisitIfStatement context =
+        { IfKeyword = context.``if`` |> toTerminal tokens
+          OpenParen = context.openParen |> toTerminal tokens
+          Condition = expressionVisitor.Visit context.condition
+          CloseParen = context.closeParen |> toTerminal tokens
+          OpenBrace = context.body.openBrace |> toTerminal tokens
+          Statements =
+              context.body._statements
+              |> Seq.map visitor.Visit
+              |> List.ofSeq
+          CloseBrace = context.body.closeBrace |> toTerminal tokens }
+        |> If
+
+    override visitor.VisitElseStatement context =
+        { ElseKeyword = context.``else`` |> toTerminal tokens
+          OpenBrace = context.body.openBrace |> toTerminal tokens
+          Statements =
+              context.body._statements
+              |> Seq.map visitor.Visit
+              |> List.ofSeq
+          CloseBrace = context.body.closeBrace |> toTerminal tokens }
+        |> Else

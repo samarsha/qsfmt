@@ -65,6 +65,26 @@ let indentation =
                       |> List.map (rewriter.Statement(level + 1))
                   CloseBrace = indentTerminal level callable.CloseBrace }
 
-        override _.Statement level statement =
-            statement
-            |> Statement.mapPrefix (indentTrivia level |> collectWithAdjacent) }
+        override rewriter.Statement level statement =
+            // TODO: Replace with call to base.Statement.
+            match statement
+                  |> Statement.mapPrefix (indentTrivia level |> collectWithAdjacent) with
+            | If ifs -> ifs |> rewriter.If level |> If
+            | Else elses -> elses |> rewriter.Else level |> Else
+            | statement' -> statement'
+
+        override rewriter.If level ifs =
+            { ifs with
+                  IfKeyword = indentTerminal level ifs.IfKeyword
+                  Statements =
+                      ifs.Statements
+                      |> List.map (rewriter.Statement(level + 1))
+                  CloseBrace = indentTerminal level ifs.CloseBrace }
+
+        override rewriter.Else level elses =
+            { elses with
+                  ElseKeyword = indentTerminal level elses.ElseKeyword
+                  Statements =
+                      elses.Statements
+                      |> List.map (rewriter.Statement(level + 1))
+                  CloseBrace = indentTerminal level elses.CloseBrace } }

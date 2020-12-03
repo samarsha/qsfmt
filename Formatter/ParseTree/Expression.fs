@@ -51,21 +51,27 @@ type ExpressionVisitor(tokens) =
             |> Seq.map (fun (item, comma) -> { Item = item; Comma = comma })
             |> List.ofSeq
 
-        Tuple
-            { OpenParen = context.openParen |> toTerminal tokens
-              Items = items
-              CloseParen = context.closeParen |> toTerminal tokens }
+        { OpenParen = context.openParen |> toTerminal tokens
+          Items = items
+          CloseParen = context.closeParen |> toTerminal tokens }
+        |> Tuple
 
     override visitor.VisitAddExpression context =
-        BinaryOperator
-            { Left = visitor.Visit context.left
-              Operator = context.operator |> toTerminal tokens
-              Right = visitor.Visit context.right }
+        { Left = visitor.Visit context.left
+          Operator = context.operator |> toTerminal tokens
+          Right = visitor.Visit context.right }
+        |> BinaryOperator
+
+    override visitor.VisitEqualsExpression context =
+        { Left = visitor.Visit context.left
+          Operator = context.operator |> toTerminal tokens
+          Right = visitor.Visit context.right }
+        |> BinaryOperator
 
     override visitor.VisitUpdateExpression context =
-        Update
-            { Record = visitor.Visit context.record
-              With = context.``with`` |> toTerminal tokens
-              Item = visitor.Visit context.item
-              Arrow = context.arrow |> toTerminal tokens
-              Value = visitor.Visit context.value }
+        { Record = visitor.Visit context.record
+          With = context.``with`` |> toTerminal tokens
+          Item = visitor.Visit context.item
+          Arrow = context.arrow |> toTerminal tokens
+          Value = visitor.Visit context.value }
+        |> Update

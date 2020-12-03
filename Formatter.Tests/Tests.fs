@@ -19,6 +19,29 @@ namespace Foo {
 }"
 
       "\
+namespace Foo {
+function Bar() : Int {
+let x = 5;
+if (x == 5) {
+return x;
+} else {
+return x + 1;
+}
+}
+}",
+      "\
+namespace Foo {
+    function Bar() : Int {
+        let x = 5;
+        if (x == 5) {
+            return x;
+        } else {
+            return x + 1;
+        }
+    }
+}"
+
+      "\
 namespace     Foo {
     function Bar() : Int {
         let x= // Newlines are preserved.

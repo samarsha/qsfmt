@@ -19,9 +19,26 @@ type internal Return =
       Expression: Expression
       Semicolon: Terminal }
 
-type internal Statement =
+type internal If =
+    { IfKeyword: Terminal
+      OpenParen: Terminal
+      Condition: Expression
+      CloseParen: Terminal
+      OpenBrace: Terminal
+      Statements: Statement list
+      CloseBrace: Terminal }
+
+and internal Else =
+    { ElseKeyword: Terminal
+      OpenBrace: Terminal
+      Statements: Statement list
+      CloseBrace: Terminal }
+
+and internal Statement =
     | Let of Let
     | Return of Return
+    | If of If
+    | Else of Else
 
 module internal Statement =
     let mapPrefix mapper =
@@ -34,3 +51,11 @@ module internal Statement =
             { returns with
                   ReturnKeyword = returns.ReturnKeyword |> Terminal.mapPrefix mapper }
             |> Return
+        | If ifs ->
+            { ifs with
+                  IfKeyword = ifs.IfKeyword |> Terminal.mapPrefix mapper }
+            |> If
+        | Else elses ->
+            { elses with
+                  ElseKeyword = elses.ElseKeyword |> Terminal.mapPrefix mapper }
+            |> Else

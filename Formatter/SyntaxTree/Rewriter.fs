@@ -37,6 +37,10 @@ type internal 'context Rewriter() =
 
     abstract Return: 'context -> Return -> Return
 
+    abstract If: 'context -> If -> If
+
+    abstract Else: 'context -> Else -> Else
+
     abstract SymbolBinding: 'context -> SymbolBinding -> SymbolBinding
 
     abstract Expression: 'context -> Expression -> Expression
@@ -162,6 +166,8 @@ type internal 'context Rewriter() =
         match statement with
         | Let lets -> lets |> rewriter.Let context |> Let
         | Return returns -> returns |> rewriter.Return context |> Return
+        | If ifs -> ifs |> rewriter.If context |> If
+        | Else elses -> elses |> rewriter.Else context |> Else
 
     default rewriter.Let context lets =
         { LetKeyword = rewriter.Terminal context lets.LetKeyword
@@ -174,6 +180,25 @@ type internal 'context Rewriter() =
         { ReturnKeyword = rewriter.Terminal context returns.ReturnKeyword
           Expression = rewriter.Expression context returns.Expression
           Semicolon = rewriter.Terminal context returns.Semicolon }
+
+    default rewriter.If context ifs =
+        { IfKeyword = rewriter.Terminal context ifs.IfKeyword
+          OpenParen = rewriter.Terminal context ifs.OpenParen
+          Condition = rewriter.Expression context ifs.Condition
+          CloseParen = rewriter.Terminal context ifs.CloseParen
+          OpenBrace = rewriter.Terminal context ifs.OpenBrace
+          Statements =
+              ifs.Statements
+              |> List.map (rewriter.Statement context)
+          CloseBrace = rewriter.Terminal context ifs.CloseBrace }
+
+    default rewriter.Else context elses =
+        { ElseKeyword = rewriter.Terminal context elses.ElseKeyword
+          OpenBrace = rewriter.Terminal context elses.OpenBrace
+          Statements =
+              elses.Statements
+              |> List.map (rewriter.Statement context)
+          CloseBrace = rewriter.Terminal context elses.CloseBrace }
 
     default rewriter.SymbolBinding context binding =
         match binding with
