@@ -67,10 +67,10 @@ let indent =
                       |> List.map (level + 1 |> rewriter.Statement)
                   CloseBrace = indentTerminal level callable.CloseBrace }
 
-        override rewriter.Let level lets =
+        override _.Let level lets =
             { lets with
                   LetKeyword = indentTerminal level lets.LetKeyword }
 
-        override rewriter.Return level returns =
+        override _.Return level returns =
             { returns with
                   ReturnKeyword = indentTerminal level returns.ReturnKeyword } }
