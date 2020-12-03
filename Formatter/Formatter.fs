@@ -29,4 +29,5 @@ let format (source: string) =
     |> toProgram tokens
     |> collapseSpaces.Program()
     |> singleSpaceAfterLetBinding.Program()
+    |> indent.Program 0
     |> printProgram
