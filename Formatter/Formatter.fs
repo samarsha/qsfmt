@@ -27,6 +27,6 @@ let format (source: string) =
 
     program
     |> toProgram tokens
-    |> collapseSpaces
-    |> singleSpaceAfterLetBinding
+    |> collapseSpaces.Program()
+    |> singleSpaceAfterLetBinding.Program()
     |> printProgram

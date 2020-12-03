@@ -7,11 +7,6 @@ type SymbolBinding =
     | SymbolName of Terminal
     | SymbolTuple of SymbolBinding list
 
-type Return =
-    { ReturnKeyword: Terminal
-      Expression: Expression
-      Semicolon: Terminal }
-
 type Let =
     { LetKeyword: Terminal
       Binding: SymbolBinding
@@ -19,6 +14,11 @@ type Let =
       Value: Expression
       Semicolon: Terminal }
 
+type Return =
+    { ReturnKeyword: Terminal
+      Expression: Expression
+      Semicolon: Terminal }
+
 type Statement =
-    | Return of Return
     | Let of Let
+    | Return of Return

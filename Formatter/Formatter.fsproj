@@ -11,6 +11,7 @@
     <Compile Include="SyntaxTree\Expression.fs" />
     <Compile Include="SyntaxTree\Statement.fs" />
     <Compile Include="SyntaxTree\Namespace.fs" />
+    <Compile Include="SyntaxTree\Rewriter.fs" />
     <Compile Include="ParseTree\Node.fs" />
     <Compile Include="ParseTree\Type.fs" />
     <Compile Include="ParseTree\Expression.fs" />
