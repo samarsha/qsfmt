@@ -52,6 +52,11 @@ module internal Trivia =
 
 type internal Terminal = { Prefix: Trivia list; Text: string }
 
+module internal Terminal =
+    let mapPrefix mapper terminal =
+        { terminal with
+              Prefix = mapper terminal.Prefix }
+
 type internal 'a SequenceItem =
     { Item: 'a option
       Comma: Terminal option }

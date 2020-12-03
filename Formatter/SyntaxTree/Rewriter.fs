@@ -216,8 +216,8 @@ type internal 'context Rewriter() =
           Arrow = rewriter.Terminal context update.Arrow
           Value = rewriter.Expression context update.Value }
 
-    default rewriter.SequenceItem context f item =
-        { Item = item.Item |> Option.map (f context)
+    default rewriter.SequenceItem context mapper item =
+        { Item = item.Item |> Option.map (mapper context)
           Comma =
               item.Comma
               |> Option.map (rewriter.Terminal context) }

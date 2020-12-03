@@ -27,7 +27,7 @@ let format (source: string) =
 
     program
     |> toProgram tokens
-    |> collapseSpaces.Program()
-    |> singleSpaceAfterLetBinding.Program()
-    |> indent.Program 0
+    |> collapsedSpaces.Program()
+    |> operatorSpacing.Program()
+    |> indentation.Program 0
     |> printProgram

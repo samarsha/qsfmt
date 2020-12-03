@@ -6,13 +6,16 @@ open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Formatter.SyntaxTree.Rewriter
 open QsFmt.Formatter.SyntaxTree.Statement
 
-let rec private collectWithAdjacent before mapping =
-    function
-    | [] -> []
-    | [ x ] -> mapping before x None
-    | x :: y :: rest ->
-        mapping before x (Some y)
-        @ collectWithAdjacent (Some x) mapping (y :: rest)
+let private collectWithAdjacent =
+    let rec withBefore before mapping =
+        function
+        | [] -> []
+        | [ x ] -> mapping before x None
+        | x :: y :: rest ->
+            mapping before x (Some y)
+            @ withBefore (Some x) mapping (y :: rest)
+
+    withBefore None
 
 let private collapseTriviaSpaces previous trivia _ =
     match previous, trivia with
@@ -20,15 +23,13 @@ let private collapseTriviaSpaces previous trivia _ =
     | _, Whitespace _ -> [ Trivia.collapseSpaces trivia ]
     | _ -> [ trivia ]
 
-let collapseSpaces =
+let collapsedSpaces =
     { new Rewriter<_>() with
         override _.Terminal () terminal =
-            { terminal with
-                  Prefix =
-                      terminal.Prefix
-                      |> collectWithAdjacent None collapseTriviaSpaces } }
+            terminal
+            |> Terminal.mapPrefix (collectWithAdjacent collapseTriviaSpaces) }
 
-let singleSpaceAfterLetBinding =
+let operatorSpacing =
     { new Rewriter<_>() with
         override _.Let () lets =
             let equals =
@@ -44,33 +45,26 @@ let private indentTrivia level previous trivia after =
     | _, NewLine, None -> [ NewLine; Trivia.spaces (4 * level) ]
     | _ -> [ trivia ]
 
-let private indentTerminal level terminal =
-    { terminal with
-          Prefix =
-              terminal.Prefix
-              |> collectWithAdjacent None (indentTrivia level) }
+let private indentTerminal level =
+    Terminal.mapPrefix (indentTrivia level |> collectWithAdjacent)
 
-let indent =
+let indentation =
     { new Rewriter<_>() with
         override rewriter.Namespace level ns =
             { ns with
                   NamespaceKeyword = indentTerminal level ns.NamespaceKeyword
                   Elements =
                       ns.Elements
-                      |> List.map (level + 1 |> rewriter.NamespaceElement) }
+                      |> List.map (rewriter.NamespaceElement(level + 1)) }
 
         override rewriter.CallableDeclaration level callable =
             { callable with
                   CallableKeyword = indentTerminal level callable.CallableKeyword
                   Statements =
                       callable.Statements
-                      |> List.map (level + 1 |> rewriter.Statement)
+                      |> List.map (rewriter.Statement(level + 1))
                   CloseBrace = indentTerminal level callable.CloseBrace }
 
-        override _.Let level lets =
-            { lets with
-                  LetKeyword = indentTerminal level lets.LetKeyword }
-
-        override _.Return level returns =
-            { returns with
-                  ReturnKeyword = indentTerminal level returns.ReturnKeyword } }
+        override _.Statement level statement =
+            statement
+            |> Statement.mapPrefix (indentTrivia level |> collectWithAdjacent) }
