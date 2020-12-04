@@ -77,7 +77,7 @@ type internal 'context Rewriter() =
     default rewriter.CallableDeclaration(context, callable) =
         { CallableKeyword = rewriter.Terminal(context, callable.CallableKeyword)
           Name = rewriter.Terminal(context, callable.Name)
-          Parameters = rewriter.Tuple(context, rewriter.SymbolBinding, callable.Parameters)
+          Parameters = rewriter.SymbolBinding(context, callable.Parameters)
           ReturnType = rewriter.TypeAnnotation(context, callable.ReturnType)
           Block = rewriter.Block(context, rewriter.Statement, callable.Block) }
 

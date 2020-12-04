@@ -7,7 +7,7 @@ open QsFmt.Formatter.SyntaxTree.Type
 type CallableDeclaration =
     { CallableKeyword: Terminal
       Name: Terminal
-      Parameters: SymbolBinding Tuple
+      Parameters: SymbolBinding
       ReturnType: TypeAnnotation
       Block: Statement Block }
 

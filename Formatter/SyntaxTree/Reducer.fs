@@ -81,7 +81,7 @@ type internal 'result Reducer() as reducer =
     default _.CallableDeclaration callable =
         [ reducer.Terminal callable.CallableKeyword
           reducer.Terminal callable.Name
-          reducer.Tuple(reducer.SymbolBinding, callable.Parameters)
+          reducer.SymbolBinding callable.Parameters
           reducer.TypeAnnotation callable.ReturnType
           reducer.Block(reducer.Statement, callable.Block) ]
         |> reduce

@@ -48,7 +48,7 @@ typeTupleItem
     | underlyingType
     ;
 
-namedItem : Identifier ':' type;
+namedItem : name=Identifier colon=':' itemType=type;
 
 // Callable Declaration
 
@@ -64,8 +64,8 @@ typeParameterBinding : '<' (TypeParameter (',' TypeParameter)*)? '>';
 parameterTuple : openParen='(' (parameters+=parameter (commas+=',' parameters+=parameter)*)? closeParen=')';
 
 parameter
-    : namedItem
-    | parameterTuple
+    : namedItem # NamedParameter
+    | parameterTuple # TupledParameter
     ;
 
 characteristics : 'is' characteristicsExpression;

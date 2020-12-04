@@ -70,15 +70,29 @@ let ``Unformatted code is formatted correctly`` input output =
     Assert.Equal(output, Formatter.format input)
 
 let private goodExamples =
-    [ "\
+    (badExamples |> List.map snd)
+    @ [ "\
 /// The Foo namespace.
 namespace Foo {}
 
 /// The Bar namespace.
 namespace Bar {}
 
-// End of file." ]
-    @ (badExamples |> List.map snd)
+// End of file."
+
+        "\
+namespace Foo {
+    function Bar(x : Int) : Int {
+        return x;
+    }
+}"
+
+        "\
+namespace Foo {
+    function Bar(x : Int, y : Int) : Int {
+        return x + y;
+    }
+}" ]
 
 type private GoodExampleData() as data =
     inherit TheoryData<string>()

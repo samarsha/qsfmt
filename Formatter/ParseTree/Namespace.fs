@@ -5,13 +5,45 @@ open QsFmt.Formatter.ParseTree.Statement
 open QsFmt.Formatter.ParseTree.Type
 open QsFmt.Formatter.SyntaxTree.Namespace
 open QsFmt.Formatter.SyntaxTree.Node
+open QsFmt.Formatter.SyntaxTree.Statement
+open QsFmt.Formatter.SyntaxTree.Type
 open QsFmt.Parser
+
+type private ParameterVisitor(tokens) =
+    inherit QSharpParserBaseVisitor<SymbolBinding>()
+
+    let typeVisitor = TypeVisitor tokens
+
+    override _.DefaultResult = failwith "Unknown symbol binding."
+
+    override visitor.VisitNamedParameter context =
+        context.namedItem () |> visitor.VisitNamedItem
+
+    override _.VisitNamedItem context =
+        { Name = context.name |> toTerminal tokens
+          Type =
+              { Colon = context.colon |> toTerminal tokens
+                Type = context.itemType |> typeVisitor.Visit }
+              |> Some }
+        |> SymbolDeclaration
+
+    override visitor.VisitParameterTuple context =
+        let parameters =
+            context._parameters |> Seq.map visitor.Visit
+
+        let commas =
+            context._commas |> Seq.map (toTerminal tokens)
+
+        { OpenParen = context.openParen |> toTerminal tokens
+          Items = tupleItems parameters commas
+          CloseParen = context.closeParen |> toTerminal tokens }
+        |> SymbolTuple
 
 type private NamespaceItemVisitor(tokens) =
     inherit QSharpParserBaseVisitor<NamespaceItem>()
 
+    let parameterVisitor = ParameterVisitor tokens
     let typeVisitor = TypeVisitor tokens
-
     let statementVisitor = StatementVisitor tokens
 
     override _.DefaultResult = failwith "Unknown namespace element."
@@ -21,14 +53,7 @@ type private NamespaceItemVisitor(tokens) =
 
         { CallableKeyword = context.callable.keyword |> toTerminal tokens
           Name = context.callable.name |> toTerminal tokens
-          Parameters =
-              { OpenParen =
-                    context.callable.tuple.openParen
-                    |> toTerminal tokens
-                Items = [] // TODO
-                CloseParen =
-                    context.callable.tuple.closeParen
-                    |> toTerminal tokens }
+          Parameters = parameterVisitor.Visit context.callable.tuple
           ReturnType =
               { Colon = context.callable.colon |> toTerminal tokens
                 Type = typeVisitor.Visit context.callable.returnType }
