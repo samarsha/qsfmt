@@ -7,8 +7,8 @@ open QsFmt.Formatter.SyntaxTree.Type
 type CallableDeclaration =
     { CallableKeyword: Terminal
       Name: Terminal
-      Colon: Terminal
-      ReturnType: Type
+      Parameters: SymbolBinding Tuple
+      ReturnType: TypeAnnotation
       Block: Statement Block }
 
 type NamespaceItem = CallableDeclaration of CallableDeclaration

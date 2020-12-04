@@ -19,18 +19,27 @@ type private NamespaceItemVisitor(tokens) =
     override _.VisitCallableElement context =
         let scope = context.callable.body.scope () // TODO
 
-        CallableDeclaration
-            { CallableKeyword = context.callable.keyword |> toTerminal tokens
-              Name = context.callable.name |> toTerminal tokens
-              Colon = context.callable.colon |> toTerminal tokens
-              ReturnType = typeVisitor.Visit context.callable.returnType
-              Block =
-                  { OpenBrace = scope.openBrace |> toTerminal tokens
-                    Items =
-                        scope._statements
-                        |> Seq.map statementVisitor.Visit
-                        |> List.ofSeq
-                    CloseBrace = scope.closeBrace |> toTerminal tokens } }
+        { CallableKeyword = context.callable.keyword |> toTerminal tokens
+          Name = context.callable.name |> toTerminal tokens
+          Parameters =
+              { OpenParen =
+                    context.callable.tuple.openParen
+                    |> toTerminal tokens
+                Items = [] // TODO
+                CloseParen =
+                    context.callable.tuple.closeParen
+                    |> toTerminal tokens }
+          ReturnType =
+              { Colon = context.callable.colon |> toTerminal tokens
+                Type = typeVisitor.Visit context.callable.returnType }
+          Block =
+              { OpenBrace = scope.openBrace |> toTerminal tokens
+                Items =
+                    scope._statements
+                    |> Seq.map statementVisitor.Visit
+                    |> List.ofSeq
+                CloseBrace = scope.closeBrace |> toTerminal tokens } }
+        |> CallableDeclaration
 
 let private toNamespace tokens (context: QSharpParser.NamespaceContext) =
     let visitor = NamespaceItemVisitor tokens

@@ -54,14 +54,14 @@ namedItem : Identifier ':' type;
 
 callableDeclaration
     : declarationPrefix keyword=('function' | 'operation')
-      name=Identifier typeParameterBinding? parameterTuple
+      name=Identifier typeParameterBinding? tuple=parameterTuple
       colon=':' returnType=type characteristics?
       body=callableBody
     ;
 
 typeParameterBinding : '<' (TypeParameter (',' TypeParameter)*)? '>';
 
-parameterTuple : '(' (parameter (',' parameter)*)? ')';
+parameterTuple : openParen='(' (parameters+=parameter (commas+=',' parameters+=parameter)*)? closeParen=')';
 
 parameter
     : namedItem
@@ -164,7 +164,7 @@ scope : openBrace=BraceLeft statements+=statement* closeBrace=BraceRight;
 symbolBinding
     : '_' # DiscardSymbol
     | name=Identifier # SymbolName
-    | '(' (bindings+=symbolBinding (',' bindings+=symbolBinding)* ','?)? ')' # SymbolTuple
+    | openParen='(' (bindings+=symbolBinding (commas+=',' bindings+=symbolBinding)* ','?)? closeParen=')' # SymbolTuple
     ;
 
 updateOperator

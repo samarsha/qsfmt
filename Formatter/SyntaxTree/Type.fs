@@ -22,11 +22,6 @@ type CharacteristicSection =
     { IsKeyword: Terminal
       Characteristic: Characteristic }
 
-type TupleType =
-    { OpenParen: Terminal
-      Items: Type SequenceItem list
-      CloseParen: Terminal }
-
 and ArrayType =
     { BaseType: Type
       OpenBracket: Terminal
@@ -47,6 +42,8 @@ and Type =
     | TypeParameter of Terminal
     | BuiltInType of Terminal
     | UserDefinedType of Terminal
-    | TupleType of TupleType
+    | TupleType of Type Tuple
     | ArrayType of ArrayType
     | CallableType of CallableType
+
+type TypeAnnotation = { Colon: Terminal; Type: Type }

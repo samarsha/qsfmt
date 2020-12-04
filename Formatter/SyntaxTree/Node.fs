@@ -61,6 +61,11 @@ type internal 'a SequenceItem =
     { Item: 'a option
       Comma: Terminal option }
 
+type internal 'a Tuple =
+    { OpenParen: Terminal
+      Items: 'a SequenceItem list
+      CloseParen: Terminal }
+
 type internal 'a Block =
     { OpenBrace: Terminal
       Items: 'a list

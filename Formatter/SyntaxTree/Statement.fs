@@ -2,10 +2,15 @@
 
 open QsFmt.Formatter.SyntaxTree.Expression
 open QsFmt.Formatter.SyntaxTree.Node
+open QsFmt.Formatter.SyntaxTree.Type
+
+type internal SymbolDeclaration =
+    { Name: Terminal
+      Type: TypeAnnotation option }
 
 type internal SymbolBinding =
-    | SymbolName of Terminal
-    | SymbolTuple of SymbolBinding list
+    | SymbolDeclaration of SymbolDeclaration
+    | SymbolTuple of SymbolBinding Tuple
 
 type internal Let =
     { LetKeyword: Terminal

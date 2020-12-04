@@ -23,7 +23,7 @@ type internal 'result Reducer() as reducer =
 
     abstract Type: Type -> 'result
 
-    abstract TupleType: TupleType -> 'result
+    abstract TypeAnnotation: TypeAnnotation -> 'result
 
     abstract ArrayType: ArrayType -> 'result
 
@@ -49,15 +49,17 @@ type internal 'result Reducer() as reducer =
 
     abstract SymbolBinding: SymbolBinding -> 'result
 
-    abstract Expression: Expression -> 'result
+    abstract SymbolDeclaration: SymbolDeclaration -> 'result
 
-    abstract Tuple: Tuple -> 'result
+    abstract Expression: Expression -> 'result
 
     abstract BinaryOperator: BinaryOperator -> 'result
 
     abstract Update: Update -> 'result
 
     abstract Block: ('a -> 'result) * 'a Block -> 'result
+
+    abstract Tuple: ('a -> 'result) * 'a Tuple -> 'result
 
     abstract SequenceItem: ('a -> 'result) * 'a SequenceItem -> 'result
 
@@ -79,8 +81,8 @@ type internal 'result Reducer() as reducer =
     default _.CallableDeclaration callable =
         [ reducer.Terminal callable.CallableKeyword
           reducer.Terminal callable.Name
-          reducer.Terminal callable.Colon
-          reducer.Type callable.ReturnType
+          reducer.Tuple(reducer.SymbolBinding, callable.Parameters)
+          reducer.TypeAnnotation callable.ReturnType
           reducer.Block(reducer.Statement, callable.Block) ]
         |> reduce
 
@@ -90,15 +92,13 @@ type internal 'result Reducer() as reducer =
         | TypeParameter name
         | BuiltInType name
         | UserDefinedType name -> reducer.Terminal name
-        | TupleType tuple -> reducer.TupleType tuple
+        | TupleType tuple -> reducer.Tuple(reducer.Type, tuple)
         | ArrayType array -> reducer.ArrayType array
         | CallableType callable -> reducer.CallableType callable
 
-    default _.TupleType tuple =
-        reducer.Terminal tuple.OpenParen
-        :: (tuple.Items
-            |> List.map (fun item -> reducer.SequenceItem(reducer.Type, item)))
-        @ [ reducer.Terminal tuple.CloseParen ]
+    default _.TypeAnnotation annotation =
+        [ reducer.Terminal annotation.Colon
+          reducer.Type annotation.Type ]
         |> reduce
 
     default _.ArrayType array =
@@ -180,26 +180,23 @@ type internal 'result Reducer() as reducer =
 
     default _.SymbolBinding binding =
         match binding with
-        | SymbolName name -> reducer.Terminal name
-        | SymbolTuple bindings ->
-            bindings
-            |> List.map reducer.SymbolBinding
-            |> reduce
+        | SymbolDeclaration declaration -> reducer.SymbolDeclaration declaration
+        | SymbolTuple tuple -> reducer.Tuple(reducer.SymbolBinding, tuple)
+
+    default _.SymbolDeclaration declaration =
+        reducer.Terminal declaration.Name
+        :: (declaration.Type
+            |> Option.map reducer.TypeAnnotation
+            |> Option.toList)
+        |> reduce
 
     default _.Expression expression =
         match expression with
         | MissingExpression terminal -> reducer.Terminal terminal
         | Literal literal -> reducer.Terminal literal
-        | Tuple tuple -> reducer.Tuple tuple
+        | Tuple tuple -> reducer.Tuple(reducer.Expression, tuple)
         | BinaryOperator operator -> reducer.BinaryOperator operator
         | Update update -> reducer.Update update
-
-    default _.Tuple tuple =
-        reducer.Terminal tuple.OpenParen
-        :: (tuple.Items
-            |> List.map (fun item -> reducer.SequenceItem(reducer.Expression, item)))
-        @ [ reducer.Terminal tuple.CloseParen ]
-        |> reduce
 
     default _.BinaryOperator operator =
         [ reducer.Expression operator.Left
@@ -219,6 +216,13 @@ type internal 'result Reducer() as reducer =
         reducer.Terminal block.OpenBrace
         :: (block.Items |> List.map mapper)
         @ [ reducer.Terminal block.CloseBrace ]
+        |> reduce
+
+    default _.Tuple(mapper, tuple) =
+        reducer.Terminal tuple.OpenParen
+        :: (tuple.Items
+            |> List.map (fun item -> reducer.SequenceItem(mapper, item)))
+        @ [ reducer.Terminal tuple.CloseParen ]
         |> reduce
 
     default _.SequenceItem(mapper, item) =

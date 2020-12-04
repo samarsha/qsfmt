@@ -17,7 +17,7 @@ type internal 'context Rewriter() =
 
     abstract Type: 'context * Type -> Type
 
-    abstract TupleType: 'context * TupleType -> TupleType
+    abstract TypeAnnotation: 'context * TypeAnnotation -> TypeAnnotation
 
     abstract ArrayType: 'context * ArrayType -> ArrayType
 
@@ -43,15 +43,17 @@ type internal 'context Rewriter() =
 
     abstract SymbolBinding: 'context * SymbolBinding -> SymbolBinding
 
-    abstract Expression: 'context * Expression -> Expression
+    abstract SymbolDeclaration: 'context * SymbolDeclaration -> SymbolDeclaration
 
-    abstract Tuple: 'context * Tuple -> Tuple
+    abstract Expression: 'context * Expression -> Expression
 
     abstract BinaryOperator: 'context * BinaryOperator -> BinaryOperator
 
     abstract Update: 'context * Update -> Update
 
     abstract Block: 'context * ('context * 'a -> 'a) * 'a Block -> 'a Block
+
+    abstract Tuple: 'context * ('context * 'a -> 'a) * 'a Tuple -> 'a Tuple
 
     abstract SequenceItem: 'context * ('context * 'a -> 'a) * 'a SequenceItem -> 'a SequenceItem
 
@@ -75,8 +77,8 @@ type internal 'context Rewriter() =
     default rewriter.CallableDeclaration(context, callable) =
         { CallableKeyword = rewriter.Terminal(context, callable.CallableKeyword)
           Name = rewriter.Terminal(context, callable.Name)
-          Colon = rewriter.Terminal(context, callable.Colon)
-          ReturnType = rewriter.Type(context, callable.ReturnType)
+          Parameters = rewriter.Tuple(context, rewriter.SymbolBinding, callable.Parameters)
+          ReturnType = rewriter.TypeAnnotation(context, callable.ReturnType)
           Block = rewriter.Block(context, rewriter.Statement, callable.Block) }
 
     default rewriter.Type(context, ty) =
@@ -87,18 +89,17 @@ type internal 'context Rewriter() =
         | UserDefinedType name ->
             rewriter.Terminal(context, name)
             |> UserDefinedType
-        | TupleType tuple -> rewriter.TupleType(context, tuple) |> TupleType
+        | TupleType tuple ->
+            rewriter.Tuple(context, rewriter.Type, tuple)
+            |> TupleType
         | ArrayType array -> rewriter.ArrayType(context, array) |> ArrayType
         | CallableType callable ->
             rewriter.CallableType(context, callable)
             |> CallableType
 
-    default rewriter.TupleType(context, tuple) =
-        { OpenParen = rewriter.Terminal(context, tuple.OpenParen)
-          Items =
-              tuple.Items
-              |> List.map (fun item -> rewriter.SequenceItem(context, rewriter.Type, item))
-          CloseParen = rewriter.Terminal(context, tuple.CloseParen) }
+    default rewriter.TypeAnnotation(context, annotation) =
+        { Colon = rewriter.Terminal(context, annotation.Colon)
+          Type = rewriter.Type(context, annotation.Type) }
 
     default rewriter.ArrayType(context, array) =
         { BaseType = rewriter.Type(context, array.BaseType)
@@ -176,11 +177,18 @@ type internal 'context Rewriter() =
 
     default rewriter.SymbolBinding(context, binding) =
         match binding with
-        | SymbolName name -> rewriter.Terminal(context, name) |> SymbolName
-        | SymbolTuple bindings ->
-            bindings
-            |> List.map (fun binding -> rewriter.SymbolBinding(context, binding))
+        | SymbolDeclaration declaration ->
+            rewriter.SymbolDeclaration(context, declaration)
+            |> SymbolDeclaration
+        | SymbolTuple tuple ->
+            rewriter.Tuple(context, rewriter.SymbolBinding, tuple)
             |> SymbolTuple
+
+    default rewriter.SymbolDeclaration(context, declaration) =
+        { Name = rewriter.Terminal(context, declaration.Name)
+          Type =
+              declaration.Type
+              |> Option.map (fun annotation -> rewriter.TypeAnnotation(context, annotation)) }
 
     default rewriter.Expression(context, expression) =
         match expression with
@@ -188,18 +196,13 @@ type internal 'context Rewriter() =
             rewriter.Terminal(context, terminal)
             |> MissingExpression
         | Literal literal -> rewriter.Terminal(context, literal) |> Literal
-        | Tuple tuple -> rewriter.Tuple(context, tuple) |> Tuple
+        | Tuple tuple ->
+            rewriter.Tuple(context, rewriter.Expression, tuple)
+            |> Tuple
         | BinaryOperator operator ->
             rewriter.BinaryOperator(context, operator)
             |> BinaryOperator
         | Update update -> rewriter.Update(context, update) |> Update
-
-    default rewriter.Tuple(context, tuple) =
-        { OpenParen = rewriter.Terminal(context, tuple.OpenParen)
-          Items =
-              tuple.Items
-              |> List.map (fun item -> rewriter.SequenceItem(context, rewriter.Expression, item))
-          CloseParen = rewriter.Terminal(context, tuple.CloseParen) }
 
     default rewriter.BinaryOperator(context, operator) =
         { Left = rewriter.Expression(context, operator.Left)
@@ -219,6 +222,13 @@ type internal 'context Rewriter() =
               block.Items
               |> List.map (fun item -> mapper (context, item))
           CloseBrace = rewriter.Terminal(context, block.CloseBrace) }
+
+    default rewriter.Tuple(context, mapper, tuple) =
+        { OpenParen = rewriter.Terminal(context, tuple.OpenParen)
+          Items =
+              tuple.Items
+              |> List.map (fun item -> rewriter.SequenceItem(context, mapper, item))
+          CloseParen = rewriter.Terminal(context, tuple.CloseParen) }
 
     default rewriter.SequenceItem(context, mapper, item) =
         { Item =

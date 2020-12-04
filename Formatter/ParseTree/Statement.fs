@@ -2,6 +2,7 @@
 
 open QsFmt.Formatter.ParseTree.Expression
 open QsFmt.Formatter.ParseTree.Node
+open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Formatter.SyntaxTree.Statement
 open QsFmt.Parser
 
@@ -11,12 +12,20 @@ type private SymbolBindingVisitor(tokens) =
     override _.DefaultResult = failwith "Unknown symbol binding."
 
     override _.VisitSymbolName context =
-        context.name |> toTerminal tokens |> SymbolName
+        { Name = context.name |> toTerminal tokens
+          Type = None }
+        |> SymbolDeclaration
 
     override visitor.VisitSymbolTuple context =
-        context._bindings
-        |> Seq.map visitor.Visit
-        |> List.ofSeq
+        let bindings =
+            context._bindings |> Seq.map visitor.Visit
+
+        let commas =
+            context._commas |> Seq.map (toTerminal tokens)
+
+        { OpenParen = context.openParen |> toTerminal tokens
+          Items = tupleItems bindings commas
+          CloseParen = context.closeParen |> toTerminal tokens }
         |> SymbolTuple
 
 type StatementVisitor(tokens) =
