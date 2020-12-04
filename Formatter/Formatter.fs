@@ -8,6 +8,7 @@ open QsFmt.Formatter.Rules
 open QsFmt.Parser
 open System.Collections.Immutable
 
+[<CompiledName "Format">]
 let format (source: string) =
     let tokenStream =
         source
