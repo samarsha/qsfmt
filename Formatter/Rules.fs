@@ -2,6 +2,7 @@
 
 #nowarn "40"
 
+open QsFmt.Formatter.SyntaxTree.Namespace
 open QsFmt.Formatter.SyntaxTree.Node
 open QsFmt.Formatter.SyntaxTree.Rewriter
 open QsFmt.Formatter.SyntaxTree.Statement
@@ -38,30 +39,32 @@ let operatorSpacing =
 
             { lets with Equals = equals } }
 
-let private indentTrivia level previous trivia after =
-    match previous, trivia, after with
-    | Some NewLine, Whitespace _, _ -> [ Trivia.spaces (4 * level) ]
-    | _, NewLine, Some (Comment _)
-    | _, NewLine, None -> [ NewLine; Trivia.spaces (4 * level) ]
-    | _ -> [ trivia ]
+let private indentPrefix level =
+    let indentTrivia previous trivia after =
+        match previous, trivia, after with
+        | Some NewLine, Whitespace _, _ -> [ Trivia.spaces (4 * level) ]
+        | _, NewLine, Some (Comment _)
+        | _, NewLine, None -> [ NewLine; Trivia.spaces (4 * level) ]
+        | _ -> [ trivia ]
 
-let private indentTerminal level =
-    Terminal.mapPrefix (indentTrivia level |> collectWithAdjacent)
+    collectWithAdjacent indentTrivia
+
+let private indentTerminal level = indentPrefix level |> Terminal.mapPrefix
 
 let indentation =
     { new Rewriter<_>() with
         override rewriter.Namespace(level, ns) =
             { base.Namespace(level, ns) with
-                  NamespaceKeyword = indentTerminal level ns.NamespaceKeyword }
+                  NamespaceKeyword = ns.NamespaceKeyword |> indentTerminal level }
 
-        override rewriter.CallableDeclaration(level, callable) =
-            { base.CallableDeclaration(level, callable) with
-                  CallableKeyword = indentTerminal level callable.CallableKeyword }
+        override rewriter.NamespaceItem(level, item) =
+            base.NamespaceItem(level, item)
+            |> NamespaceItem.mapPrefix (indentPrefix level)
 
         override rewriter.Statement(level, statement) =
             base.Statement(level, statement)
-            |> Statement.mapPrefix (indentTrivia level |> collectWithAdjacent)
+            |> Statement.mapPrefix (indentPrefix level)
 
         override _.Block(level, mapper, block) =
             { base.Block(level + 1, mapper, block) with
-                  CloseBrace = indentTerminal level block.CloseBrace } }
+                  CloseBrace = block.CloseBrace |> indentTerminal level } }
