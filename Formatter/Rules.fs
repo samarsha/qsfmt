@@ -2,10 +2,7 @@
 
 #nowarn "40"
 
-open QsFmt.Formatter.SyntaxTree.Namespace
-open QsFmt.Formatter.SyntaxTree.Node
-open QsFmt.Formatter.SyntaxTree.Rewriter
-open QsFmt.Formatter.SyntaxTree.Statement
+open QsFmt.Formatter.SyntaxTree
 
 let private collectWithAdjacent =
     let rec withBefore before mapping =

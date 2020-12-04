@@ -1,4 +1,4 @@
-﻿namespace QsFmt.Formatter.SyntaxTree.Node
+﻿namespace QsFmt.Formatter.SyntaxTree
 
 open System.Text.RegularExpressions
 

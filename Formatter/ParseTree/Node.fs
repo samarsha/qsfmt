@@ -4,7 +4,7 @@ open System.Collections.Generic
 open System.Collections.Immutable
 
 open Antlr4.Runtime
-open QsFmt.Formatter.SyntaxTree.Node
+open QsFmt.Formatter.SyntaxTree
 open QsFmt.Parser
 
 let private hiddenTokensBefore (tokens: IToken ImmutableArray) index =

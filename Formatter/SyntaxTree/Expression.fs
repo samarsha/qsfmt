@@ -1,20 +1,18 @@
-﻿module internal QsFmt.Formatter.SyntaxTree.Expression
+﻿namespace QsFmt.Formatter.SyntaxTree
 
-open QsFmt.Formatter.SyntaxTree.Node
-
-type BinaryOperator =
+type internal BinaryOperator =
     { Left: Expression
       Operator: Terminal
       Right: Expression }
 
-and Update =
+and internal Update =
     { Record: Expression
       With: Terminal
       Item: Expression
       Arrow: Terminal
       Value: Expression }
 
-and Expression =
+and internal Expression =
     | MissingExpression of Terminal
     | Literal of Terminal
     | Tuple of Expression Tuple

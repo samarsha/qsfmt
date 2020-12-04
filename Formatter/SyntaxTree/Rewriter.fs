@@ -1,10 +1,4 @@
-﻿namespace QsFmt.Formatter.SyntaxTree.Rewriter
-
-open QsFmt.Formatter.SyntaxTree.Expression
-open QsFmt.Formatter.SyntaxTree.Namespace
-open QsFmt.Formatter.SyntaxTree.Node
-open QsFmt.Formatter.SyntaxTree.Statement
-open QsFmt.Formatter.SyntaxTree.Type
+﻿namespace QsFmt.Formatter.SyntaxTree
 
 type internal 'context Rewriter() =
     abstract Program: 'context * Program -> Program

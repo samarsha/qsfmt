@@ -1,21 +1,19 @@
-﻿module internal QsFmt.Formatter.ParseTree.Type
+﻿namespace QsFmt.Formatter.ParseTree
 
-open QsFmt.Formatter.ParseTree.Node
-open QsFmt.Formatter.SyntaxTree.Node
-open QsFmt.Formatter.SyntaxTree.Type
+open QsFmt.Formatter.SyntaxTree
 open QsFmt.Parser
 
-type TypeVisitor(tokens) =
+type internal TypeVisitor(tokens) =
     inherit QSharpParserBaseVisitor<Type>()
 
     override _.DefaultResult = failwith "Unknown type."
 
     override _.VisitIntType context =
         context.Int().Symbol
-        |> toTerminal tokens
+        |> Node.toTerminal tokens
         |> BuiltInType
 
     override _.VisitUserDefinedType context =
-        { Prefix = prefix tokens context.name.Start.TokenIndex
+        { Prefix = Node.prefix tokens context.name.Start.TokenIndex
           Text = context.name.GetText() }
         |> UserDefinedType

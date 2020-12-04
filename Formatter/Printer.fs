@@ -2,8 +2,7 @@
 
 open System
 
-open QsFmt.Formatter.SyntaxTree.Node
-open QsFmt.Formatter.SyntaxTree.Reducer
+open QsFmt.Formatter.SyntaxTree
 
 let private printTrivia =
     function

@@ -1,8 +1,4 @@
-﻿namespace QsFmt.Formatter.SyntaxTree.Namespace
-
-open QsFmt.Formatter.SyntaxTree.Node
-open QsFmt.Formatter.SyntaxTree.Statement
-open QsFmt.Formatter.SyntaxTree.Type
+﻿namespace QsFmt.Formatter.SyntaxTree
 
 type internal CallableDeclaration =
     { CallableKeyword: Terminal

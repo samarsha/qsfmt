@@ -1,33 +1,31 @@
-﻿module internal QsFmt.Formatter.SyntaxTree.Type
+﻿namespace QsFmt.Formatter.SyntaxTree
 
-open QsFmt.Formatter.SyntaxTree.Node
-
-type CharacteristicGroup =
+type internal CharacteristicGroup =
     { OpenParen: Terminal
       Characteristic: Characteristic
       CloseParen: Terminal }
 
-and CharacteristicBinaryOperator =
+and internal CharacteristicBinaryOperator =
     { Left: Characteristic
       Operator: Terminal
       Right: Characteristic }
 
-and Characteristic =
+and internal Characteristic =
     | Adjoint of Terminal
     | Controlled of Terminal
     | CharacteristicGroup of CharacteristicGroup
     | CharacteristicBinaryOperator of CharacteristicBinaryOperator
 
-type CharacteristicSection =
+type internal CharacteristicSection =
     { IsKeyword: Terminal
       Characteristic: Characteristic }
 
-and ArrayType =
+and internal ArrayType =
     { BaseType: Type
       OpenBracket: Terminal
       CloseBracket: Terminal }
 
-and CallableType =
+and internal CallableType =
     { OpenParen: Terminal
       InnerOpenParen: Terminal
       FromType: Type
@@ -37,7 +35,7 @@ and CallableType =
       Characteristics: CharacteristicSection option
       CloseParen: Terminal }
 
-and Type =
+and internal Type =
     | MissingType of Terminal
     | TypeParameter of Terminal
     | BuiltInType of Terminal
@@ -46,4 +44,4 @@ and Type =
     | ArrayType of ArrayType
     | CallableType of CallableType
 
-type TypeAnnotation = { Colon: Terminal; Type: Type }
+type internal TypeAnnotation = { Colon: Terminal; Type: Type }
