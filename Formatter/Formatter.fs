@@ -5,10 +5,9 @@ open QsFmt.Formatter.Errors
 open QsFmt.Formatter.ParseTree.Namespace
 open QsFmt.Formatter.Printer
 open QsFmt.Formatter.Rules
+open QsFmt.Formatter.Utils
 open QsFmt.Parser
 open System.Collections.Immutable
-
-let private curry f x y = f (x, y)
 
 [<CompiledName "Format">]
 let format (source: string) =

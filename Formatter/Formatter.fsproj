@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Utils.fs" />
     <Compile Include="SyntaxTree\Node.fs" />
     <Compile Include="SyntaxTree\Type.fs" />
     <Compile Include="SyntaxTree\Expression.fs" />

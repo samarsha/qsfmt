@@ -1,5 +1,7 @@
 ﻿namespace QsFmt.Formatter.SyntaxTree
 
+open QsFmt.Formatter.Utils
+
 type internal 'context Rewriter() =
     abstract Program: 'context * Program -> Program
 
@@ -56,7 +58,7 @@ type internal 'context Rewriter() =
     default rewriter.Program(context, program) =
         { Namespaces =
               program.Namespaces
-              |> List.map (fun ns -> rewriter.Namespace(context, ns))
+              |> List.map (curry rewriter.Namespace context)
           Eof = rewriter.Terminal(context, program.Eof) }
 
     default rewriter.Namespace(context, ns) =
@@ -75,8 +77,8 @@ type internal 'context Rewriter() =
           ReturnType = rewriter.TypeAnnotation(context, callable.ReturnType)
           Block = rewriter.Block(context, rewriter.Statement, callable.Block) }
 
-    default rewriter.Type(context, ty) =
-        match ty with
+    default rewriter.Type(context, typ) =
+        match typ with
         | MissingType missing -> rewriter.Terminal(context, missing) |> MissingType
         | TypeParameter name -> rewriter.Terminal(context, name) |> TypeParameter
         | BuiltInType name -> rewriter.Terminal(context, name) |> BuiltInType
@@ -109,7 +111,7 @@ type internal 'context Rewriter() =
           InnerCloseParen = rewriter.Terminal(context, callable.InnerCloseParen)
           Characteristics =
               callable.Characteristics
-              |> Option.map (fun section -> rewriter.CharacteristicSection(context, section))
+              |> Option.map (curry rewriter.CharacteristicSection context)
           CloseParen = rewriter.Terminal(context, callable.CloseParen) }
 
     default rewriter.CharacteristicSection(context, section) =
@@ -182,7 +184,7 @@ type internal 'context Rewriter() =
         { Name = rewriter.Terminal(context, declaration.Name)
           Type =
               declaration.Type
-              |> Option.map (fun annotation -> rewriter.TypeAnnotation(context, annotation)) }
+              |> Option.map (curry rewriter.TypeAnnotation context) }
 
     default rewriter.Expression(context, expression) =
         match expression with
@@ -212,9 +214,7 @@ type internal 'context Rewriter() =
 
     default rewriter.Block(context, mapper, block) =
         { OpenBrace = rewriter.Terminal(context, block.OpenBrace)
-          Items =
-              block.Items
-              |> List.map (fun item -> mapper (context, item))
+          Items = block.Items |> List.map (curry mapper context)
           CloseBrace = rewriter.Terminal(context, block.CloseBrace) }
 
     default rewriter.Tuple(context, mapper, tuple) =
@@ -225,11 +225,9 @@ type internal 'context Rewriter() =
           CloseParen = rewriter.Terminal(context, tuple.CloseParen) }
 
     default rewriter.SequenceItem(context, mapper, item) =
-        { Item =
-              item.Item
-              |> Option.map (fun item -> mapper (context, item))
+        { Item = item.Item |> Option.map (curry mapper context)
           Comma =
               item.Comma
-              |> Option.map (fun comma -> rewriter.Terminal(context, comma)) }
+              |> Option.map (curry rewriter.Terminal context) }
 
     default _.Terminal(_, terminal) = terminal

@@ -1,9 +1,10 @@
 ﻿namespace QsFmt.Formatter.SyntaxTree
 
+open QsFmt.Formatter.Utils
+
 [<AbstractClass>]
 type internal 'result Reducer() as reducer =
-    let reduce =
-        List.reduce (fun state item -> reducer.Combine(state, item))
+    let reduce = curry reducer.Combine |> List.reduce
 
     abstract Combine: 'result * 'result -> 'result
 
@@ -80,8 +81,8 @@ type internal 'result Reducer() as reducer =
           reducer.Block(reducer.Statement, callable.Block) ]
         |> reduce
 
-    default _.Type ty =
-        match ty with
+    default _.Type typ =
+        match typ with
         | MissingType missing -> reducer.Terminal missing
         | TypeParameter name
         | BuiltInType name
@@ -215,7 +216,7 @@ type internal 'result Reducer() as reducer =
     default _.Tuple(mapper, tuple) =
         reducer.Terminal tuple.OpenParen
         :: (tuple.Items
-            |> List.map (fun item -> reducer.SequenceItem(mapper, item)))
+            |> List.map (curry reducer.SequenceItem mapper))
         @ [ reducer.Terminal tuple.CloseParen ]
         |> reduce
 
