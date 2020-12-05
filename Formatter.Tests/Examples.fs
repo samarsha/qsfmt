@@ -1,4 +1,4 @@
-﻿module QsFmt.Formatter.Tests.Formatting
+﻿module QsFmt.Formatter.Tests.Examples
 
 [<Example>]
 let ``Indents function`` =

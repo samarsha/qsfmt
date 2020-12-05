@@ -1,4 +1,4 @@
-﻿module QsFmt.Formatter.Tests.AlreadyFormatted
+﻿module QsFmt.Formatter.Tests.FixedPoints
 
 open QsFmt.Formatter.Tests
 
