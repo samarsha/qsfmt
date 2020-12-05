@@ -48,15 +48,15 @@ let private indentTerminal level = indentPrefix level |> Terminal.mapPrefix
 
 let indentation =
     { new Rewriter<_>() with
-        override rewriter.Namespace(level, ns) =
+        override _.Namespace(level, ns) =
             { base.Namespace(level, ns) with
                   NamespaceKeyword = indentTerminal level ns.NamespaceKeyword }
 
-        override rewriter.NamespaceItem(level, item) =
+        override _.NamespaceItem(level, item) =
             base.NamespaceItem(level, item)
             |> NamespaceItem.mapPrefix (indentPrefix level)
 
-        override rewriter.Statement(level, statement) =
+        override _.Statement(level, statement) =
             base.Statement(level, statement)
             |> Statement.mapPrefix (indentPrefix level)
 
