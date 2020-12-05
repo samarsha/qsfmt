@@ -1,7 +1,5 @@
 ﻿module internal QsFmt.Formatter.Rules
 
-#nowarn "40"
-
 open QsFmt.Formatter.SyntaxTree
 
 let private collectWithAdjacent =
