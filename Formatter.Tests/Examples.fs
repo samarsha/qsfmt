@@ -41,6 +41,17 @@ return x + 1;
 }"""
 
 [<Example>]
+let ``Adds newlines and indents`` =
+    """namespace Foo { function Bar() : Int { let x = 5; return x; } }""",
+
+    """namespace Foo {
+    function Bar() : Int {
+        let x = 5;
+        return x;
+    }
+}"""
+
+[<Example>]
 let ``Removes extraneous spaces`` =
     """namespace     Foo {
     function Bar() : Int {

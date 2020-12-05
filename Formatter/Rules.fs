@@ -52,7 +52,7 @@ let indentation =
     { new Rewriter<_>() with
         override rewriter.Namespace(level, ns) =
             { base.Namespace(level, ns) with
-                  NamespaceKeyword = ns.NamespaceKeyword |> indentTerminal level }
+                  NamespaceKeyword = indentTerminal level ns.NamespaceKeyword }
 
         override rewriter.NamespaceItem(level, item) =
             base.NamespaceItem(level, item)
@@ -64,4 +64,29 @@ let indentation =
 
         override _.Block(level, mapper, block) =
             { base.Block(level + 1, mapper, block) with
-                  CloseBrace = block.CloseBrace |> indentTerminal level } }
+                  CloseBrace = indentTerminal level block.CloseBrace } }
+
+let private ensureNewLine prefix =
+    if List.contains NewLine prefix then prefix else NewLine :: prefix
+
+let newLines =
+    { new Rewriter<_>() with
+        override _.NamespaceItem((), item) =
+            base.NamespaceItem((), item)
+            |> NamespaceItem.mapPrefix ensureNewLine
+
+        override _.Statement((), statement) =
+            let statement = base.Statement((), statement)
+
+            match statement with
+            | Else _ -> statement
+            | _ -> Statement.mapPrefix ensureNewLine statement
+
+        override _.Block((), mapper, block) =
+            let block = base.Block((), mapper, block)
+
+            if List.isEmpty block.Items then
+                block
+            else
+                { block with
+                      CloseBrace = Terminal.mapPrefix ensureNewLine block.CloseBrace } }

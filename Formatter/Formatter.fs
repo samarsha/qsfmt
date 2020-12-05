@@ -8,6 +8,8 @@ open QsFmt.Formatter.Rules
 open QsFmt.Parser
 open System.Collections.Immutable
 
+let private curry f x y = f (x, y)
+
 [<CompiledName "Format">]
 let format (source: string) =
     let tokenStream =
@@ -28,7 +30,8 @@ let format (source: string) =
 
     program
     |> toProgram tokens
-    |> fun program' -> collapsedSpaces.Program((), program')
-    |> fun program' -> operatorSpacing.Program((), program')
-    |> fun program' -> indentation.Program(0, program')
+    |> curry collapsedSpaces.Program ()
+    |> curry operatorSpacing.Program ()
+    |> curry newLines.Program ()
+    |> curry indentation.Program 0
     |> printer.Program
