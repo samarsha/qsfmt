@@ -6,7 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Tests.fs" />
+    <Compile Include="Discoverer.fs" />
+    <Compile Include="Examples.fs" />
+    <Compile Include="FixedPoints.fs" />
   </ItemGroup>
 
   <ItemGroup>
