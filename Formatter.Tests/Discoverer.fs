@@ -7,6 +7,7 @@ open Xunit
 
 type Example =
     { Name: string
+      Skip: string option
       Before: string
       After: string }
 
@@ -14,6 +15,7 @@ type Example =
 
 type FixedPoint =
     { Name: string
+      Skip: string option
       Source: string }
 
     override fixedPoint.ToString() = fixedPoint.Name
@@ -21,40 +23,47 @@ type FixedPoint =
 module internal Example =
     let toFixedPoint (example: Example) =
         { Name = example.Name
+          Skip = example.Skip
           Source = example.After }
 
-type internal ExampleAttribute() =
+type ExampleAttribute() =
     inherit Attribute()
 
-type internal FixedPointAttribute() =
+    member val Skip: string = null with get, set
+
+type FixedPointAttribute() =
     inherit Attribute()
+
+    member val Skip: string = null with get, set
 
 module Discoverer =
-    let private properties (attribute: Type) =
+    let private properties<'a when 'a :> Attribute> () =
         Assembly.GetCallingAssembly().GetTypes()
         |> Seq.collect (fun typ -> typ.GetProperties())
-        |> Seq.filter (fun property ->
-            property.GetCustomAttributes attribute
-            |> Seq.isEmpty
-            |> not)
+        |> Seq.choose (fun property ->
+            property.GetCustomAttributes typeof<'a>
+            |> Seq.tryHead
+            |> Option.map (fun attribute' -> attribute' :?> 'a, property))
 
     let private examples =
-        properties typeof<ExampleAttribute>
-        |> Seq.choose (fun property ->
+        properties<ExampleAttribute> ()
+        |> Seq.choose (fun (attribute, property) ->
             match property.GetValue null with
             | :? (string * string) as example ->
                 { Name = property.Name
+                  Skip = Option.ofObj attribute.Skip
                   Before = fst example
                   After = snd example }
                 |> Some
             | _ -> None)
 
     let private fixedPoints =
-        properties typeof<FixedPointAttribute>
-        |> Seq.choose (fun property ->
+        properties<FixedPointAttribute> ()
+        |> Seq.choose (fun (attribute, property) ->
             match property.GetValue null with
             | :? string as source ->
                 { Name = property.Name
+                  Skip = Option.ofObj attribute.Skip
                   Source = source }
                 |> Some
             | _ -> None)
@@ -73,12 +82,16 @@ module Discoverer =
             |> Seq.append fixedPoints
             |> Seq.iter data.Add
 
-    [<Theory>]
+    [<SkippableTheory>]
     [<ClassData(typeof<ExampleData>)>]
-    let ``Code is formatted correctly`` example =
-        Assert.Equal(example.After, Formatter.format example.Before)
+    let ``Code is formatted correctly`` (example: Example) =
+        match example.Skip with
+        | Some reason -> Skip.If(true, reason)
+        | None -> Assert.Equal(example.After, Formatter.format example.Before)
 
-    [<Theory>]
+    [<SkippableTheory>]
     [<ClassData(typeof<FixedPointData>)>]
     let ``Formatted code is unchanged`` fixedPoint =
-        Assert.Equal(fixedPoint.Source, Formatter.format fixedPoint.Source)
+        match fixedPoint.Skip with
+        | Some reason -> Skip.If(true, reason)
+        | None -> Assert.Equal(fixedPoint.Source, Formatter.format fixedPoint.Source)
