@@ -18,7 +18,7 @@ module internal NamespaceItem =
             { callable with
                   CallableKeyword = Terminal.mapPrefix mapper callable.CallableKeyword }
             |> CallableDeclaration
-        | Unknown text -> Unknown text
+        | Unknown terminal -> Terminal.mapPrefix mapper terminal |> Unknown
 
 type internal Namespace =
     { NamespaceKeyword: Terminal

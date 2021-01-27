@@ -153,6 +153,9 @@ type internal 'context Rewriter() =
         | Return returns -> rewriter.Return(context, returns) |> Return
         | If ifs -> rewriter.If(context, ifs) |> If
         | Else elses -> rewriter.Else(context, elses) |> Else
+        | Statement.Unknown terminal ->
+            rewriter.Terminal(context, terminal)
+            |> Statement.Unknown
 
     default rewriter.Let(context, lets) =
         { LetKeyword = rewriter.Terminal(context, lets.LetKeyword)

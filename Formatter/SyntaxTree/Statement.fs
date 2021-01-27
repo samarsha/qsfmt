@@ -36,6 +36,7 @@ and internal Statement =
     | Return of Return
     | If of If
     | Else of Else
+    | Unknown of Terminal
 
 module internal Statement =
     let mapPrefix mapper =
@@ -56,3 +57,4 @@ module internal Statement =
             { elses with
                   ElseKeyword = elses.ElseKeyword |> Terminal.mapPrefix mapper }
             |> Else
+        | Unknown terminal -> Terminal.mapPrefix mapper terminal |> Unknown

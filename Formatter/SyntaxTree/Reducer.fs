@@ -149,6 +149,7 @@ type internal 'result Reducer() as reducer =
         | Return returns -> reducer.Return returns
         | If ifs -> reducer.If ifs
         | Else elses -> reducer.Else elses
+        | Statement.Unknown terminal -> reducer.Terminal terminal
 
     default _.Let lets =
         [ reducer.Terminal lets.LetKeyword

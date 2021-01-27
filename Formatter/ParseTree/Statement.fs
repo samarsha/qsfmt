@@ -35,6 +35,9 @@ type internal StatementVisitor(tokens) =
 
     override _.DefaultResult = failwith "Unknown statement."
 
+    override _.VisitChildren node =
+        Node.toUnknown tokens node |> Statement.Unknown
+
     override _.VisitReturnStatement context =
         { ReturnKeyword = context.``return`` |> Node.toTerminal tokens
           Expression = expressionVisitor.Visit context.value

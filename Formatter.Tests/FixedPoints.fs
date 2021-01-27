@@ -55,11 +55,33 @@ let ``Open directive and entry point`` = """namespace Foo {
 let ``Operation with comments`` = """namespace Foo {
     open Test;
 
-    @EntryPoint()
     operation Bar () : Unit {
         // This is a comment
         Message("Bar");
         // Lorem ipsum
         // Dolor sit amet
+    }
+}"""
+
+[<FixedPoint>]
+let ``Mutable variable`` = """namespace Foo {
+    function Bar() : Unit {
+        mutable x = 0;
+    }
+}"""
+
+[<FixedPoint>]
+let ``Mutable variable after comment`` = """namespace Foo {
+    function Bar() : Unit {
+        // Hello world
+        mutable x = 0;
+    }
+}"""
+
+[<FixedPoint(Skip = "Not supported.")>]
+let ``Mutable variable before comment`` = """namespace Foo {
+    function Bar() : Unit {
+        mutable x = 0;
+        // Hello world
     }
 }"""
