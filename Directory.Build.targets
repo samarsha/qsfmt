@@ -1,6 +1,0 @@
-﻿<Project>
-  <Target Name="CheckFormat" BeforeTargets="Compile">
-    <Exec Command="dotnet tool restore" StandardOutputImportance="Low" />
-    <Exec Command="dotnet tool run fantomas --recurse --check ." />
-  </Target>
-</Project>
