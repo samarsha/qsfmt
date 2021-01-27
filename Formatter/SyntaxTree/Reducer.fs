@@ -86,14 +86,14 @@ type internal 'result Reducer() as reducer =
 
     default _.Type typ =
         match typ with
-        | MissingType missing -> reducer.Terminal missing
-        | TypeParameter name
-        | BuiltInType name
-        | UserDefinedType name -> reducer.Terminal name
-        | TupleType tuple -> reducer.Tuple(reducer.Type, tuple)
-        | ArrayType array -> reducer.ArrayType array
-        | CallableType callable -> reducer.CallableType callable
-        | UnknownType terminal -> reducer.Terminal terminal
+        | Type.Missing missing -> reducer.Terminal missing
+        | Parameter name
+        | BuiltIn name
+        | UserDefined name -> reducer.Terminal name
+        | Type.Tuple tuple -> reducer.Tuple(reducer.Type, tuple)
+        | Array array -> reducer.ArrayType array
+        | Callable callable -> reducer.CallableType callable
+        | Type.Unknown terminal -> reducer.Terminal terminal
 
     default _.TypeAnnotation annotation =
         [ reducer.Terminal annotation.Colon
@@ -140,8 +140,8 @@ type internal 'result Reducer() as reducer =
         match characteristic with
         | Adjoint adjoint -> reducer.Terminal adjoint
         | Controlled controlled -> reducer.Terminal controlled
-        | CharacteristicGroup group -> reducer.CharacteristicGroup group
-        | CharacteristicBinaryOperator operator -> reducer.CharacteristicBinaryOperator operator
+        | Group group -> reducer.CharacteristicGroup group
+        | Characteristic.BinaryOperator operator -> reducer.CharacteristicBinaryOperator operator
 
     default _.Statement statement =
         match statement with
@@ -192,11 +192,12 @@ type internal 'result Reducer() as reducer =
 
     default _.Expression expression =
         match expression with
-        | MissingExpression terminal -> reducer.Terminal terminal
+        | Missing terminal -> reducer.Terminal terminal
         | Literal literal -> reducer.Terminal literal
         | Tuple tuple -> reducer.Tuple(reducer.Expression, tuple)
         | BinaryOperator operator -> reducer.BinaryOperator operator
         | Update update -> reducer.Update update
+        | Expression.Unknown terminal -> reducer.Terminal terminal
 
     default _.BinaryOperator operator =
         [ reducer.Expression operator.Left

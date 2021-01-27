@@ -8,10 +8,13 @@ type internal ExpressionVisitor(tokens) =
 
     override _.DefaultResult = failwith "Unknown expression."
 
+    override _.VisitChildren node =
+        Node.toUnknown tokens node |> Expression.Unknown
+
     override _.VisitMissingExpression context =
         context.Underscore().Symbol
         |> Node.toTerminal tokens
-        |> MissingExpression
+        |> Missing
 
     override _.VisitIdentifierExpression context =
         { Prefix = Node.prefix tokens context.name.Start.TokenIndex

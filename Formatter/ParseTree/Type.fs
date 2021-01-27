@@ -9,14 +9,14 @@ type internal TypeVisitor(tokens) =
     override _.DefaultResult = failwith "Unknown type."
 
     override _.VisitChildren node =
-        Node.toUnknown tokens node |> UnknownType
+        Node.toUnknown tokens node |> Type.Unknown
 
     override _.VisitIntType context =
         context.Int().Symbol
         |> Node.toTerminal tokens
-        |> BuiltInType
+        |> BuiltIn
 
     override _.VisitUserDefinedType context =
         { Prefix = Node.prefix tokens context.name.Start.TokenIndex
           Text = context.name.GetText() }
-        |> UserDefinedType
+        |> UserDefined

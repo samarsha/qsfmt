@@ -13,8 +13,9 @@ and internal Update =
       Value: Expression }
 
 and internal Expression =
-    | MissingExpression of Terminal
+    | Missing of Terminal
     | Literal of Terminal
     | Tuple of Expression Tuple
     | BinaryOperator of BinaryOperator
     | Update of Update
+    | Unknown of Terminal

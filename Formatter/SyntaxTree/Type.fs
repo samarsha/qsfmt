@@ -13,8 +13,8 @@ and internal CharacteristicBinaryOperator =
 and internal Characteristic =
     | Adjoint of Terminal
     | Controlled of Terminal
-    | CharacteristicGroup of CharacteristicGroup
-    | CharacteristicBinaryOperator of CharacteristicBinaryOperator
+    | Group of CharacteristicGroup
+    | BinaryOperator of CharacteristicBinaryOperator
 
 type internal CharacteristicSection =
     { IsKeyword: Terminal
@@ -36,13 +36,13 @@ and internal CallableType =
       CloseParen: Terminal }
 
 and internal Type =
-    | MissingType of Terminal
-    | TypeParameter of Terminal
-    | BuiltInType of Terminal
-    | UserDefinedType of Terminal
-    | TupleType of Type Tuple
-    | ArrayType of ArrayType
-    | CallableType of CallableType
-    | UnknownType of Terminal
+    | Missing of Terminal
+    | Parameter of Terminal
+    | BuiltIn of Terminal
+    | UserDefined of Terminal
+    | Tuple of Type Tuple
+    | Array of ArrayType
+    | Callable of CallableType
+    | Unknown of Terminal
 
 type internal TypeAnnotation = { Colon: Terminal; Type: Type }

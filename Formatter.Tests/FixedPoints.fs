@@ -85,3 +85,10 @@ let ``Mutable variable before comment`` = """namespace Foo {
         // Hello world
     }
 }"""
+
+[<FixedPoint>]
+let ``Array literal`` = """namespace Foo {
+    function Bar() : Unit {
+        let xs = [1, 2, 3];
+    }
+}"""

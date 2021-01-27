@@ -82,22 +82,22 @@ type internal 'context Rewriter() =
 
     default rewriter.Type(context, typ) =
         match typ with
-        | MissingType missing -> rewriter.Terminal(context, missing) |> MissingType
-        | TypeParameter name -> rewriter.Terminal(context, name) |> TypeParameter
-        | BuiltInType name -> rewriter.Terminal(context, name) |> BuiltInType
-        | UserDefinedType name ->
-            rewriter.Terminal(context, name)
-            |> UserDefinedType
-        | TupleType tuple ->
+        | Type.Missing missing ->
+            rewriter.Terminal(context, missing)
+            |> Type.Missing
+        | Parameter name -> rewriter.Terminal(context, name) |> Parameter
+        | BuiltIn name -> rewriter.Terminal(context, name) |> BuiltIn
+        | UserDefined name -> rewriter.Terminal(context, name) |> UserDefined
+        | Type.Tuple tuple ->
             rewriter.Tuple(context, rewriter.Type, tuple)
-            |> TupleType
-        | ArrayType array -> rewriter.ArrayType(context, array) |> ArrayType
-        | CallableType callable ->
+            |> Type.Tuple
+        | Array array -> rewriter.ArrayType(context, array) |> Array
+        | Type.Callable callable ->
             rewriter.CallableType(context, callable)
-            |> CallableType
-        | UnknownType terminal ->
+            |> Type.Callable
+        | Type.Unknown terminal ->
             rewriter.Terminal(context, terminal)
-            |> UnknownType
+            |> Type.Unknown
 
     default rewriter.TypeAnnotation(context, annotation) =
         { Colon = rewriter.Terminal(context, annotation.Colon)
@@ -140,12 +140,12 @@ type internal 'context Rewriter() =
         | Controlled controlled ->
             rewriter.Terminal(context, controlled)
             |> Controlled
-        | CharacteristicGroup group ->
+        | Group group ->
             rewriter.CharacteristicGroup(context, group)
-            |> CharacteristicGroup
-        | CharacteristicBinaryOperator operator ->
+            |> Group
+        | Characteristic.BinaryOperator operator ->
             rewriter.CharacteristicBinaryOperator(context, operator)
-            |> CharacteristicBinaryOperator
+            |> Characteristic.BinaryOperator
 
     default rewriter.Statement(context, statement) =
         match statement with
@@ -197,9 +197,7 @@ type internal 'context Rewriter() =
 
     default rewriter.Expression(context, expression) =
         match expression with
-        | MissingExpression terminal ->
-            rewriter.Terminal(context, terminal)
-            |> MissingExpression
+        | Missing terminal -> rewriter.Terminal(context, terminal) |> Missing
         | Literal literal -> rewriter.Terminal(context, literal) |> Literal
         | Tuple tuple ->
             rewriter.Tuple(context, rewriter.Expression, tuple)
@@ -208,6 +206,9 @@ type internal 'context Rewriter() =
             rewriter.BinaryOperator(context, operator)
             |> BinaryOperator
         | Update update -> rewriter.Update(context, update) |> Update
+        | Expression.Unknown terminal ->
+            rewriter.Terminal(context, terminal)
+            |> Expression.Unknown
 
     default rewriter.BinaryOperator(context, operator) =
         { Left = rewriter.Expression(context, operator.Left)
