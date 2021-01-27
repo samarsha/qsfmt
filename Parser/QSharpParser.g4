@@ -79,8 +79,8 @@ characteristicsExpression
     ;
 
 callableBody
-    : BraceLeft specialization* BraceRight
-    | scope
+    : scope
+    | BraceLeft specialization* BraceRight
     ;
 
 specialization : specializationName+ specializationGenerator;

@@ -43,5 +43,6 @@ and internal Type =
     | TupleType of Type Tuple
     | ArrayType of ArrayType
     | CallableType of CallableType
+    | UnknownType of Terminal
 
 type internal TypeAnnotation = { Colon: Terminal; Type: Type }

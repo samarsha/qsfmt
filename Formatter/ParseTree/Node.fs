@@ -4,6 +4,7 @@ open System.Collections.Generic
 open System.Collections.Immutable
 
 open Antlr4.Runtime
+open Antlr4.Runtime.Tree
 open QsFmt.Formatter.SyntaxTree
 open QsFmt.Parser
 
@@ -24,6 +25,15 @@ let prefix tokens index =
 let toTerminal tokens (terminal: IToken) =
     { Prefix = prefix tokens terminal.TokenIndex
       Text = terminal.Text }
+
+let toUnknown (tokens: IToken ImmutableArray) (node: IRuleNode) =
+    let text =
+        seq { for i in node.SourceInterval.a .. node.SourceInterval.b -> tokens.[i] }
+        |> Seq.map (fun token -> token.Text)
+        |> Seq.fold (+) ""
+
+    { Prefix = prefix tokens node.SourceInterval.a
+      Text = text }
 
 let private padZip (source1: _ seq, padding1) (source2: _ seq, padding2) =
     let enumerator1 = source1.GetEnumerator()

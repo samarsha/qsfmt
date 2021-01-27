@@ -43,6 +43,8 @@ type private NamespaceItemVisitor(tokens) =
 
     override _.DefaultResult = failwith "Unknown namespace element."
 
+    override _.VisitChildren node = Node.toUnknown tokens node |> Unknown
+
     override _.VisitCallableElement context =
         let scope = context.callable.body.scope () // TODO
 

@@ -66,9 +66,12 @@ type internal 'context Rewriter() =
           Name = rewriter.Terminal(context, ns.Name)
           Block = rewriter.Block(context, rewriter.NamespaceItem, ns.Block) }
 
-    default rewriter.NamespaceItem(context, CallableDeclaration callable) =
-        rewriter.CallableDeclaration(context, callable)
-        |> CallableDeclaration
+    default rewriter.NamespaceItem(context, item) =
+        match item with
+        | CallableDeclaration callable ->
+            rewriter.CallableDeclaration(context, callable)
+            |> CallableDeclaration
+        | Unknown terminal -> rewriter.Terminal(context, terminal) |> Unknown
 
     default rewriter.CallableDeclaration(context, callable) =
         { CallableKeyword = rewriter.Terminal(context, callable.CallableKeyword)
@@ -92,6 +95,9 @@ type internal 'context Rewriter() =
         | CallableType callable ->
             rewriter.CallableType(context, callable)
             |> CallableType
+        | UnknownType terminal ->
+            rewriter.Terminal(context, terminal)
+            |> UnknownType
 
     default rewriter.TypeAnnotation(context, annotation) =
         { Colon = rewriter.Terminal(context, annotation.Colon)

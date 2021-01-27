@@ -71,7 +71,10 @@ type internal 'result Reducer() as reducer =
           reducer.Block(reducer.NamespaceItem, ns.Block) ]
         |> reduce
 
-    default _.NamespaceItem(CallableDeclaration callable) = reducer.CallableDeclaration callable
+    default _.NamespaceItem item =
+        match item with
+        | CallableDeclaration callable -> reducer.CallableDeclaration callable
+        | Unknown terminal -> reducer.Terminal terminal
 
     default _.CallableDeclaration callable =
         [ reducer.Terminal callable.CallableKeyword
@@ -90,6 +93,7 @@ type internal 'result Reducer() as reducer =
         | TupleType tuple -> reducer.Tuple(reducer.Type, tuple)
         | ArrayType array -> reducer.ArrayType array
         | CallableType callable -> reducer.CallableType callable
+        | UnknownType terminal -> reducer.Terminal terminal
 
     default _.TypeAnnotation annotation =
         [ reducer.Terminal annotation.Colon

@@ -8,6 +8,9 @@ type internal TypeVisitor(tokens) =
 
     override _.DefaultResult = failwith "Unknown type."
 
+    override _.VisitChildren node =
+        Node.toUnknown tokens node |> UnknownType
+
     override _.VisitIntType context =
         context.Int().Symbol
         |> Node.toTerminal tokens

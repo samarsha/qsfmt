@@ -35,7 +35,7 @@ let ``Entry point and using statement`` = """namespace Microsoft.Quantum.Foo {
     }
 }"""
 
-[<FixedPoint(Skip = "Not supported.")>]
+[<FixedPoint>]
 let ``Open directives and operation`` = """namespace Foo {
     open Bar;
     open Baz;

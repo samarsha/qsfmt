@@ -7,13 +7,18 @@ type internal CallableDeclaration =
       ReturnType: TypeAnnotation
       Block: Statement Block }
 
-type internal NamespaceItem = CallableDeclaration of CallableDeclaration
+type internal NamespaceItem =
+    | CallableDeclaration of CallableDeclaration
+    | Unknown of Terminal
 
 module internal NamespaceItem =
-    let mapPrefix mapper (CallableDeclaration callable) =
-        { callable with
-              CallableKeyword = Terminal.mapPrefix mapper callable.CallableKeyword }
-        |> CallableDeclaration
+    let mapPrefix mapper =
+        function
+        | CallableDeclaration callable ->
+            { callable with
+                  CallableKeyword = Terminal.mapPrefix mapper callable.CallableKeyword }
+            |> CallableDeclaration
+        | Unknown text -> Unknown text
 
 type internal Namespace =
     { NamespaceKeyword: Terminal
