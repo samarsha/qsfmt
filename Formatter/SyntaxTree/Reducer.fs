@@ -167,9 +167,7 @@ type internal 'result Reducer() as reducer =
 
     default _.If ifs =
         [ reducer.Terminal ifs.IfKeyword
-          reducer.Terminal ifs.OpenParen
           reducer.Expression ifs.Condition
-          reducer.Terminal ifs.CloseParen
           reducer.Block(reducer.Statement, ifs.Block) ]
         |> reduce
 

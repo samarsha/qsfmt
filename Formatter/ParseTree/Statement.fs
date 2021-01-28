@@ -54,9 +54,7 @@ type internal StatementVisitor(tokens) =
 
     override visitor.VisitIfStatement context =
         { IfKeyword = context.``if`` |> Node.toTerminal tokens
-          OpenParen = context.openParen |> Node.toTerminal tokens
           Condition = expressionVisitor.Visit context.condition
-          CloseParen = context.closeParen |> Node.toTerminal tokens
           Block =
               { OpenBrace = context.body.openBrace |> Node.toTerminal tokens
                 Items =

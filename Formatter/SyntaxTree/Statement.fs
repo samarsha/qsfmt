@@ -22,9 +22,7 @@ type internal Return =
 
 type internal If =
     { IfKeyword: Terminal
-      OpenParen: Terminal
       Condition: Expression
-      CloseParen: Terminal
       Block: Statement Block }
 
 and internal Else =

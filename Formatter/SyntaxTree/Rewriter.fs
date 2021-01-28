@@ -171,9 +171,7 @@ type internal 'context Rewriter() =
 
     default rewriter.If(context, ifs) =
         { IfKeyword = rewriter.Terminal(context, ifs.IfKeyword)
-          OpenParen = rewriter.Terminal(context, ifs.OpenParen)
           Condition = rewriter.Expression(context, ifs.Condition)
-          CloseParen = rewriter.Terminal(context, ifs.CloseParen)
           Block = rewriter.Block(context, rewriter.Statement, ifs.Block) }
 
     default rewriter.Else(context, elses) =

@@ -113,7 +113,10 @@ specializationParameter
 
 type
     : '_' # MissingType
+    | '(' (type (',' type)* ','?)? ')' # TupleType
     | TypeParameter # TypeParameter
+    | type '[' ']' # ArrayType
+    | type ('->' | '=>') type characteristics? # CallableType
     | 'BigInt' # BigIntType
     | 'Bool' # BoolType
     | 'Double' # DoubleType
@@ -125,14 +128,6 @@ type
     | 'String' # StringType
     | 'Unit' # UnitType
     | name=qualifiedName # UserDefinedType
-    | '(' (type (',' type)* ','?)? ')' # TupleType
-    | '(' arrowType characteristics? ')' # CallableType
-    | type '[' ']' # ArrayType
-    ;
-
-arrowType
-    : '(' type ('->' | '=>') type ')'
-    | type ('->' | '=>') type
     ;
 
 // Statement
@@ -146,17 +141,17 @@ statement
     | 'set' symbolBinding '=' expression ';' # SetStatement
     | 'set' Identifier updateOperator expression ';' # SetUpdateStatement
     | 'set' Identifier 'w/=' expression '<-' expression ';' # SetWithStatement
-    | if='if' openParen='(' condition=expression closeParen=')' body=scope # IfStatement
-    | 'elif' '(' expression ')' scope # ElifStatement
+    | if='if' condition=expression body=scope # IfStatement
+    | 'elif' expression scope # ElifStatement
     | else='else' body=scope # ElseStatement
-    | 'for' '(' symbolBinding 'in' expression ')' scope # ForStatement
-    | 'while' '(' expression ')' scope # WhileStatement
+    | 'for' (forBinding | '(' forBinding ')') scope # ForStatement
+    | 'while' expression scope # WhileStatement
     | 'repeat' scope # RepeatStatement
-    | 'until' '(' expression ')' (';' | 'fixup' scope) # UntilStatement
+    | 'until' expression (';' | 'fixup' scope) # UntilStatement
     | 'within' scope # WithinStatement
     | 'apply' scope # ApplyStatement
-    | 'using' '(' symbolBinding '=' qubitInitializer ')' scope # UsingStatement
-    | 'borrowing' '(' symbolBinding '=' qubitInitializer ')' scope # BorrowingStatement
+    | ('use' | 'using') (qubitBinding | '(' qubitBinding ')') (';' | scope) # UseStatement
+    | ('borrow' | 'borrowing') (qubitBinding | '(' qubitBinding ')') (';' | scope) # BorrowStatement
     ;
 
 scope : openBrace=BraceLeft statements+=statement* closeBrace=BraceRight;
@@ -182,6 +177,10 @@ updateOperator
     | 'and='
     | 'or='
     ;
+
+forBinding : symbolBinding 'in' expression;
+
+qubitBinding : symbolBinding '=' qubitInitializer;
 
 qubitInitializer
     : 'Qubit' '(' ')'
