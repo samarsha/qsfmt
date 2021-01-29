@@ -101,22 +101,18 @@ type internal 'result Reducer() as reducer =
         |> reduce
 
     default _.ArrayType array =
-        [ reducer.Type array.BaseType
+        [ reducer.Type array.ItemType
           reducer.Terminal array.OpenBracket
           reducer.Terminal array.CloseBracket ]
         |> reduce
 
     default _.CallableType callable =
-        [ reducer.Terminal callable.OpenParen
-          reducer.Terminal callable.InnerOpenParen
-          reducer.Type callable.FromType
+        [ reducer.Type callable.FromType
           reducer.Terminal callable.Arrow
-          reducer.Type callable.ToType
-          reducer.Terminal callable.InnerCloseParen ]
+          reducer.Type callable.ToType ]
         @ (callable.Characteristics
            |> Option.map reducer.CharacteristicSection
            |> Option.toList)
-          @ [ reducer.Terminal callable.CloseParen ]
         |> reduce
 
     default _.CharacteristicSection section =

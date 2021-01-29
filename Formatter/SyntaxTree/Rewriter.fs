@@ -104,21 +104,17 @@ type internal 'context Rewriter() =
           Type = rewriter.Type(context, annotation.Type) }
 
     default rewriter.ArrayType(context, array) =
-        { BaseType = rewriter.Type(context, array.BaseType)
+        { ItemType = rewriter.Type(context, array.ItemType)
           OpenBracket = rewriter.Terminal(context, array.OpenBracket)
           CloseBracket = rewriter.Terminal(context, array.CloseBracket) }
 
     default rewriter.CallableType(context, callable) =
-        { OpenParen = rewriter.Terminal(context, callable.OpenParen)
-          InnerOpenParen = rewriter.Terminal(context, callable.InnerOpenParen)
-          FromType = rewriter.Type(context, callable.FromType)
+        { FromType = rewriter.Type(context, callable.FromType)
           Arrow = rewriter.Terminal(context, callable.Arrow)
           ToType = rewriter.Type(context, callable.ToType)
-          InnerCloseParen = rewriter.Terminal(context, callable.InnerCloseParen)
           Characteristics =
               callable.Characteristics
-              |> Option.map (curry rewriter.CharacteristicSection context)
-          CloseParen = rewriter.Terminal(context, callable.CloseParen) }
+              |> Option.map (curry rewriter.CharacteristicSection context) }
 
     default rewriter.CharacteristicSection(context, section) =
         { IsKeyword = rewriter.Terminal(context, section.IsKeyword)
