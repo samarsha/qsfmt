@@ -8,7 +8,7 @@ type internal 'result Reducer() as reducer =
 
     abstract Combine: 'result * 'result -> 'result
 
-    abstract Program: Program -> 'result
+    abstract Document: Document -> 'result
 
     abstract Namespace: Namespace -> 'result
 
@@ -60,9 +60,9 @@ type internal 'result Reducer() as reducer =
 
     abstract Terminal: Terminal -> 'result
 
-    default _.Program program =
-        (program.Namespaces |> List.map reducer.Namespace)
-        @ [ reducer.Terminal program.Eof ]
+    default _.Document document =
+        (document.Namespaces |> List.map reducer.Namespace)
+        @ [ reducer.Terminal document.Eof ]
         |> reduce
 
     default _.Namespace ns =

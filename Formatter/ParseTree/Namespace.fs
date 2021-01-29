@@ -79,7 +79,7 @@ module internal Namespace =
                     |> List.ofSeq
                 CloseBrace = context.closeBrace |> Node.toTerminal tokens } }
 
-    let toProgram tokens (context: QSharpParser.ProgramContext) =
+    let toDocument tokens (context: QSharpParser.DocumentContext) =
         let namespaces =
             context.``namespace`` ()
             |> Array.toList

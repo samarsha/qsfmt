@@ -3,7 +3,7 @@
 open QsFmt.Formatter.Utils
 
 type internal 'context Rewriter() =
-    abstract Program: 'context * Program -> Program
+    abstract Document: 'context * Document -> Document
 
     abstract Namespace: 'context * Namespace -> Namespace
 
@@ -55,11 +55,11 @@ type internal 'context Rewriter() =
 
     abstract Terminal: 'context * Terminal -> Terminal
 
-    default rewriter.Program(context, program) =
+    default rewriter.Document(context, document) =
         { Namespaces =
-              program.Namespaces
+              document.Namespaces
               |> List.map (curry rewriter.Namespace context)
-          Eof = rewriter.Terminal(context, program.Eof) }
+          Eof = rewriter.Terminal(context, document.Eof) }
 
     default rewriter.Namespace(context, ns) =
         { NamespaceKeyword = rewriter.Terminal(context, ns.NamespaceKeyword)

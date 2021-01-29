@@ -20,17 +20,17 @@ let format (source: string) =
     let parser = QSharpParser tokenStream
     let errorListener = ErrorListListener()
     parser.AddErrorListener errorListener
-    let program = parser.program ()
+    let documentContext = parser.document ()
 
     let tokens =
         tokenStream.GetTokens()
         |> hideTokens errorListener.ErrorTokens
         |> ImmutableArray.CreateRange
 
-    program
-    |> toProgram tokens
-    |> curry collapsedSpaces.Program ()
-    |> curry operatorSpacing.Program ()
-    |> curry newLines.Program ()
-    |> curry indentation.Program 0
-    |> printer.Program
+    documentContext
+    |> toDocument tokens
+    |> curry collapsedSpaces.Document ()
+    |> curry operatorSpacing.Document ()
+    |> curry newLines.Document ()
+    |> curry indentation.Document 0
+    |> printer.Document

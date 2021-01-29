@@ -4,7 +4,7 @@ options {
     tokenVocab = QSharpLexer;
 }
 
-program : namespaces=namespace* eof=EOF;
+document : namespaces=namespace* eof=EOF;
 
 // Namespace
 
