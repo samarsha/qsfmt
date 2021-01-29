@@ -2,62 +2,102 @@
 
 open QsFmt.Formatter.Utils
 
+/// <summary>
+/// Reduces a syntax tree to a single value.
+/// </summary>
+/// <typeparam name="result">The type of the reduced result.</typeparam>
 [<AbstractClass>]
 type internal 'result Reducer() as reducer =
+    /// Reduces a list of results into a single result.
     let reduce = curry reducer.Combine |> List.reduce
 
+    /// Combines two results into a single result.
     abstract Combine: 'result * 'result -> 'result
 
+    /// Reduces a document node.
     abstract Document: Document -> 'result
 
+    /// Reduces a namespace node.
     abstract Namespace: Namespace -> 'result
 
+    /// Reduces a namespace item node.
     abstract NamespaceItem: NamespaceItem -> 'result
 
+    /// Reduces a callable declaration node.
     abstract CallableDeclaration: CallableDeclaration -> 'result
 
+    /// Reduces a type node.
     abstract Type: Type -> 'result
 
+    /// Reduces a type annotation node.
     abstract TypeAnnotation: TypeAnnotation -> 'result
 
+    /// Reduces an array type node.
     abstract ArrayType: ArrayType -> 'result
 
+    /// Reduces a callable type node.
     abstract CallableType: CallableType -> 'result
 
+    /// Reduces a callable characteristic section node.
     abstract CharacteristicSection: CharacteristicSection -> 'result
 
+    /// Reduces a parenthesized characteristic node.
     abstract CharacteristicGroup: CharacteristicGroup -> 'result
 
+    /// Reduces a binary characteristic operator.
     abstract CharacteristicBinaryOperator: CharacteristicBinaryOperator -> 'result
 
+    /// Reduces a characteristic node.
     abstract Characteristic: Characteristic -> 'result
 
+    /// Reduces a statement node.
     abstract Statement: Statement -> 'result
 
+    /// <summary>
+    /// Reduces a <c>let</c> statement node.
+    /// </summary>
     abstract Let: Let -> 'result
 
+    /// <summary>
+    /// Reduces a <c>return</c> statement node.
+    /// </summary>
     abstract Return: Return -> 'result
 
+    /// <summary>
+    /// Reduces an <c>if</c> statement node.
+    /// </summary>
     abstract If: If -> 'result
 
+    /// <summary>
+    /// Reduces an <c>else</c> statement node.
+    /// </summary>
     abstract Else: Else -> 'result
 
+    /// Reduces a symbol binding node.
     abstract SymbolBinding: SymbolBinding -> 'result
 
+    /// Reduces a symbol declaration node.
     abstract SymbolDeclaration: SymbolDeclaration -> 'result
 
+    /// Reduces an expression node.
     abstract Expression: Expression -> 'result
 
+    /// Reduces a binary expression operator node.
     abstract BinaryOperator: BinaryOperator -> 'result
 
+    /// Reduces a copy-and-update expression node.
     abstract Update: Update -> 'result
 
+    /// Reduces a block node, given a reducer for the block contents.
     abstract Block: ('a -> 'result) * 'a Block -> 'result
 
+    /// Reduces a tuple node, given a reducer for the tuple contents.
     abstract Tuple: ('a -> 'result) * 'a Tuple -> 'result
 
+    /// Reduces a sequence item node, given a reducer for the sequence items.
     abstract SequenceItem: ('a -> 'result) * 'a SequenceItem -> 'result
 
+    /// Reduces a terminal node.
     abstract Terminal: Terminal -> 'result
 
     default _.Document document =

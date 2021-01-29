@@ -37,7 +37,7 @@ type internal 'context Rewriter() =
     /// Rewrites a parenthesized characteristic node.
     abstract CharacteristicGroup: 'context * CharacteristicGroup -> CharacteristicGroup
 
-    /// Rewrites a characteristic binary operator node.
+    /// Rewrites a binary characteristic operator node.
     abstract CharacteristicBinaryOperator: 'context * CharacteristicBinaryOperator -> CharacteristicBinaryOperator
 
     /// Rewrites a characteristic node.
