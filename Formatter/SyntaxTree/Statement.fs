@@ -16,9 +16,13 @@ type internal SymbolBinding =
     /// A declaration for a tuple of new symbols.
     | SymbolTuple of SymbolBinding Tuple
 
-/// A "let" statement.
+/// <summary>
+/// A <c>let</c> statement.
+/// </summary>
 type internal Let =
-    { /// The "let" keyword.
+    { /// <summary>
+      /// The <c>let</c> keyword.
+      /// </summary>
       LetKeyword: Terminal
 
       /// The symbol binding.
@@ -33,9 +37,13 @@ type internal Let =
       /// The semicolon.
       Semicolon: Terminal }
 
-/// A "return" statement.
+/// <summary>
+/// A <c>return</c> statement.
+/// </summary>
 type internal Return =
-    { /// The "return" keyword.
+    { /// <summary>
+      /// The <c>return</c> keyword.
+      /// </summary>
       ReturnKeyword: Terminal
 
       /// The returned expression.
@@ -44,9 +52,13 @@ type internal Return =
       /// The semicolon.
       Semicolon: Terminal }
 
-/// An "if" statement.
+/// <summary>
+/// An <c>if</c> statement.
+/// </summary>
 type internal If =
-    { /// The "if" keyword.
+    { /// <summary>
+      /// The <c>if</c> keyword.
+      /// </summary>
       IfKeyword: Terminal
 
       /// The condition under which to execute the block.
@@ -55,9 +67,13 @@ type internal If =
       /// The conditional block.
       Block: Statement Block }
 
-/// An "else" statement.
+/// <summary>
+/// An <c>else</c> statement.
+/// </summary>
 and internal Else =
-    { /// The "else" keyword.
+    { /// <summary>
+      /// The <c>else</c> keyword.
+      /// </summary>
       ElseKeyword: Terminal
 
       /// The conditional block.
@@ -65,16 +81,24 @@ and internal Else =
 
 /// A statement.
 and internal Statement =
-    /// A "let" statement.
+    /// <summary>
+    /// A <c>let</c> statement.
+    /// </summary>
     | Let of Let
 
-    /// A "return" statement.
+    /// <summary>
+    /// A <c>return</c> statement.
+    /// </summary>
     | Return of Return
 
-    /// An "if" statement.
+    /// <summary>
+    /// An <c>if</c> statement.
+    /// </summary>
     | If of If
 
-    /// An "else" statement.
+    /// <summary>
+    /// An <c>else</c> statement.
+    /// </summary>
     | Else of Else
 
     /// An unknown statement.

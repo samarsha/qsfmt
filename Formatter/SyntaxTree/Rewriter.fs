@@ -2,57 +2,95 @@
 
 open QsFmt.Formatter.Utils
 
+/// <summary>
+/// Rewrites a syntax tree.
+/// </summary>
+/// <typeparam name="context">The type of the context to use during recursive descent into the syntax tree.</typeparam>
 type internal 'context Rewriter() =
+    /// Rewrites a document node.
     abstract Document: 'context * Document -> Document
 
+    /// Rewrites a namespace node.
     abstract Namespace: 'context * Namespace -> Namespace
 
+    /// Rewrites a namespace item node.
     abstract NamespaceItem: 'context * NamespaceItem -> NamespaceItem
 
+    /// Rewrites a callable declaration node.
     abstract CallableDeclaration: 'context * CallableDeclaration -> CallableDeclaration
 
+    /// Rewrites a type node.
     abstract Type: 'context * Type -> Type
 
+    /// Rewrites a type annotation node.
     abstract TypeAnnotation: 'context * TypeAnnotation -> TypeAnnotation
 
+    /// Rewrites an array type node.
     abstract ArrayType: 'context * ArrayType -> ArrayType
 
+    /// Rewrites a callable type node.
     abstract CallableType: 'context * CallableType -> CallableType
 
+    /// Rewrites a callable characteristic section node.
     abstract CharacteristicSection: 'context * CharacteristicSection -> CharacteristicSection
 
+    /// Rewrites a parenthesized characteristic node.
     abstract CharacteristicGroup: 'context * CharacteristicGroup -> CharacteristicGroup
 
+    /// Rewrites a characteristic binary operator node.
     abstract CharacteristicBinaryOperator: 'context * CharacteristicBinaryOperator -> CharacteristicBinaryOperator
 
+    /// Rewrites a characteristic node.
     abstract Characteristic: 'context * Characteristic -> Characteristic
 
+    /// Rewrites a statement node.
     abstract Statement: 'context * Statement -> Statement
 
+    /// <summary>
+    /// Rewrites a <c>let</c> statement node.
+    /// </summary>
     abstract Let: 'context * Let -> Let
 
+    /// <summary>
+    /// Rewrites a <c>return</c> statement node.
+    /// </summary>
     abstract Return: 'context * Return -> Return
 
+    /// <summary>
+    /// Rewrites an <c>if</c> statement node.
+    /// </summary>
     abstract If: 'context * If -> If
 
+    /// <summary>
+    /// Rewrites an <c>else</c> statement node.
+    /// </summary>
     abstract Else: 'context * Else -> Else
 
+    /// Rewrites a symbol binding node.
     abstract SymbolBinding: 'context * SymbolBinding -> SymbolBinding
 
+    /// Rewrites a symbol declaration node.
     abstract SymbolDeclaration: 'context * SymbolDeclaration -> SymbolDeclaration
 
+    /// Rewrites an expression node.
     abstract Expression: 'context * Expression -> Expression
 
+    /// Rewrites a binary expression operator node.
     abstract BinaryOperator: 'context * BinaryOperator -> BinaryOperator
 
+    /// Rewrites a copy-and-update expression node.
     abstract Update: 'context * Update -> Update
 
+    /// Rewrites a block node, given a rewriter for the block contents.
     abstract Block: 'context * ('context * 'a -> 'a) * 'a Block -> 'a Block
 
+    /// Rewrites a tuple node, given a rewriter for the tuple contents.
     abstract Tuple: 'context * ('context * 'a -> 'a) * 'a Tuple -> 'a Tuple
 
+    /// Rewrites a sequence item node, given a rewriter for the sequence items.
     abstract SequenceItem: 'context * ('context * 'a -> 'a) * 'a SequenceItem -> 'a SequenceItem
 
+    /// Rewrites a terminal node.
     abstract Terminal: 'context * Terminal -> Terminal
 
     default rewriter.Document(context, document) =

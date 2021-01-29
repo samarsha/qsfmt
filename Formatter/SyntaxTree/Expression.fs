@@ -16,13 +16,15 @@ and internal Update =
     { /// The record to update.
       Record: Expression
 
-      /// The "w/" symbol.
+      /// <summary>
+      /// The <c>w/</c> symbol.
+      /// </summary>
       With: Terminal
 
       /// The item to update.
       Item: Expression
 
-      /// The "<-" symbol.
+      /// The left arrow symbol.
       Arrow: Terminal
 
       /// The value to assign to the item.

@@ -38,7 +38,9 @@ and internal Characteristic =
 
 /// A section attached to a callable type or declaration describing its characteristics.
 type internal CharacteristicSection =
-    { /// The "is" keyword.
+    { /// <summary>
+      /// The <c>is</c> keyword.
+      /// </summary>
       IsKeyword: Terminal
 
       /// The characteristic.

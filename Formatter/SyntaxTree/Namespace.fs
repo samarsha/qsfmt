@@ -2,7 +2,9 @@
 
 /// A callable declaration.
 type internal CallableDeclaration =
-    { /// The declaration keyword (either "function" or "operation").
+    { /// <summary>
+      /// The declaration keyword (either <c>function</c> or <c>operation</c>).
+      /// </summary>
       CallableKeyword: Terminal
 
       /// The name of the callable.
@@ -37,9 +39,11 @@ module internal NamespaceItem =
             |> CallableDeclaration
         | Unknown terminal -> Terminal.mapPrefix mapper terminal |> Unknown
 
-/// A namespace
+/// A namespace.
 type internal Namespace =
-    { /// The "namespace" keyword.
+    { /// <summary>
+      /// The <c>namespace</c> keyword.
+      /// </summary>
       NamespaceKeyword: Terminal
 
       /// The name of the namespace.
