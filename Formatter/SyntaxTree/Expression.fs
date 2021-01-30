@@ -1,18 +1,7 @@
 ﻿namespace QsFmt.Formatter.SyntaxTree
 
-/// An operator applied to two expressions.
-type internal BinaryOperator =
-    { /// The left-hand side.
-      Left: Expression
-
-      /// The operator.
-      Operator: Terminal
-
-      /// The right-hand side.
-      Right: Expression }
-
 /// A copy-and-update expression.
-and internal Update =
+type internal Update =
     { /// The record to update.
       Record: Expression
 
@@ -42,7 +31,7 @@ and internal Expression =
     | Tuple of Expression Tuple
 
     /// An operator applied to two expressions.
-    | BinaryOperator of BinaryOperator
+    | BinaryOperator of Expression BinaryOperator
 
     /// A copy-and-update expression.
     | Update of Update

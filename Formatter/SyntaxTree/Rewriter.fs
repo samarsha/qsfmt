@@ -37,9 +37,6 @@ type internal 'context Rewriter() =
     /// Rewrites a parenthesized characteristic node.
     abstract CharacteristicGroup: 'context * CharacteristicGroup -> CharacteristicGroup
 
-    /// Rewrites a binary characteristic operator node.
-    abstract CharacteristicBinaryOperator: 'context * CharacteristicBinaryOperator -> CharacteristicBinaryOperator
-
     /// Rewrites a characteristic node.
     abstract Characteristic: 'context * Characteristic -> Characteristic
 
@@ -75,9 +72,6 @@ type internal 'context Rewriter() =
     /// Rewrites an expression node.
     abstract Expression: 'context * Expression -> Expression
 
-    /// Rewrites a binary expression operator node.
-    abstract BinaryOperator: 'context * BinaryOperator -> BinaryOperator
-
     /// Rewrites a copy-and-update expression node.
     abstract Update: 'context * Update -> Update
 
@@ -89,6 +83,9 @@ type internal 'context Rewriter() =
 
     /// Rewrites a sequence item node, given a rewriter for the sequence items.
     abstract SequenceItem: 'context * ('context * 'a -> 'a) * 'a SequenceItem -> 'a SequenceItem
+
+    /// Rewrites a binary operator node, given a rewriter for the operands.
+    abstract BinaryOperator: 'context * ('context * 'a -> 'a) * 'a BinaryOperator -> 'a BinaryOperator
 
     /// Rewrites a terminal node.
     abstract Terminal: 'context * Terminal -> Terminal
@@ -163,11 +160,6 @@ type internal 'context Rewriter() =
           Characteristic = rewriter.Characteristic(context, group.Characteristic)
           CloseParen = rewriter.Terminal(context, group.CloseParen) }
 
-    default rewriter.CharacteristicBinaryOperator(context, operator) =
-        { Left = rewriter.Characteristic(context, operator.Left)
-          Operator = rewriter.Terminal(context, operator.Operator)
-          Right = rewriter.Characteristic(context, operator.Right) }
-
     default rewriter.Characteristic(context, characteristic) =
         match characteristic with
         | Adjoint adjoint -> rewriter.Terminal(context, adjoint) |> Adjoint
@@ -178,7 +170,7 @@ type internal 'context Rewriter() =
             rewriter.CharacteristicGroup(context, group)
             |> Group
         | Characteristic.BinaryOperator operator ->
-            rewriter.CharacteristicBinaryOperator(context, operator)
+            rewriter.BinaryOperator(context, rewriter.Characteristic, operator)
             |> Characteristic.BinaryOperator
 
     default rewriter.Statement(context, statement) =
@@ -235,17 +227,12 @@ type internal 'context Rewriter() =
             rewriter.Tuple(context, rewriter.Expression, tuple)
             |> Tuple
         | BinaryOperator operator ->
-            rewriter.BinaryOperator(context, operator)
+            rewriter.BinaryOperator(context, rewriter.Expression, operator)
             |> BinaryOperator
         | Update update -> rewriter.Update(context, update) |> Update
         | Expression.Unknown terminal ->
             rewriter.Terminal(context, terminal)
             |> Expression.Unknown
-
-    default rewriter.BinaryOperator(context, operator) =
-        { Left = rewriter.Expression(context, operator.Left)
-          Operator = rewriter.Terminal(context, operator.Operator)
-          Right = rewriter.Expression(context, operator.Right) }
 
     default rewriter.Update(context, update) =
         { Record = rewriter.Expression(context, update.Record)
@@ -271,5 +258,10 @@ type internal 'context Rewriter() =
           Comma =
               item.Comma
               |> Option.map (curry rewriter.Terminal context) }
+
+    default rewriter.BinaryOperator(context, mapper, operator) =
+        { Left = mapper (context, operator.Left)
+          Operator = rewriter.Terminal(context, operator.Operator)
+          Right = mapper (context, operator.Right) }
 
     default _.Terminal(_, terminal) = terminal

@@ -109,6 +109,17 @@ type internal 'a Tuple =
       /// The closing parenthesis.
       CloseParen: Terminal }
 
+/// A binary operator.
+type internal 'a BinaryOperator =
+    { /// The left-hand side.
+      Left: 'a
+
+      /// The operator.
+      Operator: Terminal
+
+      /// The right-hand side.
+      Right: 'a }
+
 /// A block.
 type internal 'a Block =
     { /// The opening brace.

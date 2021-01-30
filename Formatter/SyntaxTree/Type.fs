@@ -11,17 +11,6 @@ type internal CharacteristicGroup =
       /// The closing parenthesis.
       CloseParen: Terminal }
 
-/// A binary operator applied to two characteristics.
-and internal CharacteristicBinaryOperator =
-    { /// The left-hand side.
-      Left: Characteristic
-
-      /// The operator.
-      Operator: Terminal
-
-      /// The right-hand side.
-      Right: Characteristic }
-
 /// A callable characteristic.
 and internal Characteristic =
     /// The callable is adjointable.
@@ -34,7 +23,7 @@ and internal Characteristic =
     | Group of CharacteristicGroup
 
     /// A binary operator applied to two characteristics.
-    | BinaryOperator of CharacteristicBinaryOperator
+    | BinaryOperator of Characteristic BinaryOperator
 
 /// A section attached to a callable type or declaration describing its characteristics.
 type internal CharacteristicSection =

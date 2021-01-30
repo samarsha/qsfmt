@@ -44,9 +44,6 @@ type internal 'result Reducer() as reducer =
     /// Reduces a parenthesized characteristic node.
     abstract CharacteristicGroup: CharacteristicGroup -> 'result
 
-    /// Reduces a binary characteristic operator.
-    abstract CharacteristicBinaryOperator: CharacteristicBinaryOperator -> 'result
-
     /// Reduces a characteristic node.
     abstract Characteristic: Characteristic -> 'result
 
@@ -82,9 +79,6 @@ type internal 'result Reducer() as reducer =
     /// Reduces an expression node.
     abstract Expression: Expression -> 'result
 
-    /// Reduces a binary expression operator node.
-    abstract BinaryOperator: BinaryOperator -> 'result
-
     /// Reduces a copy-and-update expression node.
     abstract Update: Update -> 'result
 
@@ -96,6 +90,9 @@ type internal 'result Reducer() as reducer =
 
     /// Reduces a sequence item node, given a reducer for the sequence items.
     abstract SequenceItem: ('a -> 'result) * 'a SequenceItem -> 'result
+
+    /// Reduces a binary operator node, given a reducer for the operands.
+    abstract BinaryOperator: ('a -> 'result) * 'a BinaryOperator -> 'result
 
     /// Reduces a terminal node.
     abstract Terminal: Terminal -> 'result
@@ -166,18 +163,12 @@ type internal 'result Reducer() as reducer =
           reducer.Terminal group.CloseParen ]
         |> reduce
 
-    default _.CharacteristicBinaryOperator operator =
-        [ reducer.Characteristic operator.Left
-          reducer.Terminal operator.Operator
-          reducer.Characteristic operator.Right ]
-        |> reduce
-
     default _.Characteristic characteristic =
         match characteristic with
         | Adjoint adjoint -> reducer.Terminal adjoint
         | Controlled controlled -> reducer.Terminal controlled
         | Group group -> reducer.CharacteristicGroup group
-        | Characteristic.BinaryOperator operator -> reducer.CharacteristicBinaryOperator operator
+        | Characteristic.BinaryOperator operator -> reducer.BinaryOperator(reducer.Characteristic, operator)
 
     default _.Statement statement =
         match statement with
@@ -229,15 +220,9 @@ type internal 'result Reducer() as reducer =
         | Missing terminal -> reducer.Terminal terminal
         | Literal literal -> reducer.Terminal literal
         | Tuple tuple -> reducer.Tuple(reducer.Expression, tuple)
-        | BinaryOperator operator -> reducer.BinaryOperator operator
+        | BinaryOperator operator -> reducer.BinaryOperator(reducer.Expression, operator)
         | Update update -> reducer.Update update
         | Expression.Unknown terminal -> reducer.Terminal terminal
-
-    default _.BinaryOperator operator =
-        [ reducer.Expression operator.Left
-          reducer.Terminal operator.Operator
-          reducer.Expression operator.Right ]
-        |> reduce
 
     default _.Update update =
         [ reducer.Expression update.Record
@@ -265,4 +250,10 @@ type internal 'result Reducer() as reducer =
         @ (item.Comma
            |> Option.map reducer.Terminal
            |> Option.toList)
+        |> reduce
+
+    default _.BinaryOperator(mapper, operator) =
+        [ mapper operator.Left
+          reducer.Terminal operator.Operator
+          mapper operator.Right ]
         |> reduce
