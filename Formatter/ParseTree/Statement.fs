@@ -3,6 +3,9 @@
 open QsFmt.Formatter.SyntaxTree
 open QsFmt.Parser
 
+/// <summary>
+/// Creates syntax tree symbol binding nodes from a parse tree and the list of tokens.
+/// </summary>
 type private SymbolBindingVisitor(tokens) =
     inherit QSharpParserBaseVisitor<SymbolBinding>()
 
@@ -26,6 +29,9 @@ type private SymbolBindingVisitor(tokens) =
           CloseParen = context.closeParen |> Node.toTerminal tokens }
         |> SymbolTuple
 
+/// <summary>
+/// Creates syntax tree statement nodes from a parse tree and the list of tokens.
+/// </summary>
 type internal StatementVisitor(tokens) =
     inherit QSharpParserBaseVisitor<Statement>()
 

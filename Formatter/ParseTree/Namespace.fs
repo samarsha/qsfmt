@@ -3,6 +3,9 @@
 open QsFmt.Formatter.SyntaxTree
 open QsFmt.Parser
 
+/// <summary>
+/// Creates syntax tree symbol binding nodes for callable parameters from a parse tree and the list of tokens.
+/// </summary>
 type private ParameterVisitor(tokens) =
     inherit QSharpParserBaseVisitor<SymbolBinding>()
 
@@ -34,6 +37,9 @@ type private ParameterVisitor(tokens) =
           CloseParen = context.closeParen |> Node.toTerminal tokens }
         |> SymbolTuple
 
+/// <summary>
+/// Creates syntax tree namespace nodes from a parse tree and the list of tokens.
+/// </summary>
 type private NamespaceItemVisitor(tokens) =
     inherit QSharpParserBaseVisitor<NamespaceItem>()
 
@@ -63,7 +69,9 @@ type private NamespaceItemVisitor(tokens) =
                 CloseBrace = scope.closeBrace |> Node.toTerminal tokens } }
         |> CallableDeclaration
 
+/// Constructors for syntax tree namespace and document nodes.
 module internal Namespace =
+    /// Creates a syntax tree namespace node from the parse tree namespace node and the list of tokens.
     let private toNamespace tokens (context: QSharpParser.NamespaceContext) =
         let visitor = NamespaceItemVisitor tokens
 
@@ -79,6 +87,7 @@ module internal Namespace =
                     |> List.ofSeq
                 CloseBrace = context.closeBrace |> Node.toTerminal tokens } }
 
+    /// Creates a syntax tree document node from the parse tree namespace node and the list of tokens.
     let toDocument tokens (context: QSharpParser.DocumentContext) =
         let namespaces =
             context.``namespace`` ()
