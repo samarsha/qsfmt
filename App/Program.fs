@@ -1,6 +1,7 @@
 ﻿open System.IO
 open QsFmt.Formatter
 
+/// Runs the Q# formatter.
 [<EntryPoint>]
 let private main args =
     if Array.isEmpty args then
