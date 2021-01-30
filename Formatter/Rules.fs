@@ -1,7 +1,12 @@
-﻿module internal QsFmt.Formatter.Rules
+﻿/// Syntax tree rewriters for formatting rules.
+module internal QsFmt.Formatter.Rules
 
 open QsFmt.Formatter.SyntaxTree
 
+/// <summary>
+/// Maps a <see cref="Trivia"/> list by applying the mapping function with the <see cref="Trivia"/> nodes before and
+/// after the current node, then flattening the result.
+/// </summary>
 let private collectWithAdjacent =
     let rec withBefore before mapping =
         function
@@ -13,18 +18,23 @@ let private collectWithAdjacent =
 
     withBefore None
 
+/// <summary>
+/// Collapses adjacent whitespace characters in <paramref name="trivia"/> into a single space character.
+/// </summary>
 let private collapseTriviaSpaces previous trivia _ =
     match previous, trivia with
     | Some NewLine, Whitespace _ -> [ trivia ]
     | _, Whitespace _ -> [ Trivia.collapseSpaces trivia ]
     | _ -> [ trivia ]
 
+/// Collapses adjacent whitespace characters into a single space character.
 let collapsedSpaces =
     { new Rewriter<_>() with
         override _.Terminal((), terminal) =
             terminal
             |> Terminal.mapPrefix (collectWithAdjacent collapseTriviaSpaces) }
 
+/// Ensures that operators are spaced correctly relative to their operands.
 let operatorSpacing =
     { new Rewriter<_>() with
         override _.Let((), lets) =
@@ -34,6 +44,9 @@ let operatorSpacing =
 
             { lets with Equals = equals } }
 
+/// <summary>
+/// Indents the <see cref="Trivia"/> list to the given indentation <paramref name="level"/>.
+/// </summary>
 let private indentPrefix level =
     let indentTrivia previous trivia after =
         match previous, trivia, after with
@@ -44,8 +57,12 @@ let private indentPrefix level =
 
     collectWithAdjacent indentTrivia
 
+/// <summary>
+/// Indents the <see cref="Terminal"/> token to the given indentation <paramref name="level"/>.
+/// </summary>
 let private indentTerminal level = indentPrefix level |> Terminal.mapPrefix
 
+/// Applies correct indentation.
 let indentation =
     { new Rewriter<_>() with
         override _.Namespace(level, ns) =
@@ -64,9 +81,15 @@ let indentation =
             { base.Block(level + 1, mapper, block) with
                   CloseBrace = indentTerminal level block.CloseBrace } }
 
+/// <summary>
+/// Prepends the <paramref name="prefix"/> with a new line <see cref="Trivia"/> node if it does not already contain one.
+/// </summary>
 let private ensureNewLine prefix =
     if List.contains NewLine prefix then prefix else NewLine :: prefix
 
+/// <summary>
+/// Ensures that new lines are used where needed.
+/// </summary>
 let newLines =
     { new Rewriter<_>() with
         override _.NamespaceItem((), item) =
