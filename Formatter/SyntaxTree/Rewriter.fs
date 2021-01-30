@@ -7,87 +7,129 @@ open QsFmt.Formatter.Utils
 /// </summary>
 /// <typeparam name="context">The type of the context to use during recursive descent into the syntax tree.</typeparam>
 type internal 'context Rewriter() =
-    /// Rewrites a document node.
+    /// <summary>
+    /// Rewrites a <see cref="Document"/> node.
+    /// </summary>
     abstract Document: 'context * Document -> Document
 
-    /// Rewrites a namespace node.
+    /// <summary>
+    /// Rewrites a <see cref="Namespace"/> node.
+    /// </summary>
     abstract Namespace: 'context * Namespace -> Namespace
 
-    /// Rewrites a namespace item node.
+    /// <summary>
+    /// Rewrites a <see cref="NamespaceItem"/> node.
+    /// </summary>
     abstract NamespaceItem: 'context * NamespaceItem -> NamespaceItem
 
-    /// Rewrites a callable declaration node.
+    /// <summary>
+    /// Rewrites a <see cref="CallableDeclaration"/> node.
+    /// </summary>
     abstract CallableDeclaration: 'context * CallableDeclaration -> CallableDeclaration
 
-    /// Rewrites a type node.
+    /// <summary>
+    /// Rewrites a <see cref="Type"/> node.
+    /// </summary>
     abstract Type: 'context * Type -> Type
 
-    /// Rewrites a type annotation node.
+    /// <summary>
+    /// Rewrites a <see cref="TypeAnnotation"/> node.
+    /// </summary>
     abstract TypeAnnotation: 'context * TypeAnnotation -> TypeAnnotation
 
-    /// Rewrites an array type node.
+    /// <summary>
+    /// Rewrites an <see cref="ArrayType"/> node.
+    /// </summary>
     abstract ArrayType: 'context * ArrayType -> ArrayType
 
-    /// Rewrites a callable type node.
+    /// <summary>
+    /// Rewrites a <see cref="CallableType"/> node.
+    /// </summary>
     abstract CallableType: 'context * CallableType -> CallableType
 
-    /// Rewrites a callable characteristic section node.
+    /// <summary>
+    /// Rewrites a <see cref="CharacteristicSection"/> node.
+    /// </summary>
     abstract CharacteristicSection: 'context * CharacteristicSection -> CharacteristicSection
 
-    /// Rewrites a parenthesized characteristic node.
+    /// <summary>
+    /// Rewrites a <see cref="CharacteristicGroup"/> node.
+    /// </summary>
     abstract CharacteristicGroup: 'context * CharacteristicGroup -> CharacteristicGroup
 
-    /// Rewrites a characteristic node.
+    /// <summary>
+    /// Rewrites a <see cref="Characteristic"/> node.
+    /// </summary>
     abstract Characteristic: 'context * Characteristic -> Characteristic
 
-    /// Rewrites a statement node.
+    /// <summary>
+    /// Rewrites a <see cref="Statement"/> node.
+    /// </summary>
     abstract Statement: 'context * Statement -> Statement
 
     /// <summary>
-    /// Rewrites a <c>let</c> statement node.
+    /// Rewrites a <see cref="Let"/> statement node.
     /// </summary>
     abstract Let: 'context * Let -> Let
 
     /// <summary>
-    /// Rewrites a <c>return</c> statement node.
+    /// Rewrites a <see cref="Return"/> statement node.
     /// </summary>
     abstract Return: 'context * Return -> Return
 
     /// <summary>
-    /// Rewrites an <c>if</c> statement node.
+    /// Rewrites an <see cref="If"/> statement node.
     /// </summary>
     abstract If: 'context * If -> If
 
     /// <summary>
-    /// Rewrites an <c>else</c> statement node.
+    /// Rewrites an <see cref="Else"/> statement node.
     /// </summary>
     abstract Else: 'context * Else -> Else
 
-    /// Rewrites a symbol binding node.
+    /// <summary>
+    /// Rewrites a <see cref="SymbolBinding"/> node.
+    /// </summary>
     abstract SymbolBinding: 'context * SymbolBinding -> SymbolBinding
 
-    /// Rewrites a symbol declaration node.
+    /// <summary>
+    /// Rewrites a <see cref="SymbolDeclaration"/> node.
+    /// </summary>
     abstract SymbolDeclaration: 'context * SymbolDeclaration -> SymbolDeclaration
 
-    /// Rewrites an expression node.
+    /// <summary>
+    /// Rewrites an <see cref="Expression"/> node.
+    /// </summary>
     abstract Expression: 'context * Expression -> Expression
 
-    /// Rewrites a copy-and-update expression node.
+    /// <summary>
+    /// Rewrites an <see cref="Update"/> expression node.
+    /// </summary>
     abstract Update: 'context * Update -> Update
 
-    /// Rewrites a block node, given a rewriter for the block contents.
+    /// <summary>
+    /// Rewrites a <see cref="Block{a}"/> node, given a rewriter for the block contents.
+    /// </summary>
     abstract Block: 'context * ('context * 'a -> 'a) * 'a Block -> 'a Block
 
-    /// Rewrites a tuple node, given a rewriter for the tuple contents.
+    /// <summary>
+    /// Rewrites a <see cref="Tuple{a}"/> node, given a rewriter for the tuple contents.
+    /// </summary>
     abstract Tuple: 'context * ('context * 'a -> 'a) * 'a Tuple -> 'a Tuple
 
-    /// Rewrites a sequence item node, given a rewriter for the sequence items.
+    /// <summary>
+    /// Rewrites a <see cref="SequenceItem{a}"/> node, given a rewriter for the sequence items.
+    /// </summary>
     abstract SequenceItem: 'context * ('context * 'a -> 'a) * 'a SequenceItem -> 'a SequenceItem
 
-    /// Rewrites a binary operator node, given a rewriter for the operands.
+    /// <summary>
+    /// Rewrites a <see cref="BinaryOperator{a}"/> node, given a rewriter for the operands.
+    /// </summary>
     abstract BinaryOperator: 'context * ('context * 'a -> 'a) * 'a BinaryOperator -> 'a BinaryOperator
 
-    /// Rewrites a terminal node.
+    /// <summary>
+    /// Rewrites a <see cref="Terminal"/> node.
+    /// </summary>
     abstract Terminal: 'context * Terminal -> Terminal
 
     default rewriter.Document(context, document) =

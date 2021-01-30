@@ -4,7 +4,8 @@ open QsFmt.Formatter.SyntaxTree
 open QsFmt.Parser
 
 /// <summary>
-/// Creates syntax tree symbol binding nodes for callable parameters from a parse tree and the list of tokens.
+/// Creates syntax tree <see cref="SymbolBinding"/> nodes for callable parameters from a parse tree and the list of
+/// tokens.
 /// </summary>
 type private ParameterVisitor(tokens) =
     inherit QSharpParserBaseVisitor<SymbolBinding>()
@@ -38,7 +39,7 @@ type private ParameterVisitor(tokens) =
         |> SymbolTuple
 
 /// <summary>
-/// Creates syntax tree namespace nodes from a parse tree and the list of tokens.
+/// Creates syntax tree <see cref="NamespaceItem"/> nodes from a parse tree and the list of tokens.
 /// </summary>
 type private NamespaceItemVisitor(tokens) =
     inherit QSharpParserBaseVisitor<NamespaceItem>()
@@ -69,9 +70,14 @@ type private NamespaceItemVisitor(tokens) =
                 CloseBrace = scope.closeBrace |> Node.toTerminal tokens } }
         |> CallableDeclaration
 
-/// Constructors for syntax tree namespace and document nodes.
+/// <summary>
+/// Constructors for syntax tree <see cref="Namespace"/> and <see cref="Document"/> nodes.
+/// </summary>
 module internal Namespace =
-    /// Creates a syntax tree namespace node from the parse tree namespace node and the list of tokens.
+    /// <summary>
+    /// Creates a syntax tree <see cref="Namespace"/> node from the parse tree
+    /// <see cref="QSharpParser.NamespaceContext"/> node and the list of tokens.
+    /// </summary>
     let private toNamespace tokens (context: QSharpParser.NamespaceContext) =
         let visitor = NamespaceItemVisitor tokens
 
@@ -87,7 +93,10 @@ module internal Namespace =
                     |> List.ofSeq
                 CloseBrace = context.closeBrace |> Node.toTerminal tokens } }
 
-    /// Creates a syntax tree document node from the parse tree namespace node and the list of tokens.
+    /// <summary>
+    /// Creates a syntax tree <see cref="Document"/> node from the parse tree <see cref="QSharpParser.DocumentContext"/>
+    /// node and the list of tokens.
+    /// </summary>
     let toDocument tokens (context: QSharpParser.DocumentContext) =
         let namespaces =
             context.``namespace`` ()

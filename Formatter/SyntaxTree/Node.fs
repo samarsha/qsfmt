@@ -29,7 +29,7 @@ type internal Trivia =
 
 module internal Trivia =
     /// <summary>
-    /// A trivia node containing <paramref name="count"/> number of space characters.
+    /// A <see cref="Trivia"/> node containing <paramref name="count"/> number of space characters.
     /// </summary>
     let spaces count =
         String.replicate count " "
@@ -57,7 +57,7 @@ module internal Trivia =
         else None
 
     /// <summary>
-    /// Converts a string into a list of trivia nodes.
+    /// Converts a string into a list of <see cref="Trivia"/> nodes.
     /// </summary>
     /// <exception cref="System.Exception">The string contains invalid trivia.</exception>
     let rec ofString =

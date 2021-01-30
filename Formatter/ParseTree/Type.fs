@@ -4,7 +4,7 @@ open QsFmt.Formatter.SyntaxTree
 open QsFmt.Parser
 
 /// <summary>
-/// Creates syntax tree type nodes from a parse tree and the list of tokens.
+/// Creates syntax tree <see cref="Type"/> nodes from a parse tree and the list of tokens.
 /// </summary>
 type internal TypeVisitor(tokens) =
     inherit QSharpParserBaseVisitor<Type>()

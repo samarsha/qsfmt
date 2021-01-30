@@ -14,87 +14,129 @@ type internal 'result Reducer() as reducer =
     /// Combines two results into a single result.
     abstract Combine: 'result * 'result -> 'result
 
-    /// Reduces a document node.
+    /// <summary>
+    /// Reduces a <see cref="Document"/> node.
+    /// </summary>
     abstract Document: Document -> 'result
 
-    /// Reduces a namespace node.
+    /// <summary>
+    /// Reduces a <see cref="Namespace"/> node.
+    /// </summary>
     abstract Namespace: Namespace -> 'result
 
-    /// Reduces a namespace item node.
+    /// <summary>
+    /// Reduces a <see cref="NamespaceItem"/> node.
+    /// </summary>
     abstract NamespaceItem: NamespaceItem -> 'result
 
-    /// Reduces a callable declaration node.
+    /// <summary>
+    /// Reduces a <see cref="CallableDeclaration"/> node.
+    /// </summary>
     abstract CallableDeclaration: CallableDeclaration -> 'result
 
-    /// Reduces a type node.
+    /// <summary>
+    /// Reduces a <see cref="Type"/> node.
+    /// </summary>
     abstract Type: Type -> 'result
 
-    /// Reduces a type annotation node.
+    /// <summary>
+    /// Reduces a <see cref="TypeAnnotation"/> node.
+    /// </summary>
     abstract TypeAnnotation: TypeAnnotation -> 'result
 
-    /// Reduces an array type node.
+    /// <summary>
+    /// Reduces an <see cref="ArrayType"/> node.
+    /// </summary>
     abstract ArrayType: ArrayType -> 'result
 
-    /// Reduces a callable type node.
+    /// <summary>
+    /// Reduces a <see cref="CallableType"/> node.
+    /// </summary>
     abstract CallableType: CallableType -> 'result
 
-    /// Reduces a callable characteristic section node.
+    /// <summary>
+    /// Reduces a <see cref="CharacteristicSection"/> node.
+    /// </summary>
     abstract CharacteristicSection: CharacteristicSection -> 'result
 
-    /// Reduces a parenthesized characteristic node.
+    /// <summary>
+    /// Reduces a <see cref="CharacteristicGroup"/> node.
+    /// </summary>
     abstract CharacteristicGroup: CharacteristicGroup -> 'result
 
-    /// Reduces a characteristic node.
+    /// <summary>
+    /// Reduces a <see cref="Characteristic"/> node.
+    /// </summary>
     abstract Characteristic: Characteristic -> 'result
 
-    /// Reduces a statement node.
+    /// <summary>
+    /// Reduces a <see cref="Statement"/> node.
+    /// </summary>
     abstract Statement: Statement -> 'result
 
     /// <summary>
-    /// Reduces a <c>let</c> statement node.
+    /// Reduces a <see cref="Let"/> statement node.
     /// </summary>
     abstract Let: Let -> 'result
 
     /// <summary>
-    /// Reduces a <c>return</c> statement node.
+    /// Reduces a <see cref="Return"/> statement node.
     /// </summary>
     abstract Return: Return -> 'result
 
     /// <summary>
-    /// Reduces an <c>if</c> statement node.
+    /// Reduces an <see cref="If"/> statement node.
     /// </summary>
     abstract If: If -> 'result
 
     /// <summary>
-    /// Reduces an <c>else</c> statement node.
+    /// Reduces an <see cref="Else"/> statement node.
     /// </summary>
     abstract Else: Else -> 'result
 
-    /// Reduces a symbol binding node.
+    /// <summary>
+    /// Reduces a <see cref="SymbolBinding"/> node.
+    /// </summary>
     abstract SymbolBinding: SymbolBinding -> 'result
 
-    /// Reduces a symbol declaration node.
+    /// <summary>
+    /// Reduces a <see cref="SymbolDeclaration"/> node.
+    /// </summary>
     abstract SymbolDeclaration: SymbolDeclaration -> 'result
 
-    /// Reduces an expression node.
+    /// <summary>
+    /// Reduces an <see cref="Expression"/> node.
+    /// </summary>
     abstract Expression: Expression -> 'result
 
-    /// Reduces a copy-and-update expression node.
+    /// <summary>
+    /// Reduces an <see cref="Update"/> expression node.
+    /// </summary>
     abstract Update: Update -> 'result
 
-    /// Reduces a block node, given a reducer for the block contents.
+    /// <summary>
+    /// Reduces a <see cref="Block{a}"/> node, given a rewriter for the block contents.
+    /// </summary>
     abstract Block: ('a -> 'result) * 'a Block -> 'result
 
-    /// Reduces a tuple node, given a reducer for the tuple contents.
+    /// <summary>
+    /// Reduces a <see cref="Tuple{a}"/> node, given a rewriter for the tuple contents.
+    /// </summary>
     abstract Tuple: ('a -> 'result) * 'a Tuple -> 'result
 
-    /// Reduces a sequence item node, given a reducer for the sequence items.
+    /// <summary>
+    /// Reduces a <see cref="SequenceItem{a}"/> node, given a rewriter for the sequence items.
+    /// </summary>
     abstract SequenceItem: ('a -> 'result) * 'a SequenceItem -> 'result
 
-    /// Reduces a binary operator node, given a reducer for the operands.
+    /// <summary>
+    /// Reduces a <see cref="BinaryOperator{a}"/> node, given a rewriter for the operands.
+    /// </summary>
     abstract BinaryOperator: ('a -> 'result) * 'a BinaryOperator -> 'result
 
-    /// Reduces a terminal node.
+    /// <summary>
+    /// Reduces a <see cref="Terminal"/> node.
+    /// </summary>
     abstract Terminal: Terminal -> 'result
 
     default _.Document document =

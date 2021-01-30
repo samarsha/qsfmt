@@ -22,7 +22,8 @@ let private hiddenTokensBefore (tokens: IToken ImmutableArray) index =
     |> Seq.rev
 
 /// <summary>
-/// The trivia tokens that occur before the token with the given <paramref name="index"/> in <paramref name="tokens"/>.
+/// The <see cref="Trivia"/> tokens that occur before the token with the given <paramref name="index"/> in
+/// <paramref name="tokens"/>.
 /// </summary>
 let prefix tokens index =
     hiddenTokensBefore tokens index
@@ -31,15 +32,15 @@ let prefix tokens index =
     |> Trivia.ofString
 
 /// <summary>
-/// Creates a syntax tree terminal node from the given parse tree <paramref name="terminal"/>.
+/// Creates a syntax tree <see cref="Terminal"/> node from the given parse tree <paramref name="terminal"/>.
 /// </summary>
 let toTerminal tokens (terminal: IToken) =
     { Prefix = prefix tokens terminal.TokenIndex
       Text = terminal.Text }
 
 /// <summary>
-/// Creates a syntax tree terminal node from the given parse tree <paramref name="node"/> that represents unknown or not
-/// yet supported syntax.
+/// Creates a syntax tree <see cref="Terminal"/> node from the given parse tree <paramref name="node"/> that represents
+/// unknown or not yet supported syntax.
 /// </summary>
 let toUnknown (tokens: IToken ImmutableArray) (node: IRuleNode) =
     let text =
